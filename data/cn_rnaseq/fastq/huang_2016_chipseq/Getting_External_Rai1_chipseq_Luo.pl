@@ -1,0 +1,1 @@
+/nfs/siwase2/GARAY/RAI1_DATA/LUO_CHIPSEQ/Getting_External_Rai1_chipseq_Luo.pl

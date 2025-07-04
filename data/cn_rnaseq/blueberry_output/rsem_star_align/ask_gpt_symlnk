@@ -1,0 +1,3 @@
+I have lots of file in /nfs/dataden/umms-siwase/SHIGEKI/rai1ko_hesc/data/blueberry_output/rsem_star_align. 
+Among those files, I would like to make symlinks for all files that have .sorted.bam in file names to /nfs/dataden/umms-siwase/SHIGEKI/UCSC_siwase/rai1ko_hesc/ 
+How can i do this with an bash script? 

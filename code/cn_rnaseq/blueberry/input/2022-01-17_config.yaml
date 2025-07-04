@@ -1,0 +1,179 @@
+#optional email config to send on run start/complete/error
+email:
+  subject: 2022-01-18_Rai1KO_mRNA-seq
+  to: siwase@umich.edu 
+
+# Either absolute dirs or relative to where you launch snakemake
+dirs:
+  input: /nfs/dataden/umms-siwase/SHIGEKI/rai1ko_hesc/code/blueberry/input/fastq
+  output: /nfs/dataden/umms-siwase/SHIGEKI/rai1ko_hesc/code/blueberry/output
+  reference: /nfs/dataden/umms-siwase/GENOME/HG38 # the reference folder that contains genome fasta file and gtf file
+
+# These files/dirs assumed to be inside reference dir specified above
+genome_reference:
+  fasta: hg38.fa
+  gtf: hg38.ncbiRefSeq.gtf
+  star:
+    # star genome will be built if it doesn't exist
+    genome_dir: rsem_star_genome
+    # sjdbOverhang is optional; will default to read_length - 1
+    #sjdbOverhang: 149
+
+sequencing_parameters:
+  read_length: 150
+  #strand_flag
+  # '--rf'    Assumes a stranded library fr-firststrand, e.g. Trueseq
+  # '--fr'    Assumes a stranded library fr-secondstrand
+  # ''        Leave blank if unstranded
+  strand_flag: '--rf'
+
+samples:
+  Rai1-het_d0_rep1:
+    - HYc1t1_1.fq.gz
+    - HYc1t1_2.fq.gz
+  Rai1-het_d0_rep2: 
+    - HYc1t1D_1.fq.gz
+    - HYc1t1D_2.fq.gz
+  Rai1-het_d20_rep1:
+    - HYc1t2_1.fq.gz
+    - HYc1t2_2.fq.gz
+  Rai1-het_d20_rep2:
+    - HYc1t2D_1.fq.gz
+    - HYc1t2D_2.fq.gz
+  Rai1-het_d34_rep1: 
+    - HYc1t3_1.fq.gz
+    - HYc1t3_2.fq.gz
+  Rai1-het_d34_rep2:
+    - HYc1t3D_1.fq.gz
+    - HYc1t3D_2.fq.gz
+  Rai1-het_d60_rep1:
+    - HYc1t4_1.fq.gz
+    - HYc1t4_2.fq.gz
+  Rai1-het_d60_rep2:
+    - HYc1t4D_1.fq.gz
+    - HYc1t4D_2.fq.gz
+  Rai1-het_d0_rep3:
+    - HYc2t1_1.fq.gz
+    - HYc2t1_2.fq.gz
+  Rai1-het_d0_rep4:
+    - HYc2t1D_1.fq.gz
+    - HYc2t1D_2.fq.gz
+  Rai1-het_d20_rep3:
+    - HYc2t2_1.fq.gz
+    - HYc2t2_2.fq.gz
+  Rai1-het_d20_rep4:
+    - HYc2t2D_1.fq.gz
+    - HYc2t2D_2.fq.gz
+  Rai1-het_d34_rep3:
+    - HYc2t3_1.fq.gz
+    - HYc2t3_2.fq.gz
+  Rai1-het_d34_rep4:
+    - HYc2t3D_1.fq.gz
+    - HYc2t3D_2.fq.gz
+  Rai1-het_d60_rep3:
+    - HYc2t4_1.fq.gz
+    - HYc2t4_2.fq.gz
+  Rai1-het_d60_rep4:
+    - HYc2t4D_1.fq.gz
+    - HYc2t4D_2.fq.gz
+  Rai1-ko_d0_rep1:
+    - KOc1t1_1.fq.gz
+    - KOc1t1_2.fq.gz
+  Rai1-ko_d0_rep2:
+    - KOc1t1D_1.fq.gz
+    - KOc1t1D_2.fq.gz
+  Rai1-ko_d20_rep1:
+    - KOc1t2_1.fq.gz
+    - KOc1t2_2.fq.gz
+  Rai1-ko_d20_rep2:
+    - KOc1t2D_1.fq.gz
+    - KOc1t2D_2.fq.gz
+  Rai1-ko_d34_rep1:
+    - KOc1t3_1.fq.gz
+    - KOc1t3_2.fq.gz
+  Rai1-ko_d34_rep2:
+    - KOc1t3D_1.fq.gz
+    - KOc1t3D_2.fq.gz
+  Rai1-ko_d60_rep1:
+    - KOc1t4_1.fq.gz
+    - KOc1t4_2.fq.gz
+  Rai1-ko_d60_rep2:
+    - KOc1t4D_1.fq.gz
+    - KOc1t4D_2.fq.gz
+  Rai1-ko_d0_rep3:
+    - KOc2t1_1.fq.gz
+    - KOc2t1_2.fq.gz
+  Rai1-ko_d0_rep4:
+    - KOc2t1D_1.fq.gz
+    - KOc2t1D_2.fq.gz
+  Rai1-ko_d20_rep3:
+    - KOc2t2_1.fq.gz
+    - KOc2t2_2.fq.gz
+  Rai1-ko_d20_rep4:
+    - KOc2t2D_1.fq.gz
+    - KOc2t2D_2.fq.gz
+  Rai1-ko_d34_rep3:
+    - KOc2t3_1.fq.gz
+    - KOc2t3_2.fq.gz
+  Rai1-ko_d34_rep4:
+    - KOc2t3D_1.fq.gz
+    - KOc2t3D_2.fq.gz
+  Rai1-ko_d60_rep3:
+    - KOc2t4_1.fq.gz
+    - KOc2t4_2.fq.gz
+  Rai1-ko_d60_rep4:
+    - KOc2t4D_1.fq.gz
+    - KOc2t4D_2.fq.gz
+  Rai1-wt_d0_rep1:
+    - WTc1t1_1.fq.gz
+    - WTc1t1_2.fq.gz
+  Rai1-wt_d0_rep2:
+    - WTc1t1D_1.fq.gz
+    - WTc1t1D_2.fq.gz
+  Rai1-wt_d20_rep1:
+    - WTc1t2_1.fq.gz
+    - WTc1t2_2.fq.gz
+  Rai1-wt_d20_rep2:
+    - WTc1t2D_1.fq.gz
+    - WTc1t2D_2.fq.gz
+  Rai1-wt_d34_rep1:
+    - WTc1t3_1.fq.gz
+    - WTc1t3_2.fq.gz
+  Rai1-wt_d34_rep2:
+    - WTc1t3D_1.fq.gz
+    - WTc1t3D_2.fq.gz
+  Rai1-wt_d60_rep1:
+    - WTc1t4_1.fq.gz
+    - WTc1t4_2.fq.gz
+  Rai1-wt_d60_rep2:
+    - WTc1t4D_1.fq.gz
+    - WTc1t4D_2.fq.gz
+  Rai1-wt_d0_rep3:
+    - WTc2t1_1.fq.gz
+    - WTc2t1_2.fq.gz
+  Rai1-wt_d0_rep4:
+    - WTc2t1D_1.fq.gz
+    - WTc2t1D_2.fq.gz
+  Rai1-wt_d20_rep3:
+    - WTc2t2_1.fq.gz
+    - WTc2t2_2.fq.gz
+  Rai1-wt_d20_rep4:
+    - WTc2t2D_1.fq.gz
+    - WTc2t2D_2.fq.gz
+  Rai1-wt_d34_rep3:
+    - WTc2t3_1.fq.gz
+    - WTc2t3_2.fq.gz
+  Rai1-wt_d34_rep4:
+    - WTc2t3D_1.fq.gz
+    - WTc2t3D_2.fq.gz
+  Rai1-wt_d60_rep3:
+    - WTc2t4_1.fq.gz
+    - WTc2t4_2.fq.gz
+  Rai1-wt_d60_rep4:
+    - WTc2t4D_1.fq.gz
+    - WTc2t4D_2.fq.gz
+
+# - SampleC
+email:
+  subject: 2020-10-29_Takao_Bru-seq
+  to: siwase@umich.edu 

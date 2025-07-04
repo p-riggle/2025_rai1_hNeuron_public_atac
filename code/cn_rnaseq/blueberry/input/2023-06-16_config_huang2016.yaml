@@ -1,0 +1,48 @@
+#optional email config to send on run start/complete/error
+email:
+  subject: 2023-06-16_huang2016rnaseq
+  to: siwase@umich.edu 
+
+# Either absolute dirs or relative to where you launch snakemake
+dirs:
+  input: /nfs/dataden/umms-siwase/SHIGEKI/rai1ko_hesc/data/fastq/huang_2016_rnaseq
+  output: /nfs/dataden/umms-siwase/SHIGEKI/rai1ko_hesc/data/blueberry_huang2016rnaseq
+  reference: /nfs/dataden/umms-siwase/GENOME/MM39 # the reference folder that contains genome fasta file and gtf file
+
+# These files/dirs assumed to be inside reference dir specified above
+genome_reference:
+  fasta: mm39.fa
+  gtf: gencode.vM32.chr_patch_hapl_scaff.annotation.gtf
+  star:
+    # star genome will be built if it doesn't exist
+    genome_dir: rsem_star_genome
+    # sjdbOverhang is optional; will default to read_length - 1
+    # sjdbOverhang: 149
+
+sequencing_parameters:
+  read_length: 100
+  #strand_flag
+  # '--rf'    Assumes a stranded library fr-firststrand, e.g. Trueseq
+  # '--fr'    Assumes a stranded library fr-secondstrand
+  # ''        Leave blank if unstranded
+  strand_flag: '--rf'
+
+samples:
+  rai1-wt_rep1:
+    - SRR3480213_1.fastq.gz
+    - SRR3480213_2.fastq.gz
+  rai1-wt_rep2: 
+    - SRR3480214_1.fastq.gz
+    - SRR3480214_2.fastq.gz
+  rai1-cko_rep1:
+    - SRR3480215_1.fastq.gz
+    - SRR3480215_2.fastq.gz
+  rai1-cko_rep2:
+    - SRR3480216_1.fastq.gz
+    - SRR3480216_2.fastq.gz
+
+
+# - SampleC
+email:
+  subject: 2020-10-29_Takao_Bru-seq
+  to: siwase@umich.edu 

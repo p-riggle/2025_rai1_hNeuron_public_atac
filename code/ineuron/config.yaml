@@ -1,0 +1,111 @@
+samples: #change according to your samples
+    wt_day0_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-1.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-1.genome.bai"
+    wt_day0_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-2.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-2.genome.bai"
+    wt_day0_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-3.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-3.genome.bai"
+    wt_day0_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-4.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-4.genome.bai"
+    ko_day0_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-5.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-5.genome.bai"
+    ko_day0_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-6.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-6.genome.bai"
+    ko_day0_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-7.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-7.genome.bai"
+    ko_day0_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-8.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-8.genome.bai"
+    het_day0_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-9.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-9.genome.bai"
+    het_day0_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-10.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-10.genome.bai"
+    het_day0_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-11.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-11.genome.bai"
+    het_day0_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-12.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-12.genome.bai"
+    wt_day3_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-13.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-13.genome.bai" 
+    wt_day3_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-14.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-14.genome.bai"
+    wt_day3_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-15.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-15.genome.bai" 
+    wt_day3_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-16.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-16.genome.bai" 
+    ko_day3_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-17.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-17.genome.bai"
+    ko_day3_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-18.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-18.genome.bai"
+    ko_day3_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-19.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-19.genome.bai"
+    ko_day3_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-20.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-20.genome.bai"
+    het_day3_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-21.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-21.genome.bai"
+    het_day3_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-22.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-22.genome.bai"
+    het_day3_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-23.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-23.genome.bai"
+    het_day3_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-24.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-24.genome.bai"
+    wt_day7_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-25.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-25.genome.bai"
+    wt_day7_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-26.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-26.genome.bai"
+    wt_day7_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-27.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-27.genome.bai"
+    wt_day7_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-28.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-28.genome.bai"
+    ko_day7_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-29.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-29.genome.bai"
+    ko_day7_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-30.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-30.genome.bai"
+    ko_day7_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-31.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-31.genome.bai"
+    ko_day7_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-32.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-32.genome.bai"
+    het_day7_s1:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-33.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-33.genome.bai"
+    het_day7_s2:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-34.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-34.genome.bai"
+    het_day7_s3:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-35.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-35.genome.bai"    
+    het_day7_s4:
+        bam: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-36.genome.bam"
+        bai: "data/RNAseq_analysis_11876-BZ/alignment/aligned_bams/11876-BZ-36.genome.bai"
+        
+    

@@ -1,0 +1,147 @@
+
+samples: #change according to your samples
+    wt_day0_rep1:
+        bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep1.genome.sorted.bam"
+        bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep1.genome.sorted.bam.bai"
+    wt_day0_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep2.genome.sorted.bam.bai"
+    wt_day0_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep3.genome.sorted.bam.bai"
+    wt_day0_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d0_rep4.genome.sorted.bam.bai"
+    ko_day0_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep1.genome.sorted.bam.bai"
+    ko_day0_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep2.genome.sorted.bam.bai"
+    ko_day0_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep3.genome.sorted.bam.bai"
+    ko_day0_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d0_rep4.genome.sorted.bam.bai"
+    het_day0_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep1.genome.sorted.bam.bai"
+    het_day0_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep2.genome.sorted.bam.bai"
+    het_day0_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep3.genome.sorted.bam.bai"
+    het_day0_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d0_rep4.genome.sorted.bam.bai"
+    wt_day20_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep1.genome.sorted.bam.bai"
+    wt_day20_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep2.genome.sorted.bam.bai"
+    wt_day20_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep3.genome.sorted.bam.bai"
+    wt_day20_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d20_rep4.genome.sorted.bam.bai"
+    ko_day20_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep1.genome.sorted.bam.bai"
+    ko_day20_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep2.genome.sorted.bam.bai"
+    ko_day20_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep3.genome.sorted.bam.bai"
+    ko_day20_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d20_rep4.genome.sorted.bam.bai"
+    het_day20_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep1.genome.sorted.bam.bai"
+    het_day20_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep2.genome.sorted.bam.bai"
+    het_day20_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep3.genome.sorted.bam.bai"
+    het_day20_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d20_rep4.genome.sorted.bam.bai"
+    wt_day34_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep1.genome.sorted.bam.bai"
+    wt_day34_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep2.genome.sorted.bam.bai"
+    wt_day34_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep3.genome.sorted.bam.bai"
+    wt_day34_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d34_rep4.genome.sorted.bam.bai"
+    ko_day34_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep1.genome.sorted.bam.bai"
+    ko_day34_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep2.genome.sorted.bam.bai"
+    ko_day34_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep3.genome.sorted.bam.bai"
+    ko_day34_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d34_rep4.genome.sorted.bam.bai"
+    het_day34_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep1.genome.sorted.bam.bai"
+    het_day34_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep2.genome.sorted.bam.bai"
+    het_day34_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep3.genome.sorted.bam.bai"
+    het_day34_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d34_rep4.genome.sorted.bam.bai"
+    wt_day60_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep1.genome.sorted.bam.bai"
+    wt_day60_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep2.genome.sorted.bam.bai"
+    wt_day60_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep3.genome.sorted.bam.bai"
+    wt_day60_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-wt_d60_rep4.genome.sorted.bam.bai"
+    ko_day60_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep1.genome.sorted.bam.bai"
+    ko_day60_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep2.genome.sorted.bam.bai"
+    ko_day60_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep3.genome.sorted.bam.bai"
+    ko_day60_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-ko_d60_rep4.genome.sorted.bam.bai"
+    het_day60_rep1:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep1.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep1.genome.sorted.bam.bai"
+    het_day60_rep2:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep2.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep2.genome.sorted.bam.bai"
+    het_day60_rep3:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep3.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep3.genome.sorted.bam.bai"
+    het_day60_rep4:
+      bam: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep4.genome.sorted.bam"
+      bai: "data/blueberry_output/rsem_star_align/Rai1-het_d60_rep4.genome.sorted.bam.bai"
+    

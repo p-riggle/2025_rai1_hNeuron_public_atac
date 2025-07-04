@@ -1,0 +1,60 @@
+#optional email config to send on run start/complete/error
+email:
+  subject: 2023-06-16_huang2016rnaseq
+  to: siwase@umich.edu 
+
+# Either absolute dirs or relative to where you launch snakemake
+dirs:
+  input: /nfs/dataden/umms-siwase/SHIGEKI/rai1ko_hesc/data/fastq/kaster_2023_rnaseq
+  output: /nfs/dataden/umms-siwase/SHIGEKI/rai1ko_hesc/data/blueberry_Kaster2023rnaseq  
+  reference: /nfs/dataden/umms-siwase/GENOME/MM39 # the reference folder that contains genome fasta file and gtf file
+
+# These files/dirs assumed to be inside reference dir specified above
+genome_reference:
+  fasta: mm39.fa
+  gtf: gencode.vM32.chr_patch_hapl_scaff.annotation.gtf
+  star:
+    # star genome will be built if it doesn't exist
+    genome_dir: rsem_star_genome
+    # sjdbOverhang is optional; will default to read_length - 1
+    # sjdbOverhang: 149
+
+sequencing_parameters:
+  read_length: 50
+  #strand_flag
+  # '--rf'    Assumes a stranded library fr-firststrand, e.g. Trueseq
+  # '--fr'    Assumes a stranded library fr-secondstrand
+  # ''        Leave blank if unstranded
+  strand_flag: ''
+
+samples:
+  rai1-ko_clone2_d12:
+    - ERR5900090.fastq.gz
+  rai1-ko_clone4_d12: 
+    - ERR5900091.fastq.gz
+  rai1-ko_clone6_d12: 
+    - ERR5900092.fastq.gz
+  rai1-ko_clone2_d8: 
+    - ERR5900093.fastq.gz
+  rai1-ko_clone4_d8: 
+    - ERR5900094.fastq.gz
+  rai1-ko_clone6_d8: 
+    - ERR5900095.fastq.gz
+  wt_clone1_d12: 
+    - ERR5900096.fastq.gz
+  wt_clone5_d12: 
+    - ERR5900097.fastq.gz
+  wt_clone8_d12: 
+    - ERR5900098.fastq.gz
+  wt_clone1_d8: 
+    - ERR5900099.fastq.gz
+  wt_clone5_d8: 
+    - ERR5900100.fastq.gz
+  wt_clone8_d8: 
+    - ERR5900101.fastq.gz
+
+
+# - SampleC
+email:
+  subject: 2020-10-29_Takao_Bru-seq
+  to: siwase@umich.edu 
