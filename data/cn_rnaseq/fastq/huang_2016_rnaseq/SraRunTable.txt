@@ -1,0 +1,9 @@
+Run,Age,Assay Type,AvgSpotLen,Bases,BioProject,BioSample,Bytes,Center Name,Consent,DATASTORE filetype,DATASTORE provider,DATASTORE region,Experiment,Generation,genotype/variation,GEO_Accession (exp),Instrument,LibraryLayout,LibrarySelection,LibrarySource,Organism,Platform,ReleaseDate,create_date,version,Sample Name,source_name,SRA Study,Strain,Tissue
+
+SRR3480213,3 weeks,RNA-Seq,200,8170493000,PRJNA320889,SAMN04958854,4336009662,GEO,public,"sra,fastq,run.zq","s3,ncbi,gs","s3.us-east-1,ncbi.public,gs.US",SRX1745591,F1,wild type,GSM2144682,Illumina HiSeq 2500,PAIRED,cDNA,TRANSCRIPTOMIC,Mus musculus,ILLUMINA,2017-01-03T00:00:00Z,2016-05-06T17:20:00Z,1,GSM2144682,Cortex-3wks-WT,SRP074487,B6/FVB,Cortex
+
+SRR3480214,3 weeks,RNA-Seq,200,9246330400,PRJNA320889,SAMN04958855,4967506136,GEO,public,"sra,fastq,run.zq","gs,ncbi,s3","s3.us-east-1,gs.US,ncbi.public",SRX1745592,F1,wild type,GSM2144683,Illumina HiSeq 2500,PAIRED,cDNA,TRANSCRIPTOMIC,Mus musculus,ILLUMINA,2017-01-03T00:00:00Z,2016-05-06T17:21:00Z,1,GSM2144683,Cortex-3wks-WT,SRP074487,B6/FVB,Cortex
+
+SRR3480215,3 weeks,RNA-Seq,200,6289872000,PRJNA320889,SAMN04958856,3320083380,GEO,public,"run.zq,sra,fastq","ncbi,gs,s3","s3.us-east-1,ncbi.public,gs.US",SRX1745593,F1,Nestin-Cre;Rai1CKO,GSM2144684,Illumina HiSeq 2500,PAIRED,cDNA,TRANSCRIPTOMIC,Mus musculus,ILLUMINA,2017-01-03T00:00:00Z,2016-05-06T17:13:00Z,1,GSM2144684,Cortex-3wks-Rai1-KO,SRP074487,B6/FVB,Cortex
+
+SRR3480216,3 weeks,RNA-Seq,200,8539046600,PRJNA320889,SAMN04958857,4530212942,GEO,public,"sra,run.zq,fastq","gs,ncbi,s3","ncbi.public,s3.us-east-1,gs.US",SRX1745594,F1,Nestin-Cre;Rai1CKO,GSM2144685,Illumina HiSeq 2500,PAIRED,cDNA,TRANSCRIPTOMIC,Mus musculus,ILLUMINA,2017-01-03T00:00:00Z,2016-05-06T17:18:00Z,1,GSM2144685,Cortex-3wks-Rai1-KO,SRP074487,B6/FVB,Cortex

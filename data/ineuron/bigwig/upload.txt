@@ -1,0 +1,144 @@
+track type=bigWig name="het_day0_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day0_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day0_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day0_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day0_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day0_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day0_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day0_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day0_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day3_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day3_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="het_day7_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/het_day7_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day0_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day0_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day3_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day3_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="ko_day7_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/ko_day7_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day0_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day0_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day3_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day3_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s1.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s1.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s1.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s1.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s2.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s2.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s2.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s2.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s3.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s3.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s3.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s3.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s4.fwd.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s4.fwd.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
+track type=bigWig name="wt_day7_s4.rev.bw" bigDataUrl=https://storage.googleapis.com/siwase/rai1ko_hesc/ineuron/wt_day7_s4.rev.bw visibility=full color=57,204,96 autoScale=on alwaysZero=off gridDefault=off maxHeightPixels=60 graphType=bar viewLimits=0:5 windowingFunction=mean smoothingWindow=2
+
