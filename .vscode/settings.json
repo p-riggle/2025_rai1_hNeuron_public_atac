@@ -1,0 +1,5 @@
+{
+    "r.rpath.linux": "/sw/pkgs/arc/stacks/gcc/10.3.0/R/4.2.0/bin/R",
+    "r.rterm.linux": "/sw/pkgs/arc/stacks/gcc/10.3.0/R/4.2.0/bin/R",
+    "r.plot.useHttpgd": true
+}

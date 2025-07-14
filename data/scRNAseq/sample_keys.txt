@@ -1,0 +1,27 @@
+# This is copy pasted from conversation between Rebecca and Bo in Basecamp
+
+11534-BZ-2, BC001
+11534-BZ-4, BC002
+11534-BZ-6, BC003
+11534-BZ-7, BC004
+11534-BZ-10, BC005
+11534-BZ-12, BC006
+11534-BZ-14, BC007
+11534-BZ-16, BC008
+11534-BZ-18, BC009
+11534-BZ-20, BC010
+11534-BZ-22, BC011
+11534-BZ-24, BC012
+
+1.wtclone1day20
+2.wtclone2day20
+3.koclone1day20
+4.koclone2day20
+5.hetclone1day20
+6.hetclone2day20
+7.wtclone1day60
+8.wtclone2day60
+9.koclone1day60
+10.koclone2day60
+11.hetclone1day60
+12.hetclone2day60

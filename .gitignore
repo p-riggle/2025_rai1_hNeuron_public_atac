@@ -30,6 +30,6 @@ data/scRNAseq/10x_analysis_11534-BZ/*
 **/*.RData
 **/*.cloupe
 **/*.xls
+**/*.xlsx
 
-
-
+.Rproj.user
