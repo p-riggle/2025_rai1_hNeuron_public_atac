@@ -32,4 +32,6 @@ data/scRNAseq/10x_analysis_11534-BZ/*
 **/*.xls
 **/*.xlsx
 
+data/scRNAseq/iwaselab/*
+
 .Rproj.user

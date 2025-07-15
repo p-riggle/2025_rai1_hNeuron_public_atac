@@ -91,3 +91,9 @@ But first do cellular component analysis of hESC mRNAseq data for Sexton collabo
 # 2025.06.27
 - resumed the analysis!
 - Organized UCSC genome browser sessions
+
+# 2025.06.28
+- Asked Satabdi to make line plot of Ciceri CRs 
+
+# 2025.07.14
+- started scRNAseq data analysis

@@ -3,10 +3,10 @@
 # this script generates PCA plot and bar plot of DEgene numbers. 
 
 ## Load DEseq2 ####
-#if (!require("BiocManager", quietly = TRUE))
-#    install.packages("BiocManager")
+if (!require("BiocManager", quietly = TRUE))
+   install.packages("BiocManager")
 
-#BiocManager::install("DESeq2")
+BiocManager::install("DESeq2")
 library(DESeq2)
 
 #Load forestmngr to do rounding of numbers
