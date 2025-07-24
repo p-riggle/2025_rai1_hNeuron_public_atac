@@ -1,6 +1,6 @@
 # Q: Are differentiation marker genes expressed in an expacted ways?
 
-tpm <- read.delim("data/blueberry_output/combine_counts/gene_TPM.txt", header = TRUE, sep = "\t")
+tpm <- read.delim("data/cn_rnaseq/blueberry_output/combine_counts/gene_TPM.txt", header = TRUE, sep = "\t")
 head(tpm)
 colnames(tpm) <- gsub("Rai1.|.TPM|d", "", colnames(tpm))
 colnames(tpm)[1] <- "gene_id"
@@ -59,6 +59,7 @@ lineplot.het <- function(gene_name) {
 }
 
 rai1_het <- lineplot.het("RAI1")
+rai1_het
 
 # Stem cell marker
 library("ggpubr")
@@ -191,6 +192,7 @@ lineplot.ko <- function(gene_name) {
 }
 
 rai1_ko <- lineplot.ko("RAI1")
+rai1_ko
 
 # Stem cell marker
 library("ggpubr")
@@ -280,3 +282,7 @@ grid.arrange(
   heights = c(1, 1, 1)
 )
 dev.off()
+
+
+th_ko <- lineplot.ko("TH")
+th_ko

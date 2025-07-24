@@ -218,5 +218,222 @@ geo_so$percent.mt = PercentageFeatureSet(geo_so, pattern = '^MT-')
 # Use summary() to quickly check the range of values
 summary(geo_so$percent.mt)
 
+# Make a violin plot of percent.mt grouped by orig.ident
+VlnPlot(
+  object = geo_so,
+  features = "percent.mt",
+  group.by = "orig.ident",
+  layer = "count",
+  pt.size = 0 # Optional: Adjust point size for individual cells, set to 0 to hide them
+) +
+  ggtitle("Percent Mitochondria by Sample") + # Optional: Add a title
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Optional: Rotate x-axis labels for readability
+
+ggsave(filename = 'results/scRNAseq/1_qc/1_mt_violin.png',
+       width = 12, height = 6, units = 'in')
+
+# -------------------------------------------------------------------------
+# Consider excluding suspect cells
+subset(geo_so, subset = nFeature_RNA > 500 & percent.mt < 15)@meta.data %>% 
+  count(orig.ident, name = 'postfilter_cells')
+
+
+# -------------------------------------------------------------------------
+# Examine remaining cell counts
+cell_counts_post_tbl = geo_so@meta.data %>% count(orig.ident, name = 'postfilter_cells')
+cell_counts_post_tbl
+
+# -------------------------------------------------------------------------
+# Show cell counts before and after filtering
+cell_counts_tbl = cell_counts_pre_tbl %>% left_join(cell_counts_post_tbl, by = 'orig.ident')
+cell_counts_tbl
+
+# -------------------------------------------------------------------------
+write_csv(cell_counts_tbl, file = 'results/scRNAseq/1_qc/1_cell_filtering_counts.csv')
+
+# -------------------------------------------------------------------------
+# Save the current Seurat object
+saveRDS(geo_so, file = 'data/scRNAseq/iwaselab/rdata/geo_so_filtered.rds')
+
+# =========================================================================
+# Normalization
+# =========================================================================
+
+# -------------------------------------------------------------------------
+# readin the so 
+geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_filtered.rds')
+
+# Separate sample data into layers
+geo_so[['RNA']] = split(geo_so[['RNA']], f = geo_so$orig.ident)
+geo_so
+
+# -------------------------------------------------------------------------
+# Normalize the data with SCTransform
+geo_so = SCTransform(geo_so)
+geo_so
+
+# -------------------------------------------------------------------------
+# Save Seurat object
+saveRDS(geo_so, file = 'data/scRNAseq/iwaselab/rdata/geo_so_sct_normalized.rds')
+
+# =========================================================================
+# PCA and Integration
+# =========================================================================
+
+geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_normalized.rds')
+
+# Build a PCA and add it to the Seurat object
+geo_so = RunPCA(geo_so, reduction.name = 'unintegrated.sct.pca')
+geo_so
+
+# -------------------------------------------------------------------------
+# look at first PC alone first
+heatmap_1 <- DimHeatmap(geo_so, dims=1, cells=500, balanced=TRUE, fast = FALSE, reduction = 'unintegrated.sct.pca') # doesn't include which PC(s) are included in plot
+heatmap_1 + 
+  labs(title="PC1: top 30 genes x top 500 cells") + 
+  theme(plot.title = element_text(hjust = 0.5, face = "bold")) 
+
+# save to file
+ggsave(filename = 'results/scRNAseq/2_pca/1_top30.png',
+       width = 6, height = 4.5, units = 'in')
+#  -------------------------------------------------------
+# plot cell by gene heatmaps for larger set of dimensions
+DimHeatmap(geo_so, dims=1:18, cells=500, balanced=TRUE, combine = FALSE, reduction = 'unintegrated.sct.pca')
+
+# need to use png() to write to file because this isn't a ggplot
+png(filename = 'results/scRNAseq/2_pca/2_qc_pca_heatmap-pc1-18.png', width = 12, height = 30, units = 'in', res = 300)
+DimHeatmap(geo_so, dims=1:18, cells=500, balanced=TRUE, reduction = 'unintegrated.sct.pca')
+dev.off()
+# -------------------------------------------------------------------------
+# Visualize how many PCs to include using an elbow plot
+ElbowPlot(geo_so, ndims = 50, reduction = 'unintegrated.sct.pca')
+ggsave(filename = 'results/scRNAseq/2_pca/3_qc_sct_elbow_plot.png',
+       width = 8, height = 8, units = 'in')
+# -------------------------------------------------------------------------
+# Estimate the number of PCs to use for clustering with a function
+check_pcs = function(so, reduction) {
+  # quantitative check for number of PCs to include
+  pct = so@reductions[[reduction]]@stdev / sum(so@reductions[[reduction]]@stdev) * 100
+  cum = cumsum(pct)
+  co1 = which(cum > 90 & pct < 5)[1]
+  co2 = sort(which((pct[1:length(pct)-1] - pct[2:length(pct)]) > .1), decreasing = T)[1] + 1
+  pcs = min(co1, co2) 
+  
+  return(pcs)
+}
+
+# Apply function to our data
+pcs = check_pcs(geo_so, 'unintegrated.sct.pca')
+pcs
+
+pcs = 13 #rebecca used 19
+  # -------------------------------------------------------------------------
+str(geo_so@meta.data)
+  # Visualize PCA (PC1 and PC2, unintegrated)
+  # first label by sample
+  DimPlot(geo_so, reduction = 'unintegrated.sct.pca', group.by = 'genotype') 
+
+  ggsave(filename = 'results/scRNAseq/2_pca/4_qc_pca_plot_unintegrated_sct_genotype.png',
+         width = 7, height = 6, units = 'in')
+  
+  # then label by day, which looks more useful
+  DimPlot(geo_so, reduction = 'unintegrated.sct.pca', group.by = 'day')
+  
+  # save plot labeled by day
+  ggsave(filename = 'results/scRNAseq/2_pca/4_qc_pca_plot_unintegrated_sct_day.png',
+         width = 7, height = 6, units = 'in')
+  # =========================================================================
+  # Clustering and Projection
+  # =========================================================================
+  
+  # Create KNN graph for PCs with `FindNeighbors()`
+  geo_so = FindNeighbors(geo_so, dims = 1:pcs, reduction = 'unintegrated.sct.pca')
+  
+  # Then generate clusters
+  geo_so = FindClusters(geo_so,
+                        resolution = 0.4,
+                        cluster.name = 'unintegrated.sct.rpca.clusters')
+  
+  # look at meta.data to see cluster labels
+  head(geo_so@meta.data)
+
+  # -------------------------------------------------------------------------
+  # Create UMAP reduction
+  geo_so = RunUMAP(geo_so,
+                   dims = 1:pcs,
+                   reduction = 'unintegrated.sct.pca',
+                   reduction.name = 'umap.unintegrated.sct.rpca')
+  
+  
+  # Note a third reduction has been added: `umap.integrated.sct.rpca`
+  geo_so 
+  
+  # -------------------------------------------------------------------------
+  # Visualize UMAP clusters: ID labels
+  pre_integration_umap_plot_clusters = 
+    DimPlot(geo_so, 
+            group.by = 'seurat_clusters',
+            label = TRUE,
+            reduction = 'umap.unintegrated.sct.rpca') + 
+    NoLegend()
+  pre_integration_umap_plot_clusters
+  
+  ggsave(filename = 'results/scRNAseq/2_pca/5_umap_unintegrated_sct_clusters.png',
+         plot = pre_integration_umap_plot_clusters,
+         width = 6, height = 6, units = 'in')
+  # -------------------------------------------------------------------------
+  # Visualize UMAP clusters: clusters with labels, split by condition
+  pre_integration_umap_plot_split_clusters = 
+    DimPlot(geo_so,
+            group.by = 'seurat_clusters',
+            split.by = 'day',
+            label = TRUE,
+            reduction = 'umap.unintegrated.sct.rpca') + 
+    NoLegend()
+  pre_integration_umap_plot_split_clusters
+  
+  ggsave(filename = 'results/scRNAseq/2_pca/6_umap_unintegrated_sct_split_clusters.png',
+         plot = pre_integration_umap_plot_split_clusters, 
+         width = 14, height = 6, units = 'in')
+dev.off()  
+# -------------------------------------------------------------------------
+# Check mitochondrial gene expression
+percent_mito_plot = FeaturePlot(geo_so, features='percent.mt')
+
+percent_mito_plot
+# save to file
+ggsave(filename = 'results/scRNAseq/2_pca/7_percent_umap_mito_plot.png', 
+       plot = percent_mito_plot, 
+       width = 6, height = 6, units = 'in')
+
+# -------------------------------------------------------------------------
+# Visualize UMAP clusters: genotype labels
+pre_integration_umap_plot_genotype = 
+  DimPlot(geo_so,
+          group.by = 'genotype',
+          label = FALSE,
+          reduction = 'umap.unintegrated.sct.rpca')
+pre_integration_umap_plot_genotype
+
+ggsave(filename = 'results/scRNAseq/2_pca/8_umap_unintegrated_sct_genotype.png',
+       plot = pre_integration_umap_plot_genotype,
+       width = 8, height = 6, units = 'in')
+
+# Visualize UMAP clusters: split by genotype labels
+pre_integration_umap_plot_genotype_split = 
+  DimPlot(geo_so,
+          group.by = 'seurat_clusters',
+          split.by = 'genotype',
+          label = FALSE,
+          reduction = 'umap.unintegrated.sct.rpca')
+pre_integration_umap_plot_genotype_split
+
+ggsave(filename = 'results/scRNAseq/2_pca/8_umap_unintegrated_sct_genotype_split.png',
+       plot = pre_integration_umap_plot_genotype_split,
+       width = 12, height = 6, units = 'in')
+
+# -------------------------------------------------------------------------
+# Save Seurat object
+saveRDS(geo_so, file = 'data/scRNAseq/iwaselab/rdata/geo_so_sct_clustered.rds')
 
 
