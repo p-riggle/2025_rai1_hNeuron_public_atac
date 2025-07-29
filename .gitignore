@@ -18,6 +18,7 @@
 **/*.fasta
 **/*.fa
 **/*.benchmark.txt
+**/*.sif
 data/cn_rnaseq/fastq/usftp21.novogene.com/*
 code/cn_rnaseq/blueberry/input/.snakemake/* 
 **/*.html

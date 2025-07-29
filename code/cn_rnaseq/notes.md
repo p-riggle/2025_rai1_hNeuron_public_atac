@@ -47,7 +47,7 @@ List of Rai1 RNA-seq dataset
     Paper: https://pubmed.ncbi.nlm.nih.gov/27693255/ (Neuron 2016 Huang et al.)
 3. RAI1 KO mESCs differentating NPC (day 8) and neurons (day 12). 
     Data: https://www.ncbi.nlm.nih.gov/Traces/study/?acc=ERP128947&o=acc_s%3Aa
-    Paper: https://www.biorxiv.org/content/10.1101/2021.10.12.462922v1.full (likely, BioRxiv, 2023, Kaster et al.)
+    Paper: https://www.biorxiv.org/content/10.1101/2021.10.12.462922v1.full (likely, BioRxiv, 2021, Kaster et al.)
 4. RAI1 RNAi in cortical neurons (DIV17). 2020 Cell Reports, Garay et al.
    
 List of Rai1 ChIPseq dataset 
