@@ -327,74 +327,74 @@ pcs = check_pcs(geo_so, 'unintegrated.sct.pca')
 pcs
 
 pcs = 13 #rebecca used 19
-  # -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 str(geo_so@meta.data)
-  # Visualize PCA (PC1 and PC2, unintegrated)
-  # first label by sample
-  DimPlot(geo_so, reduction = 'unintegrated.sct.pca', group.by = 'genotype') 
+# Visualize PCA (PC1 and PC2, unintegrated)
+# first label by sample
+DimPlot(geo_so, reduction = 'unintegrated.sct.pca', group.by = 'genotype') 
 
-  ggsave(filename = 'results/scRNAseq/2_pca/4_qc_pca_plot_unintegrated_sct_genotype.png',
-         width = 7, height = 6, units = 'in')
-  
-  # then label by day, which looks more useful
-  DimPlot(geo_so, reduction = 'unintegrated.sct.pca', group.by = 'day')
-  
-  # save plot labeled by day
-  ggsave(filename = 'results/scRNAseq/2_pca/4_qc_pca_plot_unintegrated_sct_day.png',
-         width = 7, height = 6, units = 'in')
-  # =========================================================================
-  # Clustering and Projection
-  # =========================================================================
-  
-  # Create KNN graph for PCs with `FindNeighbors()`
-  geo_so = FindNeighbors(geo_so, dims = 1:pcs, reduction = 'unintegrated.sct.pca')
-  
-  # Then generate clusters
-  geo_so = FindClusters(geo_so,
-                        resolution = 0.4,
-                        cluster.name = 'unintegrated.sct.rpca.clusters')
-  
-  # look at meta.data to see cluster labels
-  head(geo_so@meta.data)
+ggsave(filename = 'results/scRNAseq/2_pca/4_qc_pca_plot_unintegrated_sct_genotype.png',
+       width = 7, height = 6, units = 'in')
 
-  # -------------------------------------------------------------------------
-  # Create UMAP reduction
-  geo_so = RunUMAP(geo_so,
-                   dims = 1:pcs,
-                   reduction = 'unintegrated.sct.pca',
-                   reduction.name = 'umap.unintegrated.sct.rpca')
-  
-  
-  # Note a third reduction has been added: `umap.integrated.sct.rpca`
-  geo_so 
-  
-  # -------------------------------------------------------------------------
-  # Visualize UMAP clusters: ID labels
-  pre_integration_umap_plot_clusters = 
-    DimPlot(geo_so, 
-            group.by = 'seurat_clusters',
-            label = TRUE,
-            reduction = 'umap.unintegrated.sct.rpca') + 
-    NoLegend()
-  pre_integration_umap_plot_clusters
-  
-  ggsave(filename = 'results/scRNAseq/2_pca/5_umap_unintegrated_sct_clusters.png',
-         plot = pre_integration_umap_plot_clusters,
-         width = 6, height = 6, units = 'in')
-  # -------------------------------------------------------------------------
-  # Visualize UMAP clusters: clusters with labels, split by condition
-  pre_integration_umap_plot_split_clusters = 
-    DimPlot(geo_so,
-            group.by = 'seurat_clusters',
-            split.by = 'day',
-            label = TRUE,
-            reduction = 'umap.unintegrated.sct.rpca') + 
-    NoLegend()
-  pre_integration_umap_plot_split_clusters
-  
-  ggsave(filename = 'results/scRNAseq/2_pca/6_umap_unintegrated_sct_split_clusters.png',
-         plot = pre_integration_umap_plot_split_clusters, 
-         width = 14, height = 6, units = 'in')
+# then label by day, which looks more useful
+DimPlot(geo_so, reduction = 'unintegrated.sct.pca', group.by = 'day')
+
+# save plot labeled by day
+ggsave(filename = 'results/scRNAseq/2_pca/4_qc_pca_plot_unintegrated_sct_day.png',
+       width = 7, height = 6, units = 'in')
+# =========================================================================
+# Clustering and Projection
+# =========================================================================
+
+# Create KNN graph for PCs with `FindNeighbors()`
+geo_so = FindNeighbors(geo_so, dims = 1:pcs, reduction = 'unintegrated.sct.pca')
+
+# Then generate clusters
+geo_so = FindClusters(geo_so,
+                      resolution = 0.4,
+                      cluster.name = 'unintegrated.sct.rpca.clusters')
+
+# look at meta.data to see cluster labels
+head(geo_so@meta.data)
+
+# -------------------------------------------------------------------------
+# Create UMAP reduction
+geo_so = RunUMAP(geo_so,
+                 dims = 1:pcs,
+                 reduction = 'unintegrated.sct.pca',
+                 reduction.name = 'umap.unintegrated.sct.rpca')
+
+
+# Note a third reduction has been added: `umap.integrated.sct.rpca`
+geo_so 
+
+# -------------------------------------------------------------------------
+# Visualize UMAP clusters: ID labels
+pre_integration_umap_plot_clusters = 
+  DimPlot(geo_so, 
+          group.by = 'seurat_clusters',
+          label = TRUE,
+          reduction = 'umap.unintegrated.sct.rpca') + 
+  NoLegend()
+pre_integration_umap_plot_clusters
+
+ggsave(filename = 'results/scRNAseq/2_pca/5_umap_unintegrated_sct_clusters.png',
+       plot = pre_integration_umap_plot_clusters,
+       width = 6, height = 6, units = 'in')
+# -------------------------------------------------------------------------
+# Visualize UMAP clusters: clusters with labels, split by condition
+pre_integration_umap_plot_split_clusters = 
+  DimPlot(geo_so,
+          group.by = 'seurat_clusters',
+          split.by = 'day',
+          label = TRUE,
+          reduction = 'umap.unintegrated.sct.rpca') + 
+  NoLegend()
+pre_integration_umap_plot_split_clusters
+
+ggsave(filename = 'results/scRNAseq/2_pca/6_umap_unintegrated_sct_split_clusters.png',
+       plot = pre_integration_umap_plot_split_clusters, 
+       width = 14, height = 6, units = 'in')
 dev.off()  
 # -------------------------------------------------------------------------
 # Check mitochondrial gene expression
