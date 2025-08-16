@@ -196,7 +196,7 @@ top_5 = geo_markers %>% filter(p_val_adj < 0.01) %>% group_by(cluster) %>% slice
 head(top_5, n = 10)# -------------------------------------------------------------------------
 # Visualize top marker genes as dot plot
 top_5_sct_dot_plot = DotPlot(geo_so, features = unique(top_5$gene)) + 
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  theme(panel.background = element_rect(fill = "white"), axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   labs(title = 'Top 5 Cluster Genes by FDR and avg_log2FC') + coord_flip()
 top_5_sct_dot_plot
 # -------------------------------------------------------------------------
@@ -255,6 +255,20 @@ sc_pred_tbl
 
 write_csv(sc_pred_tbl, file = 'results/scRNAseq/3_markers/scCATCH_cluster_predictions_0.1.csv')
 
+# -------------------------------------------------------------------------
+# Check mitochondrial gene expression
+percent_mito_plot = FeaturePlot(geo_so, features='percent.mt')
+percent_mito_plot
 
+ggsave(filename = 'results/scRNAseq/3_markers/mitoGenes_0.1.png', 
+       plot = percent_mito_plot, 
+       width = 8, height = 8, units = 'in') 
 
+# check RAI1 expression
 
+rai1_plot = FeaturePlot(geo_so, features = 'RAI1')
+rai1_plot
+
+ggsave(filename = 'results/scRNAseq/3_markers/rai1_0.1.png', 
+       plot = rai1_plot, 
+       width = 8, height = 8, units = 'in') 
