@@ -1,6 +1,6 @@
 # Q: Are differentiation marker genes expressed in an expacted ways?
 
-tpm <- read.delim("data/blueberry_output/combine_counts/gene_TPM.txt", header = TRUE, sep = "\t")
+tpm <- read.delim("data/cn_rnaseq/blueberry_output/combine_counts/gene_TPM.txt", header = TRUE, sep = "\t")
 head(tpm)
 colnames(tpm) <- gsub("Rai1.|.TPM|d", "", colnames(tpm))
 colnames(tpm)[1] <- "gene_id"
@@ -216,7 +216,13 @@ grid.arrange(
 )
 dev.off()
 
+# BDNF
+bdnf <- plot_gene_expression("BDNF")
+bdnf
 
+pdf(sprintf("results/cn_rnaseq/deseq2/%s_lp_bdnf.pdf", Sys.Date()), width = 4.6, height = 4)
+print(bdnf)
+dev.off()
 
 # for KDM5C KARE grant
 kdm5c <- plot_gene_expression_nolegend("KDM5C")
@@ -231,6 +237,7 @@ dev.off()
 
 # plot kdm5d expression in differentiating hESCs
 kdm5d <- plot_gene_expression_nolegend("KDM5D")
+kdm5d
 
 # change the color of the line plot
 kdm5d + scale_colour_manual(values = c("black", "red", "blue", "green", "orange", "purple", "brown", "pink", "grey"))

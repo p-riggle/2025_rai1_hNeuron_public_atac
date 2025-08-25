@@ -1,4 +1,7 @@
 
+library(dplyr)
+library(tidyverse)
+
 # make function for line plotting
 lineplot.ko <- function(gene_name) {
   

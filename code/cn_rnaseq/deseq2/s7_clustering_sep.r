@@ -201,9 +201,6 @@ pdf(sprintf("results/cluster/sep/%s-dendrograms_sep.pdf", Sys.Date()), width=10,
 par(mfrow=c(1,2))
 
 c1 <- plot(tree_deg_het, main = "Hierarchical clustering of HET-DEGs", leaflab = "none", ylab="Height")
-barhet <- cbind(hclust_het_1.75, k_het)
-colored_bars(barhet, tree_deg_het, sort_by_lables_order = TRUE, y_shift = -0.1, rowLabels = c("h=1.75", "k=6"), cex.rowLables = 0.7)
-
 c2 <- plot(tree_deg_ko, main = "Hierarchical clustering of KO-DEGs", leaflab = "none", ylab="Height")
 barko <- cbind(hclust_ko_1.8, k_ko)
 colored_bars(barko, tree_deg_ko, sort_by_lables_order = TRUE, y_shift = -0.1, rowLabels = c("h=1.8", "k=5"), cex.rowLables = 0.7)
@@ -247,7 +244,7 @@ str(k_het)
 str(h_ko)
 str(k_ko)
 
-# make the trats file 
+# make the traits file 
 sample_het <- colnames(deg_het_z_df)[1:8]
 day <- c(rep(c(0, 20, 34, 60), each = 2))
 genotype_het <- c(rep(c("WT", "HET"), 4))
