@@ -106,13 +106,42 @@ viol_bdnf <- VlnPlot(
   # 3. Change the colors of the violin plots
   # We use scale_fill_manual to assign specific colors to each genotype.
   # The colors are matched to the levels we set earlier: wt, het, and ko.
-  scale_fill_manual(values = c("wt" = "darkblue", "het" = "blue", "ko" = "lightblue")) +
+  scale_fill_manual(values = c("wt" = "darkgreen", "het" = "lightgreen", "ko" = "aquamarine")) +
   
   # Add the log scale to the y-axis
   scale_y_log10() +
   
   # Add geom_boxplot to overlay the boxplots on top of the violin plots
   geom_boxplot(width = 0.5, outlier.shape = NA, position = position_dodge(0.9))
+
+viol_bdnf
+ggsave(filename = "results/scRNAseq/4_pseudobulk/viol_bdnf.pdf", plot = viol_bdnf, width = 6, height = 4, units = "in")
+
+# do the same plot for beta catenin gene 
+# Now, generate the violin plot with the desired modifications
+viol_ctnnb1 <- VlnPlot(
+  object = geo_so,
+  features = "CTNNB1",
+  group.by = "seurat_clusters", # Use the default clustering results
+  split.by = "genotype", # This is the new argument to split the plots by genotype
+  pt.size = 0, # Setting pt.size to 0 removes all individual data points
+  layer = "scale.data", # Plot the continuous, scaled data
+  combine = TRUE # Return a single combined plot
+) +
+  # Use ggplot2 functions to customize the plot's appearance
+  ggtitle("Beta Catenin Expression by Cluster") +
+  theme(plot.title = element_text(hjust = 0.5)) + # Center the plot title
+  # 2. Show the legend by removing NoLegend()
+  
+  # 3. Change the colors of the violin plots
+  # We use scale_fill_manual to assign specific colors to each genotype.
+  # The colors are matched to the levels we set earlier: wt, het, and ko.
+  scale_fill_manual(values = c("wt" = "darkgreen", "het" = "lightgreen", "ko" = "aquamarine")) +
+  
+  # Add geom_boxplot to overlay the boxplots on top of the violin plots
+  geom_boxplot(width = 0.5, outlier.shape = NA, position = position_dodge(0.9))
+
+viol_ctnnb1
 
 ggsave(filename = "results/scRNAseq/4_pseudobulk/viol_bdnf.pdf", plot = viol_bdnf, width = 6, height = 4, units = "in")
 

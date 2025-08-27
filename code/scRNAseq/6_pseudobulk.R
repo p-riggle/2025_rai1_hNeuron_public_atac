@@ -11,6 +11,11 @@ library(tidyverse)
 # load the R.data
 geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_markers_0.1.rds')
 
+# check the number of cells
+geo_so
+ncol(geo_so)
+length(Cells(geo_so))
+
 # define the output directory
 dirout <- ("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc/results/scRNAseq/4_pseudobulk/")
 
