@@ -6,142 +6,135 @@ library(BPCells)
 library(tidyverse)
 
 # load the R.data
-geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_markers_0.1.rds')
+geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
+unique(geo_so$cell_type)
+head(geo_so@meta.data)
 geo_so
 
 # plot RAI1 level
-
-VlnPlot(
-  object = geo_so,
-  features = "RAI1",
-  group.by = "seurat_clusters", # Use the default clustering results
-  pt.size = 0, # Setting pt.size to 0 removes all individual data points
-  layer = "scale.data"
-) +
-  # Use ggplot2 functions to customize the plot's appearance
-  ggtitle("RAI1 Expression by Cluster") +
-  theme(plot.title = element_text(hjust = 0.5)) + # Center the plot title
-  NoLegend() + # Remove the legend as the clusters are already labeled on the x-axis
-  
-  # This line adds a log10 scale to the y-axis, which will expand the
-  # view of the lower expression values and compress the higher ones.
-  # We add 1 to the expression values to avoid taking the log of zero,
-  # which is mathematically undefined.
-  scale_y_log10()
+# 1. Reorder the cell_types
+# We use the factor() function to set the specific order of the levels.
+# This ensures that 'wt', 'het', and 'ko' appear in the desired order on the plot.
+geo_so$cell_type <- factor(geo_so$cell_type, levels = c("NPC", "NPC-G1", "T2", "T3", "IPC", "Neuron", "OPC"))
+head(geo_so@meta.data)
 
 
 viol_rai1 <- VlnPlot(
   object = geo_so,
   features = "RAI1",
-  group.by = "seurat_clusters", # Use the default clustering results
-  pt.size = 0, # Setting pt.size to 0 removes all individual data points
-  layer = "scale.data"
+  group.by = "cell_type", # Use the default clustering results
+  pt.size = 0.1, alpha = 0.1, # Setting pt.size to 0 removes all individual data points
+  layer = "data"
 ) +
   # Use ggplot2 functions to customize the plot's appearance
   ggtitle("RAI1 Expression by Cluster") +
   theme(plot.title = element_text(hjust = 0.5)) + # Center the plot title
   NoLegend() 
 
+viol_rai1
+
 ggsave(filename = "results/scRNAseq/4_pseudobulk/viol_rai1.pdf", plot = viol_rai1, width = 5, height = 4, units = "in")
 
-# plot BDNF beween genotypes
-VlnPlot(
-  object = geo_so,
-  features = "BDNF",
-  group.by = "seurat_clusters", # Use the default clustering results
-  split.by = "genotype", # This is the new argument to split the plots by genotype
-  pt.size = 0, # Setting pt.size to 0 removes all individual data points
-  layer = "scale.data", # Plot the continuous, scaled data
-  combine = TRUE # Return a list of plots instead of a single combined plot
-) +
-  # Use ggplot2 functions to customize the plot's appearance
-  ggtitle("BDNF Expression by Cluster") +
-  theme(plot.title = element_text(hjust = 0.5)) + # Center the plot title
-  NoLegend() + 
-  scale_y_log10()
+# expression is low. lets make dot plot
+# 1. Subset the Seurat object to keep only the 'wt' genotype cells
+wt_so <- subset(geo_so, subset = genotype == "wt")
 
+# 2. Create the DotPlot for the RAI1 gene, grouped by cell type
+DotPlot(wt_so, features = "RAI1", group.by = "cell_type") + RotatedAxis()
+
+
+# plot BDNF beween genotypes
 # 1. Reorder the genotypes
 # We use the factor() function to set the specific order of the levels.
 # This ensures that 'wt', 'het', and 'ko' appear in the desired order on the plot.
 geo_so$genotype <- factor(geo_so$genotype, levels = c("wt", "het", "ko"))
 
 # Now, generate the violin plot with the desired modifications
-VlnPlot(
-  object = geo_so,
-  features = "BDNF",
-  group.by = "seurat_clusters", # Use the default clustering results
-  split.by = "genotype", # This is the new argument to split the plots by genotype
-  pt.size = 0, # Setting pt.size to 0 removes all individual data points
-  layer = "scale.data", # Plot the continuous, scaled data
-  combine = TRUE # Return a single combined plot
-) +
-  # Use ggplot2 functions to customize the plot's appearance
-  ggtitle("BDNF Expression by Cluster") +
-  theme(plot.title = element_text(hjust = 0.5)) + # Center the plot title
-  # 2. Show the legend by removing NoLegend()
+# This step should be done once before using the function
+# with linear scale 
+create_gene_vlnplot <- function(geo_so, gene_name) {
+  # Generate the violin plot using the input gene name
+  vln_plot <- VlnPlot(
+    object = geo_so,
+    features = gene_name,         # Use the function's gene_name argument
+    group.by = "cell_type",
+    split.by = "genotype",
+    pt.size = 0.1, alpha = 0.1, 
+    layer = "data",
+    combine = TRUE
+  ) +
+    # Customize the plot using ggplot2 layers
+    ggtitle(paste(gene_name, "Expression by Cluster")) + # Create a dynamic title
+    theme(plot.title = element_text(hjust = 0.5)) +
+    scale_fill_manual(values = c("wt" = "darkgreen", "het" = "lightgreen", "ko" = "aquamarine")) +
+    stat_summary(
+      fun = median,
+      geom = "crossbar",
+      width = 0.5,
+      color = "black",
+      position = position_dodge(0.9)
+    )
   
-  # 3. Change the colors of the violin plots
-  # We use scale_fill_manual to assign specific colors to each genotype.
-  # The colors are matched to the levels we set earlier: wt, het, and ko.
-  scale_fill_manual(values = c("wt" = "darkblue", "het" = "blue", "ko" = "lightblue")) +
-  
-  # Add the log scale to the y-axis
-  scale_y_log10()
+  # Return the final plot object
+  return(vln_plot)
+}
 
-# Now, generate the violin plot with the desired modifications
-viol_bdnf <- VlnPlot(
-  object = geo_so,
-  features = "BDNF",
-  group.by = "seurat_clusters", # Use the default clustering results
-  split.by = "genotype", # This is the new argument to split the plots by genotype
-  pt.size = 0, # Setting pt.size to 0 removes all individual data points
-  layer = "scale.data", # Plot the continuous, scaled data
-  combine = TRUE # Return a single combined plot
-) +
-  # Use ggplot2 functions to customize the plot's appearance
-  ggtitle("BDNF Expression by Cluster") +
-  theme(plot.title = element_text(hjust = 0.5)) + # Center the plot title
-  # 2. Show the legend by removing NoLegend()
-  
-  # 3. Change the colors of the violin plots
-  # We use scale_fill_manual to assign specific colors to each genotype.
-  # The colors are matched to the levels we set earlier: wt, het, and ko.
-  scale_fill_manual(values = c("wt" = "darkgreen", "het" = "lightgreen", "ko" = "aquamarine")) +
-  
-  # Add the log scale to the y-axis
-  scale_y_log10() +
-  
-  # Add geom_boxplot to overlay the boxplots on top of the violin plots
-  geom_boxplot(width = 0.5, outlier.shape = NA, position = position_dodge(0.9))
+BDNF_violin <- create_gene_vlnplot(geo_so, "BDNF")
+BDNF_violin
 
-viol_bdnf
-ggsave(filename = "results/scRNAseq/4_pseudobulk/viol_bdnf.pdf", plot = viol_bdnf, width = 6, height = 4, units = "in")
+# expression low, lets make a dot plot
+# Create the dot plot for BDNF, grouping by cell type and splitting by genotype
+# Corrected command with the 'cols' parameter specified
+# Add the 'cols' parameter to define a color gradient for expression
+# Use a three-color gradient to satisfy the error message
+# Make sure ggplot2 is loaded (usually loaded with Seurat)
+# Make sure ggplot2 is loaded
+library(ggplot2)
 
-# do the same plot for beta catenin gene 
-# Now, generate the violin plot with the desired modifications
-viol_ctnnb1 <- VlnPlot(
-  object = geo_so,
-  features = "CTNNB1",
-  group.by = "seurat_clusters", # Use the default clustering results
-  split.by = "genotype", # This is the new argument to split the plots by genotype
-  pt.size = 0, # Setting pt.size to 0 removes all individual data points
-  layer = "scale.data", # Plot the continuous, scaled data
-  combine = TRUE # Return a single combined plot
-) +
-  # Use ggplot2 functions to customize the plot's appearance
-  ggtitle("Beta Catenin Expression by Cluster") +
-  theme(plot.title = element_text(hjust = 0.5)) + # Center the plot title
-  # 2. Show the legend by removing NoLegend()
-  
-  # 3. Change the colors of the violin plots
-  # We use scale_fill_manual to assign specific colors to each genotype.
-  # The colors are matched to the levels we set earlier: wt, het, and ko.
-  scale_fill_manual(values = c("wt" = "darkgreen", "het" = "lightgreen", "ko" = "aquamarine")) +
-  
-  # Add geom_boxplot to overlay the boxplots on top of the violin plots
-  geom_boxplot(width = 0.5, outlier.shape = NA, position = position_dodge(0.9))
+neuron_deg <- c("GRM5", "GRIN2D", "GRIA4")
 
-viol_ctnnb1
+DotPlot(geo_so, 
+        features = neuron_deg, group.by = "cell_type", split.by = "genotype", cols = c("green", "green", "green")) + 
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+        labs(title = '') + 
+        coord_flip()
 
-ggsave(filename = "results/scRNAseq/4_pseudobulk/viol_bdnf.pdf", plot = viol_bdnf, width = 6, height = 4, units = "in")
+SOST_violin_log <- create_gene_vlnplot_log(geo_so, "SOST")
+SOST_violin <- create_gene_vlnplot(geo_so, "SOST")
 
+SOST_violin_log
+SOST_violin
+
+adcy2_violin_log <- create_gene_vlnplot_log(geo_so, "ADCY2")
+adcy2_violin <- create_gene_vlnplot(geo_so, "ADCY2")
+
+adcy2_violin_log
+adcy2_violin
+
+grm5_violin <- create_gene_vlnplot_log(geo_so, "GRM5")
+grm5_violin_log <- create_gene_vlnplot(geo_so, "GRM5")
+
+grm5_violin
+grm5_violin_log 
+
+
+gria4_violin <- create_gene_vlnplot_log(geo_so, "GRIA4")
+gria4_violin_log <- create_gene_vlnplot(geo_so, "GRIA4")
+
+gria4_violin
+gria4_violin_log 
+
+# Make sure to replace "YourGeneName" with the actual gene (e.g., "Adcy2")
+# Add the 'cols' parameter to define the color scale
+# The code to prepare your ordered labels remains the same
+# geo_so$celltype_genotype <- factor(geo_so$celltype_genotype, levels = existing_labels)
+
+DotPlot(
+  geo_so,
+  features = "ADCY2",
+  group.by = "celltype_genotype", # Use our ordered column
+  cols = c("lightgrey", "red")
+) + 
+  # This line rotates the x-axis labels to prevent them from overlapping
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  xlab("Cell Type and Genotype") # Optional: Rename the x-axis label

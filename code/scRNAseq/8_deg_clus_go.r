@@ -68,3 +68,32 @@ kegg_d60 <- kegg(day60_cgenes)
 
 dp_kegg_d20 <- dotplot(kegg_d20, showCategory = 10, title = "KEGG enrichment of RAI1-Het: Hiearchical Clusters")
 dp_kegg_d20
+
+# save the dp_kegg_d20 as pdf
+ggsave("results/scRNAseq/4_pseudobulk/deg_kegg_d20.pdf", plot = dp_kegg_d20, width = 10, height = 8)
+
+# day 60
+dp_kegg_d60 <- dotplot(kegg_d60, showCategory = 10, title = "KEGG enrichment of RAI1-Het: Hiearchical Clusters")
+dp_kegg_d60
+
+# save the dp_kegg_d60 as pdf
+ggsave("results/scRNAseq/4_pseudobulk/deg_kegg_d60.pdf", plot = dp_kegg_d60, width = 10, height = 8)
+
+# run clusterProfiler GO. 
+go <- function(cmatrix) {compareCluster(geneCluster = cmatrix, fun = enrichGO, OrgDb = org.Hs.eg.db) %>% setReadable(OrgDb = org.Hs.eg.db, keyType = "ENTREZID")}
+
+go_d20 <- go(day20_cgenes)
+go_d60 <- go(day60_cgenes)
+
+# make go dotplots
+dp_go_d20 <- dotplot(go_d20, showCategory = 10, title = "GO enrichment of RAI1-Het: Hiearchical Clusters")
+dp_go_d20
+
+# save the dp_go_d20 as pdf
+ggsave("results/scRNAseq/4_pseudobulk/deg_go_d20.pdf", plot = dp_go_d20, width = 10, height = 8)
+
+dp_go_d60 <- dotplot(go_d60, showCategory = 10, title = "GO enrichment of RAI1-Het: Hiearchical Clusters")
+dp_go_d60
+
+# save the dp_go_d60 as pdf
+ggsave("results/scRNAseq/4_pseudobulk/deg_go_d60.pdf", plot = dp_go_d60, width = 10, height = 8)

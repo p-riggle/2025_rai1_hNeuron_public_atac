@@ -1,7 +1,7 @@
 # perform clusteirng on the DE genes HET and KO separtely. 
 
 # import tpm file
-tpm <- read.delim("data/blueberry_output/combine_counts/gene_TPM.txt", header = TRUE, sep = "\t")
+tpm <- read.delim("data/cn_rnaseq/blueberry_output/combine_counts/gene_TPM.txt", header = TRUE, sep = "\t")
 colnames(tpm) <- gsub("Rai1.|.TPM|d", "", colnames(tpm))
 colnames(tpm)[1] <- "gene_id"
 

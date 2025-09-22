@@ -1,0 +1,610 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 16
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count    min threads    max threads
+-----------------  -------  -------------  -------------
+all                      1              1              1
+bam_index               12              1              1
+bam_index_dm6           12              1              1
+bam_sort                12              1              1
+bam_sort_dm6            12              1              1
+bam_to_bigwig           12              1              1
+bam_to_bigwig_dm6       12              1              1
+bowtie2                 12              1              1
+bowtie2_dm6             12              1              1
+uploading_txt            1              1              1
+total                   98              1              1
+
+Select jobs to execute...
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-12_S381_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-12_S381_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_ko_RAI1_H2AV_rep1.bam
+    log: data/cutrun/bam/bt2_ko_RAI1_H2AV_rep1.log
+    jobid: 14
+    reason: Missing output files: data/cutrun/bam/bt2_ko_RAI1_H2AV_rep1.log, data/cutrun/bam/ori_ko_RAI1_H2AV_rep1.bam
+    wildcards: sample=ko_RAI1_H2AV_rep1
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-15_S384_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-15_S384_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_ko_RAI1_H2AV_rep2.bam
+    log: data/cutrun/bam/bt2_ko_RAI1_H2AV_rep2.log
+    jobid: 16
+    reason: Missing output files: data/cutrun/bam/ori_ko_RAI1_H2AV_rep2.bam, data/cutrun/bam/bt2_ko_RAI1_H2AV_rep2.log
+    wildcards: sample=ko_RAI1_H2AV_rep2
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-5_S389_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-5_S389_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_wt_IgG_rep1.bam
+    log: data/cutrun/bam/bt2_wt_IgG_rep1.log
+    jobid: 2
+    reason: Missing output files: data/cutrun/bam/bt2_wt_IgG_rep1.log, data/cutrun/bam/ori_wt_IgG_rep1.bam
+    wildcards: sample=wt_IgG_rep1
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-10_S379_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-10_S379_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_wt_H3K4me3_rep2.bam
+    log: data/cutrun/bam/bt2_wt_H3K4me3_rep2.log
+    jobid: 20
+    reason: Missing output files: data/cutrun/bam/bt2_wt_H3K4me3_rep2.log, data/cutrun/bam/ori_wt_H3K4me3_rep2.bam
+    wildcards: sample=wt_H3K4me3_rep2
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-5_S389_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-5_S389_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.wt_IgG_rep1.bam
+    log: data/cutrun/bam_dm6/dm6.wt_IgG_rep1.log
+    jobid: 50
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.wt_IgG_rep1.log, data/cutrun/bam_dm6/dm6.wt_IgG_rep1.bam
+    wildcards: sample=wt_IgG_rep1
+    resources: tmpdir=/tmp, mem_mb=240000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-8_S392_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-8_S392_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.wt_IgG_rep2.bam
+    log: data/cutrun/bam_dm6/dm6.wt_IgG_rep2.log
+    jobid: 52
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.wt_IgG_rep2.bam, data/cutrun/bam_dm6/dm6.wt_IgG_rep2.log
+    wildcards: sample=wt_IgG_rep2
+    resources: tmpdir=/tmp, mem_mb=240000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule uploading_txt:
+    output: data/cutrun/bigwig/1_upload.txt, data/cutrun/bigwig_dm6/1_upload.dm6.txt
+    jobid: 97
+    reason: Missing output files: data/cutrun/bigwig_dm6/1_upload.dm6.txt, data/cutrun/bigwig/1_upload.txt
+    resources: tmpdir=/tmp
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-16_S385_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-16_S385_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_ko_H3K4me3_rep2.bam
+    log: data/cutrun/bam/bt2_ko_H3K4me3_rep2.log
+    jobid: 24
+    reason: Missing output files: data/cutrun/bam/bt2_ko_H3K4me3_rep2.log, data/cutrun/bam/ori_ko_H3K4me3_rep2.bam
+    wildcards: sample=ko_H3K4me3_rep2
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-6_S390_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-6_S390_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep1.bam
+    log: data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep1.log
+    jobid: 58
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep1.log, data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep1.bam
+    wildcards: sample=wt_RAI1_H2AV_rep1
+    resources: tmpdir=/tmp, mem_mb=240000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-9_S393_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-9_S393_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_wt_RAI1_H2AV_rep2.bam
+    log: data/cutrun/bam/bt2_wt_RAI1_H2AV_rep2.log
+    jobid: 12
+    reason: Missing output files: data/cutrun/bam/ori_wt_RAI1_H2AV_rep2.bam, data/cutrun/bam/bt2_wt_RAI1_H2AV_rep2.log
+    wildcards: sample=wt_RAI1_H2AV_rep2
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-9_S393_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-9_S393_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep2.bam
+    log: data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep2.log
+    jobid: 60
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep2.log, data/cutrun/bam_dm6/dm6.wt_RAI1_H2AV_rep2.bam
+    wildcards: sample=wt_RAI1_H2AV_rep2
+    resources: tmpdir=/tmp, mem_mb=240000
+
+python3: can't open file '/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc/code/browser_upload.an.py': [Errno 2] No such file or directory
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-8_S392_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-8_S392_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_wt_IgG_rep2.bam
+    log: data/cutrun/bam/bt2_wt_IgG_rep2.log
+    jobid: 4
+    reason: Missing output files: data/cutrun/bam/ori_wt_IgG_rep2.bam, data/cutrun/bam/bt2_wt_IgG_rep2.log
+    wildcards: sample=wt_IgG_rep2
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-11_S380_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-11_S380_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_ko_1IgG_rep1.bam
+    log: data/cutrun/bam/bt2_ko_1IgG_rep1.log
+    jobid: 6
+    reason: Missing output files: data/cutrun/bam/bt2_ko_1IgG_rep1.log, data/cutrun/bam/ori_ko_1IgG_rep1.bam
+    wildcards: sample=ko_1IgG_rep1
+    resources: tmpdir=/tmp, mem_mb=120000
+
+[Mon Sep 22 14:44:42 2025]
+Error in rule uploading_txt:
+    jobid: 97
+    output: data/cutrun/bigwig/1_upload.txt, data/cutrun/bigwig_dm6/1_upload.dm6.txt
+    shell:
+        
+        python3 code/browser_upload.an.py
+        python3 code/browser_upload.dm6.py
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2:
+    input: data/cutrun/fastq/14154-BZ-14_S383_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-14_S383_R2_001.fastq.gz
+    output: data/cutrun/bam/ori_ko_2IgG_rep1.bam
+    log: data/cutrun/bam/bt2_ko_2IgG_rep1.log
+    jobid: 8
+    reason: Missing output files: data/cutrun/bam/bt2_ko_2IgG_rep1.log, data/cutrun/bam/ori_ko_2IgG_rep1.bam
+    wildcards: sample=ko_2IgG_rep1
+    resources: tmpdir=/tmp, mem_mb=120000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-10_S379_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-10_S379_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.wt_H3K4me3_rep2.bam
+    log: data/cutrun/bam_dm6/dm6.wt_H3K4me3_rep2.log
+    jobid: 68
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.wt_H3K4me3_rep2.log, data/cutrun/bam_dm6/dm6.wt_H3K4me3_rep2.bam
+    wildcards: sample=wt_H3K4me3_rep2
+    resources: tmpdir=/tmp, mem_mb=240000
+
+
+[Mon Sep 22 14:44:42 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-16_S385_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-16_S385_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep2.bam
+    log: data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep2.log
+    jobid: 72
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep2.bam, data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep2.log
+    wildcards: sample=ko_H3K4me3_rep2
+    resources: tmpdir=/tmp, mem_mb=240000
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+Exiting now ...
+Exiting now ...
+Exiting now ...
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+Exiting now ...
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+Exiting now ...
+Exiting now ...
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+Exiting now ...
+(ERR): "/nfs/turbo/umms-siwase/GENOME_INDICES/HG38" does not exist or is not a Bowtie 2 index
+Exiting now ...
+Exiting now ...
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[main_samview] fail to read the header from "-".
+[Mon Sep 22 14:44:45 2025]
+Error in rule bowtie2:
+    jobid: 12
+    output: data/cutrun/bam/ori_wt_RAI1_H2AV_rep2.bam
+    log: data/cutrun/bam/bt2_wt_RAI1_H2AV_rep2.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-9_S393_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-9_S393_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_wt_RAI1_H2AV_rep2.bam 
+        samtools stats data/cutrun/bam/ori_wt_RAI1_H2AV_rep2.bam > data/cutrun/bam/wt_RAI1_H2AV_rep2_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon Sep 22 14:44:45 2025]
+[Mon Sep 22 14:44:45 2025]
+Error in rule bowtie2:
+    jobid: 6
+    output: data/cutrun/bam/ori_ko_1IgG_rep1.bam
+    log: data/cutrun/bam/bt2_ko_1IgG_rep1.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-11_S380_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-11_S380_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_ko_1IgG_rep1.bam 
+        samtools stats data/cutrun/bam/ori_ko_1IgG_rep1.bam > data/cutrun/bam/ko_1IgG_rep1_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon Sep 22 14:44:45 2025]
+Error in rule bowtie2:
+    jobid: 14
+    output: data/cutrun/bam/ori_ko_RAI1_H2AV_rep1.bam
+    log: data/cutrun/bam/bt2_ko_RAI1_H2AV_rep1.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-12_S381_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-12_S381_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_ko_RAI1_H2AV_rep1.bam 
+        samtools stats data/cutrun/bam/ori_ko_RAI1_H2AV_rep1.bam > data/cutrun/bam/ko_RAI1_H2AV_rep1_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon Sep 22 14:44:45 2025]
+[Mon Sep 22 14:44:45 2025]
+[Mon Sep 22 14:44:45 2025]
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_wt_RAI1_H2AV_rep2.bam
+Error in rule bowtie2:
+    jobid: 8
+    output: data/cutrun/bam/ori_ko_2IgG_rep1.bam
+    log: data/cutrun/bam/bt2_ko_2IgG_rep1.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-14_S383_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-14_S383_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_ko_2IgG_rep1.bam 
+        samtools stats data/cutrun/bam/ori_ko_2IgG_rep1.bam > data/cutrun/bam/ko_2IgG_rep1_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon Sep 22 14:44:45 2025]
+Error in rule bowtie2:
+    jobid: 2
+    output: data/cutrun/bam/ori_wt_IgG_rep1.bam
+    log: data/cutrun/bam/bt2_wt_IgG_rep1.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-5_S389_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-5_S389_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_wt_IgG_rep1.bam 
+        samtools stats data/cutrun/bam/ori_wt_IgG_rep1.bam > data/cutrun/bam/wt_IgG_rep1_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+[Mon Sep 22 14:44:45 2025]
+Error in rule bowtie2:
+    jobid: 20
+    output: data/cutrun/bam/ori_wt_H3K4me3_rep2.bam
+    log: data/cutrun/bam/bt2_wt_H3K4me3_rep2.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-10_S379_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-10_S379_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_wt_H3K4me3_rep2.bam 
+        samtools stats data/cutrun/bam/ori_wt_H3K4me3_rep2.bam > data/cutrun/bam/wt_H3K4me3_rep2_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Error in rule bowtie2:
+    jobid: 4
+    output: data/cutrun/bam/ori_wt_IgG_rep2.bam
+    log: data/cutrun/bam/bt2_wt_IgG_rep2.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-8_S392_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-8_S392_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_wt_IgG_rep2.bam 
+        samtools stats data/cutrun/bam/ori_wt_IgG_rep2.bam > data/cutrun/bam/wt_IgG_rep2_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Error in rule bowtie2:
+    jobid: 16
+    output: data/cutrun/bam/ori_ko_RAI1_H2AV_rep2.bam
+    log: data/cutrun/bam/bt2_ko_RAI1_H2AV_rep2.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-15_S384_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-15_S384_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_ko_RAI1_H2AV_rep2.bam 
+        samtools stats data/cutrun/bam/ori_ko_RAI1_H2AV_rep2.bam > data/cutrun/bam/ko_RAI1_H2AV_rep2_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Error in rule bowtie2:
+    jobid: 24
+    output: data/cutrun/bam/ori_ko_H3K4me3_rep2.bam
+    log: data/cutrun/bam/bt2_ko_H3K4me3_rep2.log (check log file(s) for error message)
+    shell:
+        
+        module load Bioinformatics  gcc/10.3.0-k2osx5y
+        module load bowtie2
+        module load samtools
+        bowtie2 -p 16 -q --local         -x /nfs/turbo/umms-siwase/GENOME_INDICES/HG38 /nfs/turbo/umms-siwase/GENOME_INDICES/mArvNil1/bt2         -1 data/cutrun/fastq/14154-BZ-16_S385_R1_001.fastq.gz         -2 data/cutrun/fastq/14154-BZ-16_S385_R2_001.fastq.gz | samtools view -h -S -b -q 10 --threads 16 > data/cutrun/bam/ori_ko_H3K4me3_rep2.bam 
+        samtools stats data/cutrun/bam/ori_ko_H3K4me3_rep2.bam > data/cutrun/bam/ko_H3K4me3_rep2_raw_stats.txt
+        sleep 10  # Introduce a delay to avoid overloading the server
+        
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_ko_1IgG_rep1.bam
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_ko_RAI1_H2AV_rep1.bam
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_ko_2IgG_rep1.bam
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_wt_IgG_rep1.bam
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_wt_H3K4me3_rep2.bam
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_wt_IgG_rep2.bam
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_ko_RAI1_H2AV_rep2.bam
+Removing output files of failed job bowtie2 since they might be corrupted:
+data/cutrun/bam/ori_ko_H3K4me3_rep2.bam
+33476263 reads; of these:
+  33476263 (100.00%) were paired; of these:
+    33199789 (99.17%) aligned concordantly 0 times
+    119165 (0.36%) aligned concordantly exactly 1 time
+    157309 (0.47%) aligned concordantly >1 times
+    ----
+    33199789 pairs aligned concordantly 0 times; of these:
+      28617 (0.09%) aligned discordantly 1 time
+    ----
+    33171172 pairs aligned 0 times concordantly or discordantly; of these:
+      66342344 mates make up the pairs; of these:
+        66067391 (99.59%) aligned 0 times
+        142060 (0.21%) aligned exactly 1 time
+        132893 (0.20%) aligned >1 times
+1.32% overall alignment rate
+[Mon Sep 22 15:24:48 2025]
+Finished job 50.
+1 of 98 steps (1%) done
+36283668 reads; of these:
+  36283668 (100.00%) were paired; of these:
+    36080567 (99.44%) aligned concordantly 0 times
+    81708 (0.23%) aligned concordantly exactly 1 time
+    121393 (0.33%) aligned concordantly >1 times
+    ----
+    36080567 pairs aligned concordantly 0 times; of these:
+      26568 (0.07%) aligned discordantly 1 time
+    ----
+    36053999 pairs aligned 0 times concordantly or discordantly; of these:
+      72107998 mates make up the pairs; of these:
+        71864830 (99.66%) aligned 0 times
+        121200 (0.17%) aligned exactly 1 time
+        121968 (0.17%) aligned >1 times
+0.97% overall alignment rate
+[Mon Sep 22 15:27:48 2025]
+Finished job 58.
+2 of 98 steps (2%) done
+43614578 reads; of these:
+  43614578 (100.00%) were paired; of these:
+    43236840 (99.13%) aligned concordantly 0 times
+    164106 (0.38%) aligned concordantly exactly 1 time
+    213632 (0.49%) aligned concordantly >1 times
+    ----
+    43236840 pairs aligned concordantly 0 times; of these:
+      40228 (0.09%) aligned discordantly 1 time
+    ----
+    43196612 pairs aligned 0 times concordantly or discordantly; of these:
+      86393224 mates make up the pairs; of these:
+        86062944 (99.62%) aligned 0 times
+        172881 (0.20%) aligned exactly 1 time
+        157399 (0.18%) aligned >1 times
+1.34% overall alignment rate
+41695407 reads; of these:
+  41695407 (100.00%) were paired; of these:
+    41523724 (99.59%) aligned concordantly 0 times
+    63272 (0.15%) aligned concordantly exactly 1 time
+    108411 (0.26%) aligned concordantly >1 times
+    ----
+    41523724 pairs aligned concordantly 0 times; of these:
+      15328 (0.04%) aligned discordantly 1 time
+    ----
+    41508396 pairs aligned 0 times concordantly or discordantly; of these:
+      83016792 mates make up the pairs; of these:
+        82776315 (99.71%) aligned 0 times
+        129107 (0.16%) aligned exactly 1 time
+        111370 (0.13%) aligned >1 times
+0.74% overall alignment rate
+[Mon Sep 22 15:28:58 2025]
+Finished job 52.
+3 of 98 steps (3%) done
+[Mon Sep 22 15:29:02 2025]
+Finished job 68.
+4 of 98 steps (4%) done
+43692932 reads; of these:
+  43692932 (100.00%) were paired; of these:
+    43455542 (99.46%) aligned concordantly 0 times
+    96448 (0.22%) aligned concordantly exactly 1 time
+    140942 (0.32%) aligned concordantly >1 times
+    ----
+    43455542 pairs aligned concordantly 0 times; of these:
+      36166 (0.08%) aligned discordantly 1 time
+    ----
+    43419376 pairs aligned 0 times concordantly or discordantly; of these:
+      86838752 mates make up the pairs; of these:
+        86581936 (99.70%) aligned 0 times
+        125794 (0.14%) aligned exactly 1 time
+        131022 (0.15%) aligned >1 times
+0.92% overall alignment rate
+[Mon Sep 22 15:29:23 2025]
+Finished job 60.
+5 of 98 steps (5%) done
+40738120 reads; of these:
+  40738120 (100.00%) were paired; of these:
+    40550138 (99.54%) aligned concordantly 0 times
+    70435 (0.17%) aligned concordantly exactly 1 time
+    117547 (0.29%) aligned concordantly >1 times
+    ----
+    40550138 pairs aligned concordantly 0 times; of these:
+      16526 (0.04%) aligned discordantly 1 time
+    ----
+    40533612 pairs aligned 0 times concordantly or discordantly; of these:
+      81067224 mates make up the pairs; of these:
+        80834044 (99.71%) aligned 0 times
+        121340 (0.15%) aligned exactly 1 time
+        111840 (0.14%) aligned >1 times
+0.79% overall alignment rate
+[Mon Sep 22 15:29:47 2025]
+Finished job 72.
+6 of 98 steps (6%) done
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-09-22T144440.907995.snakemake.log

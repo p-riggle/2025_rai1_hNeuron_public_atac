@@ -1,5 +1,6 @@
 {
-    "r.rpath.linux": "/sw/pkgs/arc/stacks/gcc/10.3.0/R/4.2.0/bin/R",
-    "r.rterm.linux": "/sw/pkgs/arc/stacks/gcc/10.3.0/R/4.2.0/bin/R",
-    "r.plot.useHttpgd": true
+    "r.rpath.linux": "/sw/pkgs/arc/stacks/gcc/13.2.0/R/4.4.3/bin/R",
+    "r.rterm.linux": "/sw/pkgs/arc/stacks/gcc/13.2.0/R/4.4.3/bin/R",
+    "r.plot.useHttpgd": true,
+    "editor.fontSize": 12
 }

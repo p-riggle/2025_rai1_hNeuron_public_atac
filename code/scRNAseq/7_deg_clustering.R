@@ -288,9 +288,9 @@ mh_d60 <- h_d60_het  %>%
 
 head(mh_d60)
 
-# # write cluster dataframe for pathway analysis
-# write.table(mh_d20, file = "results/scRNAseq/4_pseudobulk/mh_d20.txt", sep = "\t")
-# write.table(mh_d60, file = "results/scRNAseq/4_pseudobulk/mh_d60.txt", sep = "\t")
+# write cluster dataframe for pathway analysis
+write.table(mh_d20, file = "results/scRNAseq/4_pseudobulk/mh_d20.txt", sep = "\t")
+write.table(mh_d60, file = "results/scRNAseq/4_pseudobulk/mh_d60.txt", sep = "\t")
 
 # Plot gene expression of each cluster ####
 color1 <- c("#757582", "#bc9f0dff", "#0062ffff")
