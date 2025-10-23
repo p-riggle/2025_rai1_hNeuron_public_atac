@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-#SBATCH --job-name=smk_bt2_bw_2         ## Name of the job for the scheduler
+#SBATCH --job-name=smk_bt2_bw_2          ## Name of the job for the scheduler
 #SBATCH --account=siwase99         ## Your PI's uniqname plus 0,99, or other number
 #SBATCH --partition=largemem         ## Choose: standard, largemem, gpu, spgpu, debug            
 ##SBATCH --gpus=1  			   ## if partition=gpu, number of GPUS needed
@@ -8,7 +8,7 @@
 #SBATCH --ntasks=1                     ## how many task spaces do you want to reserve
 #SBATCH --cpus-per-task=16            ## how many cores do you want to use per task
 #SBATCH --time=24:00:00                 ## Maximum length of time you are reserving the 
-#SBATCH --mem=240G                      ## Memory limit  
+#SBATCH --mem=500G                      ## Memory limit  
 #SBATCH --mail-user=siwase@umich.edu  ## send email notifications to umich email listed
 #SBATCH --mail-type=ALL                ## when to send email (standard values are:
                                        ## NONE,BEGIN,END,FAIL,REQUEUE,ALL.
@@ -25,4 +25,4 @@ conda activate /home/siwase/miniconda3/envs/snakemake # change
 # mkdir -p data/bigwig
 
 # run snakemake to map the bowtie2 output to bigwig
-snakemake --cores 16 -s code/cutrun/bam_bw.smk --rerun-incomplete  
+snakemake --cores 24 -s code/cutrun/bam_bw.smk --rerun-incomplete  

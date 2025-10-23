@@ -1,0 +1,518 @@
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 16
+Rules claiming more threads will be scaled down.
+Job stats:
+job                  count    min threads    max threads
+-----------------  -------  -------------  -------------
+all                      1              1              1
+bam_index                5              1              1
+bam_index_dm6            7              1              1
+bam_sort                 4              1              1
+bam_sort_dm6             4              1              1
+bam_to_bigwig           12              1              1
+bam_to_bigwig_dm6       10              1              1
+bowtie2                  1              1              1
+bowtie2_dm6              2              1              1
+uploading_txt            1              1              1
+total                   47              1              1
+
+Select jobs to execute...
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_to_bigwig:
+    input: data/cutrun/bam/sort_ko_RAI1_H2AV_rep2.bam, data/cutrun/bam/sort_ko_RAI1_H2AV_rep2.bam.bai
+    output: data/cutrun/bigwig/ko_RAI1_H2AV_rep2.bw
+    jobid: 44
+    reason: Missing output files: data/cutrun/bigwig/ko_RAI1_H2AV_rep2.bw
+    wildcards: sample=ko_RAI1_H2AV_rep2
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_to_bigwig:
+    input: data/cutrun/bam/sort_wt_H3K4me3_rep2.bam, data/cutrun/bam/sort_wt_H3K4me3_rep2.bam.bai
+    output: data/cutrun/bigwig/wt_H3K4me3_rep2.bw
+    jobid: 46
+    reason: Missing output files: data/cutrun/bigwig/wt_H3K4me3_rep2.bw
+    wildcards: sample=wt_H3K4me3_rep2
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_to_bigwig_dm6:
+    input: data/cutrun/bam_dm6/sort_dm6.wt_H3K4me3_rep1.bam, data/cutrun/bam_dm6/sort_dm6.wt_H3K4me3_rep1.bam.bai
+    output: data/cutrun/bigwig_dm6/dm6.wt_H3K4me3_rep1.bw
+    jobid: 93
+    reason: Missing output files: data/cutrun/bigwig_dm6/dm6.wt_H3K4me3_rep1.bw
+    wildcards: sample=wt_H3K4me3_rep1
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_sort:
+    input: data/cutrun/bam/ori_wt_RAI1_H2AV_rep1.bam
+    output: data/cutrun/bam/sort_wt_RAI1_H2AV_rep1.bam
+    jobid: 9
+    reason: Missing output files: data/cutrun/bam/sort_wt_RAI1_H2AV_rep1.bam
+    wildcards: sample=wt_RAI1_H2AV_rep1
+    resources: tmpdir=/tmp, mem_mb=500000
+
+
+[Wed Sep 24 08:10:23 2025]
+rule uploading_txt:
+    output: data/cutrun/bigwig/1_upload.txt, data/cutrun/bigwig_dm6/1_upload.dm6.txt
+    jobid: 97
+    reason: Missing output files: data/cutrun/bigwig/1_upload.txt, data/cutrun/bigwig_dm6/1_upload.dm6.txt
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_to_bigwig:
+    input: data/cutrun/bam/sort_ko_1IgG_rep1.bam, data/cutrun/bam/sort_ko_1IgG_rep1.bam.bai
+    output: data/cutrun/bigwig/ko_1IgG_rep1.bw
+    jobid: 39
+    reason: Missing output files: data/cutrun/bigwig/ko_1IgG_rep1.bw
+    wildcards: sample=ko_1IgG_rep1
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_to_bigwig_dm6:
+    input: data/cutrun/bam_dm6/sort_dm6.wt_IgG_rep2.bam, data/cutrun/bam_dm6/sort_dm6.wt_IgG_rep2.bam.bai
+    output: data/cutrun/bigwig_dm6/dm6.wt_IgG_rep2.bw
+    jobid: 86
+    reason: Missing output files: data/cutrun/bigwig_dm6/dm6.wt_IgG_rep2.bw
+    wildcards: sample=wt_IgG_rep2
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_sort:
+    input: data/cutrun/bam/ori_wt_RAI1_H2AV_rep2.bam
+    output: data/cutrun/bam/sort_wt_RAI1_H2AV_rep2.bam
+    jobid: 11
+    reason: Missing output files: data/cutrun/bam/sort_wt_RAI1_H2AV_rep2.bam
+    wildcards: sample=wt_RAI1_H2AV_rep2
+    resources: tmpdir=/tmp, mem_mb=500000
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_sort_dm6:
+    input: data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep2.bam
+    output: data/cutrun/bam_dm6/sort_dm6.ko_H3K4me3_rep2.bam
+    jobid: 71
+    reason: Missing output files: data/cutrun/bam_dm6/sort_dm6.ko_H3K4me3_rep2.bam
+    wildcards: sample=ko_H3K4me3_rep2
+    resources: tmpdir=/tmp, mem_mb=500000
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_index_dm6:
+    input: data/cutrun/bam_dm6/sort_dm6.ko_1IgG_rep1.bam
+    output: data/cutrun/bam_dm6/sort_dm6.ko_1IgG_rep1.bam.bai
+    jobid: 75
+    reason: Missing output files: data/cutrun/bam_dm6/sort_dm6.ko_1IgG_rep1.bam.bai
+    wildcards: sample=ko_1IgG_rep1
+    resources: tmpdir=/tmp
+
+python3: can't open file '/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc/code/browser_upload.an.py': [Errno 2] No such file or directory
+
+[Wed Sep 24 08:10:23 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-14_S383_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-14_S383_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.ko_2IgG_rep1.bam
+    log: data/cutrun/bam_dm6/dm6.ko_2IgG_rep1.log
+    jobid: 56
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.ko_2IgG_rep1.log, data/cutrun/bam_dm6/dm6.ko_2IgG_rep1.bam
+    wildcards: sample=ko_2IgG_rep1
+    resources: tmpdir=/tmp, mem_mb=240000
+
+[Wed Sep 24 08:10:23 2025]
+Error in rule uploading_txt:
+    jobid: 97
+    output: data/cutrun/bigwig/1_upload.txt, data/cutrun/bigwig_dm6/1_upload.dm6.txt
+    shell:
+        
+        python3 code/browser_upload.an.py
+        python3 code/browser_upload.dm6.py
+#         
+        (one of the commands exited with non-zero exit code; note that snakemake uses bash strict mode!)
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_to_bigwig:
+    input: data/cutrun/bam/sort_ko_RAI1_H2AV_rep1.bam, data/cutrun/bam/sort_ko_RAI1_H2AV_rep1.bam.bai
+    output: data/cutrun/bigwig/ko_RAI1_H2AV_rep1.bw
+    jobid: 43
+    reason: Missing output files: data/cutrun/bigwig/ko_RAI1_H2AV_rep1.bw
+    wildcards: sample=ko_RAI1_H2AV_rep1
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_to_bigwig:
+    input: data/cutrun/bam/sort_ko_H3K4me3_rep1.bam, data/cutrun/bam/sort_ko_H3K4me3_rep1.bam.bai
+    output: data/cutrun/bigwig/ko_H3K4me3_rep1.bw
+    jobid: 47
+    reason: Missing output files: data/cutrun/bigwig/ko_H3K4me3_rep1.bw
+    wildcards: sample=ko_H3K4me3_rep1
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_index_dm6:
+    input: data/cutrun/bam_dm6/sort_dm6.ko_RAI1_H2AV_rep1.bam
+    output: data/cutrun/bam_dm6/sort_dm6.ko_RAI1_H2AV_rep1.bam.bai
+    jobid: 79
+    reason: Missing output files: data/cutrun/bam_dm6/sort_dm6.ko_RAI1_H2AV_rep1.bam.bai
+    wildcards: sample=ko_RAI1_H2AV_rep1
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bam_index:
+    input: data/cutrun/bam/sort_wt_IgG_rep1.bam
+    output: data/cutrun/bam/sort_wt_IgG_rep1.bam.bai
+    jobid: 25
+    reason: Missing output files: data/cutrun/bam/sort_wt_IgG_rep1.bam.bai
+    wildcards: sample=wt_IgG_rep1
+    resources: tmpdir=/tmp
+
+
+[Wed Sep 24 08:10:23 2025]
+rule bowtie2_dm6:
+    input: data/cutrun/fastq/14154-BZ-13_S382_R1_001.fastq.gz, data/cutrun/fastq/14154-BZ-13_S382_R2_001.fastq.gz
+    output: data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep1.bam
+    log: data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep1.log
+    jobid: 70
+    reason: Missing output files: data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep1.log, data/cutrun/bam_dm6/dm6.ko_H3K4me3_rep1.bam
+    wildcards: sample=ko_H3K4me3_rep1
+    resources: tmpdir=/tmp, mem_mb=240000
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+
+    Provides Bioinformatics software.
+    For more information please use:
+
+        $ module help Bioinformatics
+
+
+normalization: BPM
+bamFilesList: ['data/cutrun/bam_dm6/sort_dm6.wt_IgG_rep2.bam']
+binLength: 50
+numberOfSamples: None
+blackListFileName: None
+skipZeroOverZero: False
+bed_and_bin: False
+genomeChunkSize: None
+defaultFragmentLength: read length
+numberOfProcessors: 16
+verbose: False
+region: None
+bedFile: None
+minMappingQuality: None
+ignoreDuplicates: False
+chrsToSkip: []
+stepSize: 50
+center_read: False
+samFlag_include: None
+samFlag_exclude: None
+minFragmentLength: 0
+maxFragmentLength: 0
+zerosToNans: False
+smoothLength: None
+save_data: False
+out_file_for_raw_data: None
+maxPairedFragmentLength: 1000
+normalization: BPM
+bamFilesList: ['data/cutrun/bam_dm6/sort_dm6.wt_H3K4me3_rep1.bam']
+binLength: 50
+numberOfSamples: None
+blackListFileName: None
+skipZeroOverZero: False
+bed_and_bin: False
+genomeChunkSize: None
+defaultFragmentLength: read length
+numberOfProcessors: 16
+verbose: False
+region: None
+bedFile: None
+minMappingQuality: None
+ignoreDuplicates: False
+chrsToSkip: []
+stepSize: 50
+center_read: False
+samFlag_include: None
+samFlag_exclude: None
+minFragmentLength: 0
+maxFragmentLength: 0
+zerosToNans: False
+smoothLength: None
+save_data: False
+out_file_for_raw_data: None
+maxPairedFragmentLength: 1000
+normalization: BPM
+bamFilesList: ['data/cutrun/bam/sort_wt_H3K4me3_rep2.bam']
+binLength: 50
+numberOfSamples: None
+blackListFileName: None
+skipZeroOverZero: False
+bed_and_bin: False
+genomeChunkSize: None
+defaultFragmentLength: read length
+numberOfProcessors: 16
+verbose: False
+region: None
+bedFile: None
+minMappingQuality: None
+ignoreDuplicates: False
+chrsToSkip: []
+stepSize: 50
+center_read: False
+samFlag_include: None
+samFlag_exclude: None
+minFragmentLength: 0
+maxFragmentLength: 0
+zerosToNans: False
+smoothLength: None
+save_data: False
+out_file_for_raw_data: None
+maxPairedFragmentLength: 1000
+normalization: BPM
+bamFilesList: ['data/cutrun/bam/sort_ko_1IgG_rep1.bam']
+binLength: 50
+numberOfSamples: None
+blackListFileName: None
+skipZeroOverZero: False
+bed_and_bin: False
+genomeChunkSize: None
+defaultFragmentLength: read length
+numberOfProcessors: 16
+verbose: False
+region: None
+bedFile: None
+minMappingQuality: None
+ignoreDuplicates: False
+chrsToSkip: []
+stepSize: 50
+center_read: False
+samFlag_include: None
+samFlag_exclude: None
+minFragmentLength: 0
+maxFragmentLength: 0
+zerosToNans: False
+smoothLength: None
+save_data: False
+out_file_for_raw_data: None
+maxPairedFragmentLength: 1000
+normalization: BPM
+bamFilesList: ['data/cutrun/bam/sort_ko_RAI1_H2AV_rep1.bam']
+binLength: 50
+numberOfSamples: None
+blackListFileName: None
+skipZeroOverZero: False
+bed_and_bin: False
+genomeChunkSize: None
+defaultFragmentLength: read length
+numberOfProcessors: 16
+verbose: False
+region: None
+bedFile: None
+minMappingQuality: None
+ignoreDuplicates: False
+chrsToSkip: []
+stepSize: 50
+center_read: False
+samFlag_include: None
+samFlag_exclude: None
+minFragmentLength: 0
+maxFragmentLength: 0
+zerosToNans: False
+smoothLength: None
+save_data: False
+out_file_for_raw_data: None
+maxPairedFragmentLength: 1000
+normalization: BPM
+bamFilesList: ['data/cutrun/bam/sort_ko_H3K4me3_rep1.bam']
+binLength: 50
+numberOfSamples: None
+blackListFileName: None
+skipZeroOverZero: False
+bed_and_bin: False
+genomeChunkSize: None
+defaultFragmentLength: read length
+numberOfProcessors: 16
+verbose: False
+region: None
+bedFile: None
+minMappingQuality: None
+ignoreDuplicates: False
+chrsToSkip: []
+stepSize: 50
+center_read: False
+samFlag_include: None
+samFlag_exclude: None
+minFragmentLength: 0
+maxFragmentLength: 0
+zerosToNans: False
+smoothLength: None
+save_data: False
+out_file_for_raw_data: None
+maxPairedFragmentLength: 1000
+normalization: BPM
+bamFilesList: ['data/cutrun/bam/sort_ko_RAI1_H2AV_rep2.bam']
+binLength: 50
+numberOfSamples: None
+blackListFileName: None
+skipZeroOverZero: False
+bed_and_bin: False
+genomeChunkSize: None
+defaultFragmentLength: read length
+numberOfProcessors: 16
+verbose: False
+region: None
+bedFile: None
+minMappingQuality: None
+ignoreDuplicates: False
+chrsToSkip: []
+stepSize: 50
+center_read: False
+samFlag_include: None
+samFlag_exclude: None
+minFragmentLength: 0
+maxFragmentLength: 0
+zerosToNans: False
+smoothLength: None
+save_data: False
+out_file_for_raw_data: None
+maxPairedFragmentLength: 1000
+[bam_sort_core] merging from 0 files and 16 in-memory blocks...
+[Wed Sep 24 08:10:38 2025]
+Finished job 75.
+1 of 47 steps (2%) done
+[Wed Sep 24 08:10:38 2025]
+Finished job 79.
+2 of 47 steps (4%) done
+[Wed Sep 24 08:10:40 2025]
+Finished job 71.
+3 of 47 steps (6%) done
+[Wed Sep 24 08:11:00 2025]
+Finished job 93.
+4 of 47 steps (9%) done
+[Wed Sep 24 08:11:10 2025]
+Finished job 86.
+5 of 47 steps (11%) done
+[bam_sort_core] merging from 1 files and 16 in-memory blocks...
+[bam_sort_core] merging from 1 files and 16 in-memory blocks...
+[Wed Sep 24 08:15:23 2025]
+Finished job 25.
+6 of 47 steps (13%) done
+[Wed Sep 24 08:16:11 2025]
+Finished job 43.
+7 of 47 steps (15%) done
+[Wed Sep 24 08:16:28 2025]
+Finished job 47.
+8 of 47 steps (17%) done
+[Wed Sep 24 08:16:32 2025]
+Finished job 39.
+9 of 47 steps (19%) done
+[Wed Sep 24 08:16:33 2025]
+Finished job 44.
+10 of 47 steps (21%) done
+[Wed Sep 24 08:16:54 2025]
+Finished job 46.
+11 of 47 steps (23%) done
+[Wed Sep 24 08:18:51 2025]
+Finished job 9.
+12 of 47 steps (26%) done
+[Wed Sep 24 08:19:08 2025]
+Finished job 11.
+13 of 47 steps (28%) done
+37933138 reads; of these:
+  37933138 (100.00%) were paired; of these:
+    37758475 (99.54%) aligned concordantly 0 times
+    65176 (0.17%) aligned concordantly exactly 1 time
+    109487 (0.29%) aligned concordantly >1 times
+    ----
+    37758475 pairs aligned concordantly 0 times; of these:
+      15301 (0.04%) aligned discordantly 1 time
+    ----
+    37743174 pairs aligned 0 times concordantly or discordantly; of these:
+      75486348 mates make up the pairs; of these:
+        75257705 (99.70%) aligned 0 times
+        116409 (0.15%) aligned exactly 1 time
+        112234 (0.15%) aligned >1 times
+0.80% overall alignment rate
+[Wed Sep 24 08:33:24 2025]
+Finished job 70.
+14 of 47 steps (30%) done
+39205960 reads; of these:
+  39205960 (100.00%) were paired; of these:
+    38915990 (99.26%) aligned concordantly 0 times
+    117127 (0.30%) aligned concordantly exactly 1 time
+    172843 (0.44%) aligned concordantly >1 times
+    ----
+    38915990 pairs aligned concordantly 0 times; of these:
+      27310 (0.07%) aligned discordantly 1 time
+    ----
+    38888680 pairs aligned 0 times concordantly or discordantly; of these:
+      77777360 mates make up the pairs; of these:
+        77453448 (99.58%) aligned 0 times
+        167344 (0.22%) aligned exactly 1 time
+        156568 (0.20%) aligned >1 times
+1.22% overall alignment rate
+[Wed Sep 24 08:33:55 2025]
+Finished job 56.
+15 of 47 steps (32%) done
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2025-09-24T081021.207717.snakemake.log

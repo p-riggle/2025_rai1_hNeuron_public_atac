@@ -1,7 +1,7 @@
 import yaml
 
 # Load the config file
-with open('code/config.yaml', 'r') as file:
+with open('code/cutrun/config.yaml', 'r') as file:
     config = yaml.safe_load(file)
 
 # Extract sample names from the config
@@ -14,6 +14,6 @@ base_url_template = 'track type=bigWig name="{sample}" bigDataUrl=https://storag
 urls = [base_url_template.format(sample=sample) for sample in samples]
 
 # Write the URLs to a text file
-with open('data/bigwig/1_upload.txt', 'w') as file:
+with open('data/cutrun/bigwig/1_upload.txt', 'w') as file:
     for url in urls:
         file.write(url + '\n')

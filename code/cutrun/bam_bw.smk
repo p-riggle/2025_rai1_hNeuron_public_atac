@@ -32,7 +32,7 @@ rule bowtie2:
     log:
         log = "data/cutrun/bam/bt2_{sample}.log"
     resources:
-        mem_mb = 120000 # 120 GB
+        mem_mb = 240000 # 240 GB
     shell:
         """
         module load Bioinformatics  gcc/10.3.0-k2osx5y
@@ -53,7 +53,7 @@ rule bam_sort:
     output:
         bam_sorted = "data/cutrun/bam/sort_{sample}.bam"
     resources:
-        mem_mb = 240000 # 240 GB
+        mem_mb = 500000 # 240 GB
     shell:
         """
         module load Bioinformatics  gcc/10.3.0-k2osx5y
@@ -120,7 +120,7 @@ rule bam_sort_dm6:
     output:
         bam_sorted = "data/cutrun/bam_dm6/sort_dm6.{sample}.bam"
     resources:
-        mem_mb = 240000 # 240 GB
+        mem_mb = 500000 # 240 GB
     shell:
         """
         module load Bioinformatics  gcc/10.3.0-k2osx5y
@@ -160,9 +160,10 @@ rule uploading_txt:
         "data/cutrun/bigwig_dm6/1_upload.dm6.txt"
     shell: 
         """
-        python3 code/browser_upload.an.py
-        python3 code/browser_upload.dm6.py
+        python3 code/cutrun/browser_upload.an.py
+        python3 code/cutrun/browser_upload.dm6.py
         """
+
 # rule count_reads: 
 #     output: 
 #         "bam_read_count.csv",
