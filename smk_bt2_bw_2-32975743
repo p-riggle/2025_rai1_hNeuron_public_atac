@@ -1,6 +1,0 @@
-Building DAG of jobs...
-MissingInputException in rule all in line 8 of /nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc/code/cutrun/bam_bw.smk:
-Missing input files for rule all:
-    affected files:
-        data/cutrun/bigwig/1_upload.txt
-        data/cutrun/bigwig_dm6/1_upload.dm6.txt
