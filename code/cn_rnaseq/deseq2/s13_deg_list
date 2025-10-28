@@ -1,0 +1,245 @@
+# load the restables
+library(tibble)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+# Define time points and genotypes
+timepoints <- c("d0", "d20", "d34", "d60")
+genotypes <- c("ko", "het")
+
+# Load all result tables
+restables <- list()
+for (tp in timepoints) {
+  for (geno in genotypes) {
+    var_name <- paste0("restbl_", tp, "_", geno)
+    file_path <- paste0("results/cn_rnaseq/deseq2/rstbl_", tp, "_wt.vs.", geno, ".txt")
+    restables[[var_name]] <- read.table(file_path, sep = "\t", header = TRUE, row.names = 1)
+  }
+}
+
+# see example data 
+head(restables[["restbl_d20_ko"]])
+
+# Function to extract DEGs
+extract_degs <- function(restbl, direction) {
+  if (direction == "up") {
+    subset(restbl, padj < 0.05 & log2FoldChange > 1)
+  } else {
+    subset(restbl, padj < 0.05 & log2FoldChange < -1)
+  }
+}
+
+# Extract all DEGs
+degs <- list()
+directions <- c("up", "down")
+
+for (tp in timepoints) {
+  for (geno in genotypes) {
+    for (dir in directions) {
+      var_name <- paste0(dir, "_", tp, "_", geno)
+      restbl_name <- paste0("restbl_", tp, "_", geno)
+      degs[[var_name]] <- extract_degs(restables[[restbl_name]], dir)
+    }
+  }
+}
+
+# sort DEGs by padj then log2FC
+for (tp in timepoints) {
+  for (geno in genotypes) {
+    # Sort upregulated DEGs (by padj, then by highest log2FC)
+    up_name <- paste0("up_", tp, "_", geno)
+    degs[[up_name]] <- degs[[up_name]][order(degs[[up_name]]$padj, -degs[[up_name]]$log2FoldChange), ]
+    
+    # Sort downregulated DEGs (by padj, then by lowest log2FC)
+    down_name <- paste0("down_", tp, "_", geno)
+    degs[[down_name]] <- degs[[down_name]][order(degs[[down_name]]$padj, degs[[down_name]]$log2FoldChange), ]
+  }
+}
+
+
+# make the lists into tibbles
+deg_tibbles <- lapply(degs, function(x) as_tibble(x, rownames = "gene"))  
+
+str(deg_tibbles)
+
+# write the tibbles to files
+for (name in names(deg_tibbles)) {
+  write.table(deg_tibbles[[name]], file = paste0("results/cn_rnaseq/deseq2/", name, ".txt"), sep = "\t", quote = FALSE, row.names = FALSE)
+}
+
+# write the tibbles into excel file with multiple sheets
+# install.packages("openxlsx")  # Uncomment if openxlsx is not installed
+library(openxlsx)
+
+wb <- createWorkbook()
+
+for (name in names(deg_tibbles)) {
+  addWorksheet(wb, name)
+  writeData(wb, name, deg_tibbles[[name]])
+}
+
+saveWorkbook(wb, file = "results/cn_rnaseq/deseq2/degs.xlsx", overwrite = TRUE)
+
+# identify genes that overlap in het and ko at each timepoint
+overlap_genes <- list()
+for (tp in timepoints) {
+  up_ko <- degs[[paste0("up_", tp, "_ko")]]
+  up_het <- degs[[paste0("up_", tp, "_het")]]
+  down_ko <- degs[[paste0("down_", tp, "_ko")]]
+  down_het <- degs[[paste0("down_", tp, "_het")]]
+  overlap_up <- intersect(rownames(up_ko), rownames(up_het))
+  overlap_down <- intersect(rownames(down_ko), rownames(down_het))
+  overlap_genes[[tp]] <- list(up = overlap_up, down = overlap_down)
+}
+overlap_genes
+# write overlap genes to excel file with multiple sheets
+wb_overlap <- createWorkbook()
+for (tp in timepoints) {
+  addWorksheet(wb_overlap, paste0(tp, "_up"))
+  writeData(wb_overlap, paste0(tp, "_up"), as.data.frame(overlap_genes[[tp]]$up), colNames = FALSE)
+  addWorksheet(wb_overlap, paste0(tp, "_down"))
+  writeData(wb_overlap, paste0(tp, "_down"), as.data.frame(overlap_genes[[tp]]$down), colNames = FALSE)
+}
+saveWorkbook(wb_overlap, file = "results/cn_rnaseq/deseq2/degs_het-ko_common.xlsx", overwrite = TRUE)
+
+# count number of overlapping genes at each timepoint
+overlap_counts <- sapply(overlap_genes, function(x) sapply(x, length))
+overlap_counts
+
+# make an upset plot of overlapping up genes across timepoints
+# Uncomment if UpSetR is not installed
+library(UpSetR)
+
+up_lists <- list()
+for (tp in timepoints) {
+  up_lists[[tp]] <- as.character(overlap_genes[[tp]]$up)
+}
+
+str(up_lists)
+
+pdf("results/cn_rnaseq/deseq2/upset_upregulated_genes.pdf")
+upset(fromList(up_lists),
+  sets = c("d60", "d34", "d20", "d0"),
+  nsets = length(timepoints),
+  keep.order = TRUE,
+  main.bar.color = "salmon",
+  sets.bar.color = "salmon")
+dev.off()
+
+# make an upset plot of overlapping down genes across timepoints
+down_lists <- list()
+for (tp in timepoints) {
+  down_lists[[tp]] <- as.character(overlap_genes[[tp]]$down)
+}
+str(down_lists)
+pdf("results/cn_rnaseq/deseq2/upset_downregulated_genes.pdf")
+upset(fromList(down_lists),
+  sets = c("d60", "d34", "d20", "d0"),
+  nsets = length(timepoints),
+  keep.order = TRUE,
+  main.bar.color = "steelblue",
+  sets.bar.color = "steelblue")
+dev.off()
+ 
+# from here, it is incomplete. need to change the tribble object to overlap_genes
+# extract genes with each intersection pattern
+intersection_patterns <- list()
+for (i in 1:(2^length(timepoints)-1)) {
+  pattern <- as.integer(intToBits(i))[1:length(timepoints)]
+  included_tps <- timepoints[which(pattern == 1)]
+  excluded_tps <- timepoints[which(pattern == 0)]
+  
+  included_genes <- Reduce(intersect, lapply(included_tps, function(tp) as.character(deg_tibbles[[paste0("up_", tp, "_ko")]]$gene)))
+  if (length(excluded_tps) > 0) {
+    excluded_genes <- unlist(lapply(excluded_tps, function(tp) as.character(deg_tibbles[[paste0("up_", tp, "_ko")]]$gene)))
+    final_genes <- setdiff(included_genes, excluded_genes)
+  } else {
+    final_genes <- included_genes
+  }
+  
+  pattern_name <- paste0(ifelse(pattern == 1, "1", "0"), collapse = "")
+  intersection_patterns[[pattern_name]] <- final_genes
+}
+
+str(intersection_patterns)
+head(intersection_patterns)
+
+# generate of list of genes for each intersection pattern
+intersection_patterns_list <- lapply(intersection_patterns, unique)
+intersection_patterns_list
+
+# count number of genes in each intersection pattern
+intersection_pattern_counts <- sapply(intersection_patterns_list, length)
+intersection_pattern_counts
+
+# convert symbols to entrez ids
+# BiocManager::install("org.Hs.eg.db")
+library(org.Hs.eg.db)
+intersection_up_genes <- lapply(intersection_patterns_list, function(x) {
+    entrez <- mapIds(org.Hs.eg.db, x, "ENTREZID", "SYMBOL")
+    entrez <- unlist(entrez)
+    entrez <- entrez[!is.na(entrez)]
+    return(entrez)
+})
+intersection_up_genes
+str(intersection_up_genes)
+
+# count number of genes that are successfully converted to entrez ids for each pattern
+intersection_up_counts <- sapply(intersection_up_genes, length)
+intersection_up_counts
+
+# With clusterProfiler, make a dotplot of GO term enrichment for each intersection pattern using intersection_up_genes
+library(clusterProfiler)
+library(DOSE)
+
+kegg <- function(cmatrix) {compareCluster(geneCluster = cmatrix, fun = enrichKEGG) %>% setReadable(OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
+}
+
+intersection_up_kegg <- kegg(intersection_up_genes)
+
+# make dotplots
+dotplot_intersection_up <- dotplot(intersection_up_kegg, showCategory = 10, title = "KEGG enrichment of Intersection Upregulated Genes")
+pdf("results/cn_rnaseq/deseq2/dotplot_intersection_up_kegg.pdf", width = 12, height = 8)
+dotplot_intersection_up
+dev.off()
+
+# make plot for GO enrichment
+go <- function(cmatrix) {compareCluster(geneCluster = cmatrix, fun = enrichGO, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "ENTREZID") %>% setReadable(OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
+}
+
+intersection_up_go <- go(intersection_up_genes)
+# make dotplots
+dotplot_intersection_up <- dotplot(intersection_up_go, showCategory = 10, title = "GO-BP enrichment of Intersection Upregulated Genes")
+pdf("results/cn_rnaseq/deseq2/dotplot_intersection_up_go.pdf", width = 12, height = 24)
+dotplot_intersection_up
+dev.off()
+
+
+# extract genes that are upregulated only in one timepoint
+unique_up_genes <- list()
+for (tp in timepoints) {
+  other_tps <- setdiff(timepoints, tp)
+  other_genes <- unlist(lapply(other_tps, function(otp) as.character(deg_tibbles[[paste0("up_", otp, "_ko")]]$gene)))
+  unique_genes <- setdiff(as.character(deg_tibbles[[paste0("up_", tp, "_ko")]]$gene), other_genes)
+  unique_up_genes[[tp]] <- unique_genes
+}
+unique_up_genes
+
+# count number of unique up genes at each timepoint
+unique_up_counts <- sapply(unique_up_genes, length)
+unique_up_counts  
+
+# write unique up genes to excel file with multiple sheets
+wb_unique_up <- createWorkbook()
+for (tp in timepoints) {
+  addWorksheet(wb_unique_up, tp)
+  writeData(wb_unique_up, tp, as.data.frame(unique_up_genes[[tp]]), colNames = FALSE)
+}
+saveWorkbook(wb_unique_up, file = "results/cn_rnaseq/deseq2/unique_up_genes.xlsx", overwrite = TRUE)
+
+# list up genes that are common across all timepoints
+common_up_genes <- Reduce(intersect, lapply(timepoints, function(tp) as.character(deg_tibbles[[paste0("up_", tp, "_ko")]]$gene)))
+common_up_genes
+
+# write common up genes to a text file
+
