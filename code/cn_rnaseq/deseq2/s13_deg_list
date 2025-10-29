@@ -67,6 +67,19 @@ for (name in names(deg_tibbles)) {
   write.table(deg_tibbles[[name]], file = paste0("results/cn_rnaseq/deseq2/", name, ".txt"), sep = "\t", quote = FALSE, row.names = FALSE)
 }
 
+# sort the tribble by log2FoldChange
+for (name in names(deg_tibbles)) {
+  if (nrow(deg_tibbles[[name]]) > 0) {
+    if (deg_tibbles[[name]]$log2FoldChange[1] > 0) {
+      deg_tibbles[[name]] <- deg_tibbles[[name]] %>%
+        arrange(desc(log2FoldChange))
+    } else {
+      deg_tibbles[[name]] <- deg_tibbles[[name]] %>%
+        arrange(log2FoldChange)
+    }
+  }
+}
+
 # write the tibbles into excel file with multiple sheets
 # install.packages("openxlsx")  # Uncomment if openxlsx is not installed
 library(openxlsx)
@@ -81,26 +94,62 @@ for (name in names(deg_tibbles)) {
 saveWorkbook(wb, file = "results/cn_rnaseq/deseq2/degs.xlsx", overwrite = TRUE)
 
 # identify genes that overlap in het and ko at each timepoint
-overlap_genes <- list()
+
+overlap_genes_tibbles <- list()
 for (tp in timepoints) {
   up_ko <- degs[[paste0("up_", tp, "_ko")]]
   up_het <- degs[[paste0("up_", tp, "_het")]]
   down_ko <- degs[[paste0("down_", tp, "_ko")]]
   down_het <- degs[[paste0("down_", tp, "_het")]]
+  
+  # Find overlapping gene names
   overlap_up <- intersect(rownames(up_ko), rownames(up_het))
   overlap_down <- intersect(rownames(down_ko), rownames(down_het))
   overlap_genes[[tp]] <- list(up = overlap_up, down = overlap_down)
+  
+  # Create tibbles with full information for overlapping genes
+  if (length(overlap_up) > 0) {
+    overlap_up_ko_tibble <- as_tibble(up_ko[overlap_up, ], rownames = "gene") %>%
+      mutate(genotype = "ko", direction = "up", timepoint = tp)
+    overlap_up_het_tibble <- as_tibble(up_het[overlap_up, ], rownames = "gene") %>%
+      mutate(genotype = "het", direction = "up", timepoint = tp)
+    overlap_genes_tibbles[[paste0(tp, "_up_ko")]] <- overlap_up_ko_tibble
+    overlap_genes_tibbles[[paste0(tp, "_up_het")]] <- overlap_up_het_tibble
+  }
+  
+  if (length(overlap_down) > 0) {
+    overlap_down_ko_tibble <- as_tibble(down_ko[overlap_down, ], rownames = "gene") %>%
+      mutate(genotype = "ko", direction = "down", timepoint = tp)
+    overlap_down_het_tibble <- as_tibble(down_het[overlap_down, ], rownames = "gene") %>%
+      mutate(genotype = "het", direction = "down", timepoint = tp)
+    overlap_genes_tibbles[[paste0(tp, "_down_ko")]] <- overlap_down_ko_tibble
+    overlap_genes_tibbles[[paste0(tp, "_down_het")]] <- overlap_down_het_tibble
+  }
 }
-overlap_genes
-# write overlap genes to excel file with multiple sheets
-wb_overlap <- createWorkbook()
-for (tp in timepoints) {
-  addWorksheet(wb_overlap, paste0(tp, "_up"))
-  writeData(wb_overlap, paste0(tp, "_up"), as.data.frame(overlap_genes[[tp]]$up), colNames = FALSE)
-  addWorksheet(wb_overlap, paste0(tp, "_down"))
-  writeData(wb_overlap, paste0(tp, "_down"), as.data.frame(overlap_genes[[tp]]$down), colNames = FALSE)
+
+str(overlap_genes_tibbles)
+
+# sort the tribble by log2FoldChange
+for (name in names(overlap_genes_tibbles)) {
+  if (nrow(overlap_genes_tibbles[[name]]) > 0) {
+    if (overlap_genes_tibbles[[name]]$direction[1] == "up") {
+      overlap_genes_tibbles[[name]] <- overlap_genes_tibbles[[name]] %>%
+        arrange(desc(log2FoldChange))
+    } else {
+      overlap_genes_tibbles[[name]] <- overlap_genes_tibbles[[name]] %>%
+        arrange(log2FoldChange)
+    }
+  }
 }
-saveWorkbook(wb_overlap, file = "results/cn_rnaseq/deseq2/degs_het-ko_common.xlsx", overwrite = TRUE)
+
+
+# write detailed overlap genes to excel file with multiple sheets
+wb_overlap_detailed <- createWorkbook()
+for (name in names(overlap_genes_tibbles)) {
+  addWorksheet(wb_overlap_detailed, name)
+  writeData(wb_overlap_detailed, name, overlap_genes_tibbles[[name]])
+}
+saveWorkbook(wb_overlap_detailed, file = "results/cn_rnaseq/deseq2/degs_het-ko_common_detailed.xlsx", overwrite = TRUE)
 
 # count number of overlapping genes at each timepoint
 overlap_counts <- sapply(overlap_genes, function(x) sapply(x, length))
