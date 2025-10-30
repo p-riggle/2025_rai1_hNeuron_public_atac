@@ -33,16 +33,22 @@ tpm[, c(2:47)] <- NULL
 tpm <- tpm[, c(1, 10:13, 2:5, 6:9)]
 head(tpm)
 
-# import restables
-rstbl_d0_het <- read.table("results/deseq2/rstbl_d0_wt.vs.het.txt", header = TRUE)
-rstbl_d20_het <- read.table("results/deseq2/rstbl_d20_wt.vs.het.txt", header = TRUE)
-rstbl_d34_het <- read.table("results/deseq2/rstbl_d34_wt.vs.het.txt", header = TRUE)
-rstbl_d60_het <- read.table("results/deseq2/rstbl_d60_wt.vs.het.txt", header = TRUE)
+# write the tpm into an excel spreadsheet for record
+library(openxlsx)
+write.xlsx(tpm, file = "results/cn_rnaseq/deseq2/tpm_avg.xlsx", rowNames = FALSE)
+# also write as txt file
+write.table(tpm, file = "results/cn_rnaseq/deseq2/tpm_avg.txt", sep = "\t", row.names = FALSE, quote = FALSE)
 
-rstbl_d0_ko <- read.table("results/deseq2/rstbl_d0_wt.vs.ko.txt", header = TRUE)
-rstbl_d20_ko <- read.table("results/deseq2/rstbl_d20_wt.vs.ko.txt", header = TRUE)
-rstbl_d34_ko <- read.table("results/deseq2/rstbl_d34_wt.vs.ko.txt", header = TRUE)
-rstbl_d60_ko <- read.table("results/deseq2/rstbl_d60_wt.vs.ko.txt", header = TRUE)
+# import restables
+rstbl_d0_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d0_wt.vs.het.txt", header = TRUE)
+rstbl_d20_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d20_wt.vs.het.txt", header = TRUE)
+rstbl_d34_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d34_wt.vs.het.txt", header = TRUE)
+rstbl_d60_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d60_wt.vs.het.txt", header = TRUE)
+
+rstbl_d0_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d0_wt.vs.ko.txt", header = TRUE)
+rstbl_d20_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d20_wt.vs.ko.txt", header = TRUE)
+rstbl_d34_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d34_wt.vs.ko.txt", header = TRUE)
+rstbl_d60_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d60_wt.vs.ko.txt", header = TRUE)
 
 #combine the 8 restables
 rstbls <- cbind.data.frame(list(rstbl_d0_het, rstbl_d0_ko, rstbl_d20_het, rstbl_d20_ko, rstbl_d34_het, rstbl_d34_ko, rstbl_d60_het, rstbl_d60_ko))
@@ -59,6 +65,11 @@ colnames(rstbls) <- c("bmean_d0_het", "log2fc_d0_het", "lfcse_d0_het", "pvalue_d
 "bmean_d60_ko", "log2fc_d60_ko", "lfcse_d60_ko", "pvalue_d60_ko", "padj_d60_ko", "entrezid")
 
 colnames(rstbls)
+head(rstbls)
+
+# write the combined restable for record as excel and txt
+write.xlsx(rstbls, file = "results/cn_rnaseq/deseq2/combined_restables.xlsx", rowNames = TRUE)
+write.table(rstbls, file = "results/cn_rnaseq/deseq2/combined_restables.txt", sep = "\t", row.names = TRUE, quote = FALSE)  
 
 #Select all DEGs
 degs <- subset(rstbls, padj_d0_het < 0.05 | padj_d20_het < 0.05 | padj_d34_het < 0.05 | padj_d60_het < 0.05 | padj_d0_ko < 0.05 | padj_d20_ko < 0.05 | padj_d34_ko < 0.05 | padj_d60_ko < 0.05)

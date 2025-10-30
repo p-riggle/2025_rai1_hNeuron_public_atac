@@ -1,0 +1,109 @@
+# import tpm table and combined restable
+tpm <- read.delim("results/cn_rnaseq/deseq2/tpm_avg.txt", row.names = 1, check.names = FALSE)
+head(tpm)
+
+# #reorder columns by genotype -> days
+# tpm <- tpm[, c(1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12)]
+# colnames(tpm)
+# colnames(tpm) <- c("WT_d0", "HET_d0", "KO_d0", "WT_d20", "HET_d20", "KO_d20", "WT_d34", "HET_d34", "KO_d34", "WT_d60", "HET_d60", "KO_d60")
+# # convert dataframe into matrix (now all columns are numeric)
+tpm <- as.matrix(tpm)
+
+# scale data to z scores 
+z <- t(scale(t(tpm)))
+# remove NA values
+z <- z[complete.cases(z), ]
+
+# make a heatmap for interest groups of genes
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# BiocManager::install("ComplexHeatmap")
+
+library(ComplexHeatmap)
+library(circlize)  # for colorRamp2 function
+
+chromatin_genes <- c("EZH2", "MTA2", "RBBP4", "BRD1", "RCOR2", "SMARCE1", "KDM5B", 
+                     "SMARCD1", "SMARCA4", "MTF2", "EPC1", "RNF2", "CHD3", "KMT5B", 
+                     "EPC2", "SMARCD1", "CBX5", "HDAC2", "KDM1A")
+
+# make heatmap for chromatin genes
+chromatin_z <- z[rownames(z) %in% chromatin_genes, ]
+ht_chromatin <- Heatmap(chromatin_z, name = "Z-score", 
+                        column_title = "Chromatin Genes Expression Heatmap",
+                        row_title = "Genes",
+                        show_row_names = TRUE,
+                        show_column_names = TRUE,
+                        column_names_side = "top",
+                        cluster_rows = TRUE,
+                        cluster_columns = FALSE,
+                        col = colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
+)
+draw(ht_chromatin)
+
+# save heatmap to a file
+pdf("results/cn_rnaseq/deseq2/heatmap_chromatin_barrier.pdf", width = 8, height = 6)
+draw(ht_chromatin)
+dev.off()   
+
+# make heat map for circadian genes
+circadian_genes <- c("CLOCK", "ARNTL", "PER1", "PER2", "PER3", "CRY1", "CRY2", 
+                     "NR1D1", "NR1D2", "RORA", "RORB", "RORB", "BHLHE40", "BHLHE41")
+
+circadian_z <- z[rownames(z) %in% circadian_genes, ]
+ht_circadian <- Heatmap(circadian_z, name = "Z-score",
+                        column_title = "Circadian Genes Expression Heatmap",
+                        row_title = "Genes",
+                        show_row_names = TRUE,
+                        show_column_names = TRUE,
+                        column_names_side = "top",
+                        cluster_rows = TRUE,
+                        cluster_columns = FALSE,
+                        col = colorRamp2(c(-2, 0, 2), c("blue", "white", "red"))
+)
+draw(ht_circadian)
+
+# save heatmap to a file
+pdf("results/cn_rnaseq/deseq2/heatmap_circadian_genes.pdf", width = 8, height = 4)
+draw(ht_circadian)
+dev.off()
+
+# make heat map for segmentation clock genes
+segmentation_clock_genes <- c("HES7", "LFNG", "DLL1", "DLL3", "MESP2", "TBX6", "HES1", "NOTCH1")
+
+segmentation_clock_z <- z[rownames(z) %in% segmentation_clock_genes, ]
+ht_segmentation_clock <- Heatmap(segmentation_clock_z, name = "Z-score",
+                                 column_title = "Segmentation Clock Genes Expression Heatmap",
+                                 row_title = "Genes",
+                                 show_row_names = TRUE,
+                                 show_column_names = TRUE,
+                                 column_names_side = "top",
+                                 cluster_rows = TRUE,
+                                 cluster_columns = FALSE,
+                                 col = colorRamp2(c(-2, 0, 2), c("blue", "white", "red")))
+
+draw(ht_segmentation_clock)
+
+# save heatmap to a file
+pdf("results/cn_rnaseq/deseq2/heatmap_segmentation_clock_genes.pdf", width = 8, height = 4)
+draw(ht_segmentation_clock)
+dev.off()
+
+# make heat map for synaptic genes
+glu_synaptic_genes <- c("SYN1", "SYN2", "SYN3", "SYP", "SNCB", "SNCA", "SNCAIP", "DLG4", "DLG3", "SLC17A7", "SLC17A6", "GRIN1", "GRIN2A", "GRIN2B", "GRIA1", "GRIA2", "GRIA3", "GRIA4")
+
+glu_synaptic_z <- z[rownames(z) %in% glu_synaptic_genes, ]
+ht_glu_synaptic <- Heatmap(glu_synaptic_z, name = "Z-score",
+                            column_title = "Glutamatergic Synaptic Genes Expression Heatmap",
+                            row_title = "Genes",
+                            show_row_names = TRUE,
+                            show_column_names = TRUE,
+                            column_names_side = "top",
+                            cluster_rows = TRUE,
+                            cluster_columns = FALSE,
+                            col = colorRamp2(c(-2, 0, 2), c("blue", "white", "red")))
+draw(ht_glu_synaptic)
+
+# save heatmap to a file
+pdf("results/cn_rnaseq/deseq2/heatmap_glutamatergic_synaptic_genes.pdf", width = 8, height = 4)
+draw(ht_glu_synaptic)
+dev.off()

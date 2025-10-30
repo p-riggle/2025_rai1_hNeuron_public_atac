@@ -53,7 +53,7 @@ nanog_ko <- lineplot.ko("NANOG")
 # arrange the stem cell markers into one figure
 lp_stemcell_ko <- ggarrange(pou5f1_ko, nanog_ko, ncol = 2, nrow = 1)
 lp_stemcell_ko
-pdf(sprintf("results/deseq2/sep/%s_ko_lp_stemcell.pdf", Sys.Date()), width = 9, height = 4)
+pdf(sprintf("results/deseq2/sep/%s_ko_lp_stemcell.pdf"), width = 9, height = 4)
 print(lp_stemcell_ko)
 dev.off()
 
@@ -76,7 +76,7 @@ cux1_ko <- lineplot.ko("CUX1") #BRN2
 # arrage the neuronal markers into one figure
 library(gridExtra)
 
-pdf(sprintf("results/deseq2/sep/%s_ko_lp_neuron.pdf", Sys.Date()), width = 14, height = 9)
+pdf(sprintf("results/deseq2/sep/%s_ko_lp_neuron.pdf"), width = 14, height = 9)
 grid.arrange(
   arrangeGrob(pax6_ko, otx1_ko, emx1_ko, foxg1_ko, ncol = 4, top = "Neural Progenitor"), 
   arrangeGrob(eomes_ko, tbr1_ko, bcl11b_ko, ncol = 4, top = "Deeper Layer Neurons"),
@@ -103,7 +103,7 @@ tmem119_ko <- lineplot.ko("TMEM119")
 gpr34_ko <- lineplot.ko("GPR34")
 
 # arrange the glia plots using grid.arrange
-pdf(sprintf("results/deseq2/sep/%s_ko_lp_glia.pdf", Sys.Date()), width = 14, height = 9)
+pdf(sprintf("results/deseq2/sep/%s_ko_lp_glia.pdf"), width = 14, height = 9)
 grid.arrange(
   arrangeGrob(gfap_ko, aldh1l1_ko, s100b_ko, sox9_ko, ncol = 4, top = "Astrocyte"), 
   arrangeGrob(olig2_ko, mbp_ko, sox10_ko, ncol = 4, top = "Oligodendrocyte"),
@@ -125,7 +125,7 @@ reverba_ko <- lineplot.ko("NR1D1")
 reverbb_ko <- lineplot.ko("NR1D2")
 
 # arrange the circadian genes into one figure
-pdf(sprintf("results/deseq2/sep/%s_ko_lp_circadian.pdf", Sys.Date()), width = 14, height = 9)
+pdf(sprintf("results/deseq2/sep/%s_ko_lp_circadian.pdf"), width = 14, height = 9)
 grid.arrange(
   arrangeGrob(clock_ko, bmal1_ko, ncol = 4, top = "Core Clock Genes"), 
   arrangeGrob(per1_ko, per2_ko, cry1_ko, cry2_ko, ncol = 4),
