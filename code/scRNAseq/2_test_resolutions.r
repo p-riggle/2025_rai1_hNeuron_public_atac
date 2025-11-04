@@ -185,6 +185,25 @@ geo_markers = FindAllMarkers(geo_so, only.pos = TRUE, min.pct = 0.05)
 # Write out full cluster marker results to file
 write_csv(geo_markers, file = 'results/scRNAseq/3_markers/marker_genes_0.1res.csv')
 
+# write out full cluster marker results into a excel file with each cluster in a separate sheet
+library(openxlsx)
+# Create a new workbook
+wb <- createWorkbook()
+# Get unique cluster identities
+clusters <- unique(geo_markers$cluster)
+# Loop through each cluster and add a worksheet
+for (clust in clusters) {
+  # Filter markers for the current cluster
+  cluster_markers <- geo_markers %>% filter(cluster == clust)
+  # Add a new worksheet named after the cluster
+  addWorksheet(wb, paste0("Cluster_", clust))
+  # Write the cluster markers to the worksheet
+  writeData(wb, sheet = paste0("Cluster_", clust), cluster_markers)
+}
+# Save the workbook to a file
+saveWorkbook(wb, file = 'results/scRNAseq/3_markers/marker_genes_0.1res.xlsx', overwrite = TRUE)
+# -------------------------------------------------------------------------
+
 # Take a look at the first few rows of the result
 head(geo_markers)
 # -------------------------------------------------------------------------

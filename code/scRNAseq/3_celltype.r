@@ -2,6 +2,9 @@
 library(Seurat)
 library(BPCells)
 library(tidyverse)
+library(patchwork)
+
+setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
 # examine the expression of known markers
 
@@ -127,8 +130,7 @@ ggsave(filename = 'results/scRNAseq/3_markers/1_stem_cell_0.1.png',
        plot = stemCellPlot,
        width = 4, height = 4, units = 'in')
 
-library(Seurat)
-library(patchwork)
+
 
 # Create a list of individual FeaturePlots for each gene
 NPC_individual_plots = list()
@@ -311,3 +313,374 @@ ggsave(
   width = 4, height = 4, units = 'in',
   dpi = 300
 )
+
+### determining cluster 2,3,4 #####
+
+# Load libraries
+library(Seurat)
+library(BPCells)
+library(tidyverse)
+library(patchwork)
+
+setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
+
+# examine the expression of known markers
+
+geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_markers_0.1.rds')
+geo_markers = readRDS('data/scRNAseq/iwaselab/rdata/geo_markers_0.1.rds')
+
+
+# Vascular endothelial cells
+dr_vas_endo_markers = c('CDH5', 'CLDN5', 'PECAM1', 'KDR', 'FLT1')
+
+dr_vas_endo_plots = list()
+for (gene in dr_vas_endo_markers) {
+  dr_vas_endo_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+
+
+## Use patchwork to combine all three plots into a single row
+dr_vas_endo_plots = wrap_plots(dr_vas_endo_plots, ncol = 3) +
+  plot_annotation(title = "Vascular Endothelial Cell Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+
+dr_vas_endo_plots
+
+ggsave(
+  filename = 'results/scRNAseq/3_markers/10_dr_vas_endo_0.1.png',
+  plot = dr_vas_endo_plots,
+  width = 12, height = 8, units = 'in',
+  dpi = 300
+)
+
+# Mesenchymal cells
+rosebrock_mesenchyme_markers <- c('COL1A1', 'COL1A2', 'DCN', 'LUM')
+dr_mesenchyme_markers <- c('FN1','COL1A1', 'THY1', 'CD44', 'SNAI1', 'SNAI2', 'TWIST1')
+
+dr_mesenchyme_plots = list()
+for (gene in dr_mesenchyme_markers) {
+  dr_mesenchyme_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}   
+
+rosebrock_mesenchyme_plots = list()
+for (gene in rosebrock_mesenchyme_markers) {
+  rosebrock_mesenchyme_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+} 
+
+## Use patchwork to combine all three plots into a single row
+dr_mesenchyme_plots = wrap_plots(dr_mesenchyme_plots, ncol = 4) +
+  plot_annotation(title = "Mesenchymal Cell Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))      
+dr_mesenchyme_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/11_dr_mesenchyme_0.1.png',
+  plot = dr_mesenchyme_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+)
+
+# Rosebrock markers
+rosebrock_mesenchyme_plots = wrap_plots(rosebrock_mesenchyme_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Mesenchymal Cell Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))      
+rosebrock_mesenchyme_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/12_rosebrock_mesenchyme_0.1.png',
+  plot = rosebrock_mesenchyme_plots,
+  width = 12, height = 4, units = 'in',
+  dpi = 300
+) 
+
+
+# NCSC markers 
+dr_ncsc_markers = c('SOX10', 'B3GAT1', 'NGFR', 'TFAP2A', 'S100B', 'PLP1', 'MPZ')
+dr_ncsc_plots = list()
+for (gene in dr_ncsc_markers) {
+  dr_ncsc_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}   
+## Use patchwork to combine all three plots into a single row
+dr_ncsc_plots = wrap_plots(dr_ncsc_plots, ncol = 4) +
+  plot_annotation(title = "NCSC Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))      
+dr_ncsc_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/13_dr_ncsc_0.1.png',
+  plot = dr_ncsc_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+)
+
+# PSM markers
+diaz_psm_markers = c('MIXL1', 'FGF17', 'MSGN1', 'WNT3A', 'TBX6', 'DLL3', 'HES7', 'FOXC1', 'LFNG')
+dr_psm_plots = list()
+for (gene in diaz_psm_markers) {
+  dr_psm_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}  
+## Use patchwork to combine all three plots into a single row   
+dr_psm_plots = wrap_plots(dr_psm_plots, ncol = 4) +
+  plot_annotation(title = "PSM Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+dr_psm_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/14_dr_psm_0.1.png',
+  plot = dr_psm_plots,
+  width = 16, height = 12, units = 'in',
+  dpi = 300
+)
+
+## Rosebrock regional markers
+# nsc
+rosebrock_nsc_markers = c('SOX1', 'FABP7', 'DLL1', 'HES5', 'NOTCH1', 'NES', 'SOX2')
+rosebrock_nsc_plots = list()
+for (gene in rosebrock_nsc_markers) {
+  rosebrock_nsc_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}  
+## Use patchwork to combine all three plots into a single row   
+rosebrock_nsc_plots = wrap_plots(rosebrock_nsc_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock NSC Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_nsc_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/15_rosebrock_nsc_0.1.png',
+  plot = rosebrock_nsc_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+) 
+
+# neurons 
+rosebrock_neuron_markers = c('ELAVL3', 'ELAVL2', 'DCX')
+rosebrock_neuron_plots = list()
+for (gene in rosebrock_neuron_markers) {
+  rosebrock_neuron_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +   
+    theme(plot.title = element_text(hjust = 0.5))
+}  
+## Use patchwork to combine all three plots into a single row   
+rosebrock_neuron_plots = wrap_plots(rosebrock_neuron_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Neuron Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_neuron_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/16_rosebrock_neuron_0.1.png',
+  plot = rosebrock_neuron_plots,
+  width = 12, height = 8, units = 'in',
+  dpi = 300
+) 
+
+# neocortex markers
+rosebrock_neocortex_markers = c('EMX1', 'FOXG1', 'LHX2', 'SP8', 'PAX6', 'SFRP1', 'EOMES', 'TBR1', 'NEUROD6')
+rosebrock_neocortex_plots = list()
+for (gene in rosebrock_neocortex_markers) {
+  rosebrock_neocortex_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+rosebrock_neocortex_plots = wrap_plots(rosebrock_neocortex_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Neocortex Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_neocortex_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/17_rosebrock_neocortex_0.1.png',
+  plot = rosebrock_neocortex_plots,
+  width = 16, height = 12, units = 'in',
+  dpi = 300
+)
+
+# Cajal-Retzius markers
+rosebrock_cajal_retzius_markers = c('RELN', 'TP73', 'LHX1')
+rosebrock_cajal_retzius_plots = list()
+for (gene in rosebrock_cajal_retzius_markers) {
+  rosebrock_cajal_retzius_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+rosebrock_cajal_retzius_plots = wrap_plots(rosebrock_cajal_retzius_plots, ncol = 3) +
+  plot_annotation(title = "Rosebrock Cajal-Retzius Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_cajal_retzius_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/18_rosebrock_cajal_retzius_0.1.png',
+  plot = rosebrock_cajal_retzius_plots,
+  width = 12, height = 4, units = 'in',
+  dpi = 300
+)
+
+# medial pallium markers
+rosebrock_medial_pallium_markers = c('EMX2', 'TCF4', 'LEF1', 'NR2F1', 'RSPO1', 'RSPO2', 'RSPO3', 'LMX1A', 'FOXJ1', 'WNT2B', 'WNT7B')
+rosebrock_medial_pallium_plots = list()
+for (gene in rosebrock_medial_pallium_markers) {
+  rosebrock_medial_pallium_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+rosebrock_medial_pallium_plots = wrap_plots(rosebrock_medial_pallium_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Medial Pallium Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_medial_pallium_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/19_rosebrock_medial_pallium_0.1.png',
+  plot = rosebrock_medial_pallium_plots,
+  width = 16, height = 12, units = 'in',
+  dpi = 300
+)
+
+# choroid plexus markers
+rosebrock_choroid_plexus_markers = c('TTR', 'HTR2C')
+rosebrock_choroid_plexus_plots = list()
+for (gene in rosebrock_choroid_plexus_markers) {
+  rosebrock_choroid_plexus_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+rosebrock_choroid_plexus_plots = wrap_plots(rosebrock_choroid_plexus_plots, ncol = 2) +
+  plot_annotation(title = "Rosebrock Choroid Plexus Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_choroid_plexus_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/20_rosebrock_choroid_plexus_0.1.png',
+  plot = rosebrock_choroid_plexus_plots,
+  width = 12, height = 4, units = 'in',
+  dpi = 300
+)
+
+
+# Diencephalon markers
+rosebrock_diencephalon_markers = c('TCF7L2', 'GBX2', 'FZD10', 'IRX2', 'IRX3', 'PROX1', 'OLIG3', 'SHOX2')
+rosebrock_diencephalon_plots = list()
+for (gene in rosebrock_diencephalon_markers) {
+  rosebrock_diencephalon_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+rosebrock_diencephalon_plots = wrap_plots(rosebrock_diencephalon_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Diencephalon Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_diencephalon_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/21_rosebrock_diencephalon_0.1.png',
+  plot = rosebrock_diencephalon_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+)
+
+# Mid-hindbrain markers
+rosebrock_mid_hindbrain_markers = c('PAX3', 'EN2', 'DBX1', 'DMBX1', 'HOXA2', 'HOXB2', 'HOXB3', 'PAX7', 'PHOX2B', 'BARHL1')
+rosebrock_mid_hindbrain_plots = list()
+for (gene in rosebrock_mid_hindbrain_markers) {
+  rosebrock_mid_hindbrain_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+
+## Use patchwork to combine all three plots into a single row
+rosebrock_mid_hindbrain_plots = wrap_plots(rosebrock_mid_hindbrain_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Mid-Hindbrain Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_mid_hindbrain_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/22_rosebrock_mid_hindbrain_0.1.png',
+  plot = rosebrock_mid_hindbrain_plots,
+  width = 16, height = 12, units = 'in',
+  
+  dpi = 300
+) 
+
+# posterior CNS/PNS markers
+rosebrock_posterior_CNS_PNS_markers = c('POU4F1', 'NTRK1', 'NEFL', 'SNCG')
+rosebrock_posterior_CNS_PNS_plots = list()
+for (gene in rosebrock_posterior_CNS_PNS_markers) {
+  rosebrock_posterior_CNS_PNS_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+
+## Use patchwork to combine all three plots into a single row
+rosebrock_posterior_CNS_PNS_plots = wrap_plots(rosebrock_posterior_CNS_PNS_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Posterior CNS/PNS Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_posterior_CNS_PNS_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/23_rosebrock_posterior_CNS_PNS_0.1.png',
+  plot = rosebrock_posterior_CNS_PNS_plots,
+  width = 16, height = 4, units = 'in',
+  dpi = 300
+)
+
+# schwann cell markers
+rosebrock_schwann_cell_markers = c('S100B', 'MPZ', 'SOX10', 'NGFR')
+rosebrock_schwann_cell_plots = list()
+for (gene in rosebrock_schwann_cell_markers) {
+  rosebrock_schwann_cell_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}     
+## Use patchwork to combine all three plots into a single row
+rosebrock_schwann_cell_plots = wrap_plots(rosebrock_schwann_cell_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Schwann Cell Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_schwann_cell_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/24_rosebrock_schwann_cell_0.1.png',
+  plot = rosebrock_schwann_cell_plots,
+  width = 16, height = 4, units = 'in',
+  dpi = 300
+)
+
+
+# optic vesicle markers
+rosebrock_optic_vesicle_markers = c('RAX', 'VSX2', 'VAX2', 'SIX6')
+rosebrock_optic_vesicle_plots = list()
+for (gene in rosebrock_optic_vesicle_markers) {
+  rosebrock_optic_vesicle_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+rosebrock_optic_vesicle_plots = wrap_plots(rosebrock_optic_vesicle_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Optic Vesicle Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_optic_vesicle_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/25_rosebrock_optic_vesicle_0.1.png',
+  plot = rosebrock_optic_vesicle_plots,
+  width = 16, height = 4, units = 'in',
+  dpi = 300
+)
+
+# Epithelial markers
+rosebrock_epithelial_markers = c('KRT8', 'KRT19', 'CLDN6', 'CLDN7')
+rosebrock_epithelial_plots = list()
+for (gene in rosebrock_epithelial_markers) {
+  rosebrock_epithelial_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+rosebrock_epithelial_plots = wrap_plots(rosebrock_epithelial_plots, ncol = 4) +
+  plot_annotation(title = "Rosebrock Epithelial Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+rosebrock_epithelial_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/26_rosebrock_epithelial_0.1.png',
+  plot = rosebrock_epithelial_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+)
+

@@ -228,47 +228,138 @@ rstbl_c4_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c4_wt.vs.ko.c
 rstbl_c5_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c5_wt.vs.ko.csv", row.names = 1)
 rstbl_c6_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c6_wt.vs.ko.csv", row.names = 1)
 
+# save the restables of each cluster as excel spreadsheet with up- and down-regulated genes in separate tabs
+library(openxlsx)
 
-# make deg number bar plot
-# make a list of your results tables
+# Create a new workbook
+wb <- createWorkbook()
+
+# Define cell type names for clusters
+cluster_names <- list(
+  "c0" = "NPC-G2/M",
+  "c1" = "Neuron", 
+  "c2" = "Mes-WT",
+  "c3" = "Mes-Mut",
+  "c4" = "NPC-G1",
+  "c5" = "Astrocyte",
+  "c6" = "IPC"
+)
+
+# List of result tables for HET vs WT using meaningful cell type names
 res_list_het <- list(
-  c0 = rstbl_c0_wt.vs.het,
-  c1 = rstbl_c1_wt.vs.het,
-  c2 = rstbl_c2_wt.vs.het,
-  c3 = rstbl_c3_wt.vs.het,
-  c4 = rstbl_c4_wt.vs.het,
-  c5 = rstbl_c5_wt.vs.het,
-  c6 = rstbl_c6_wt.vs.het
+  "NPC-G2/M" = rstbl_c0_wt.vs.het,
+  "Neuron" = rstbl_c1_wt.vs.het,
+  "Mes-WT" = rstbl_c2_wt.vs.het,
+  "Mes-Mut" = rstbl_c3_wt.vs.het,
+  "NPC-G1" = rstbl_c4_wt.vs.het,
+  "Astrocyte" = rstbl_c5_wt.vs.het,
+  "IPC" = rstbl_c6_wt.vs.het
 )
 
+# Add worksheets for each cell type with up- and down-regulated genes
+for (cell_type in names(res_list_het)) {
+  # Clean cell type name for worksheet (remove special characters)
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+  addWorksheet(wb, paste0(clean_name, "_Up"))
+  addWorksheet(wb, paste0(clean_name, "_Down"))
 
-# Extract and count up- and down-regulated genes for each cluster
-counts_df_het <- data.frame(
-  cluster = character(),
-  direction = character(),
-  count = integer()
-)
+  res <- res_list_het[[cell_type]]
 
-for (cluster_name in names(res_list_het)) {
-  res <- res_list_het[[cluster_name]]
+  # Extract up- and down-regulated genes
+  up_genes <- subset(res, padj < 0.01 & log2FoldChange > 1)
+  down_genes <- subset(res, padj < 0.01 & log2FoldChange < -1)
 
-  # Remove rows with NA p-values
-  res <- na.omit(as.data.frame(res))
+  # Add gene names as a column and sort by absolute log2FoldChange
+  if (nrow(up_genes) > 0) {
+    up_genes$gene <- rownames(up_genes)
+    up_genes <- up_genes[, c("gene", setdiff(names(up_genes), "gene"))]  # Move gene column to first position
+    # Sort by absolute log2FoldChange (descending - highest fold changes first)
+    up_genes <- up_genes[order(abs(up_genes$log2FoldChange), decreasing = TRUE), ]
+  }
+  if (nrow(down_genes) > 0) {
+    down_genes$gene <- rownames(down_genes)
+    down_genes <- down_genes[, c("gene", setdiff(names(down_genes), "gene"))]  # Move gene column to first position
+    # Sort by absolute log2FoldChange (descending - highest fold changes first)
+    down_genes <- down_genes[order(abs(down_genes$log2FoldChange), decreasing = TRUE), ]
+  }
 
-  # Count up-regulated genes (padj < 0.05 and log2FoldChange > 0)
-  up_genes <- sum(res$padj < 0.01 & res$log2FoldChange > 1)
-
-  # Count down-regulated genes (padj < 0.05 and log2FoldChange < 0)
-  down_genes <- sum(res$padj < 0.01 & res$log2FoldChange < -1)
-
-  # Append to the dataframe
-  counts_df_het <- rbind(counts_df_het,
-                     data.frame(cluster = cluster_name, direction = "up", count = up_genes),
-                     data.frame(cluster = cluster_name, direction = "down", count = down_genes)
-  )
+  # Write data to the respective worksheets
+  writeData(wb, sheet = paste0(clean_name, "_Up"), up_genes)
+  writeData(wb, sheet = paste0(clean_name, "_Down"), down_genes)
 }
 
-counts_df_het
+# Save the workbook
+saveWorkbook(wb, file = "results/scRNAseq/4_pseudobulk/degs_het_vs_wt.xlsx", overwrite = TRUE)
+
+# make similar workbook for KO vs WT
+library(openxlsx)
+
+# Create a new workbook
+wb_ko <- createWorkbook()
+
+# Define cell type names for clusters
+cluster_names <- list( 
+  "c0" = "NPC-G2/M",
+  "c1" = "Neuron", 
+  "c2" = "Mes-WT",
+  "c3" = "Mes-Mut",
+  "c4" = "NPC-G1",
+  "c5" = "Astrocyte",
+  "c6" = "IPC"
+)
+
+# Add worksheets for each cell type with up- and down-regulated genes
+for (cell_type in names(cluster_names)) {
+  # Clean cell type name for worksheet (remove special characters)
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+  addWorksheet(wb_ko, paste0(clean_name, "_Up"))
+  addWorksheet(wb_ko, paste0(clean_name, "_Down"))
+}
+
+# extract and save data for KO vs WT
+res_list_ko <- list(
+  "NPC-G2/M" = rstbl_c0_wt.vs.ko,
+  "Neuron" = rstbl_c1_wt.vs.ko,
+  "Mes-WT" = rstbl_c2_wt.vs.ko,
+  "Mes-Mut" = rstbl_c3_wt.vs.ko,
+  "NPC-G1" = rstbl_c4_wt.vs.ko,
+  "Astrocyte" = rstbl_c5_wt.vs.ko,
+  "IPC" = rstbl_c6_wt.vs.ko
+)
+
+# Add worksheets for each cell type with up- and down-regulated genes
+for (cell_type in names(res_list_ko)) {
+  # Clean cell type name for worksheet (remove special characters)
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+  addWorksheet(wb_ko, paste0(clean_name, "_Up"))
+  addWorksheet(wb_ko, paste0(clean_name, "_Down"))
+  res <- res_list_ko[[cell_type]]
+
+  # Extract up- and down-regulated genes
+  up_genes <- subset(res, padj < 0.01 & log2FoldChange > 1)
+  down_genes <- subset(res, padj < 0.01 & log2FoldChange < -1)
+
+  # Add gene names as a column and sort by absolute log2FoldChange
+  if (nrow(up_genes) > 0) {
+    up_genes$gene <- rownames(up_genes)
+    up_genes <- up_genes[, c("gene", setdiff(names(up_genes), "gene"))]  # Move gene column to first position
+    # Sort by absolute log2FoldChange (descending - highest fold changes first)
+    up_genes <- up_genes[order(abs(up_genes$log2FoldChange), decreasing = TRUE), ]
+  }
+  if (nrow(down_genes) > 0) {
+    down_genes$gene <- rownames(down_genes)
+    down_genes <- down_genes[, c("gene", setdiff(names(down_genes), "gene"))]  # Move gene column to first position
+    # Sort by absolute log2FoldChange (descending - highest fold changes first)
+    down_genes <- down_genes[order(abs(down_genes$log2FoldChange), decreasing = TRUE), ]
+  }
+
+  # Write data to the respective worksheets
+  writeData(wb, sheet = paste0(clean_name, "_Up"), up_genes)
+  writeData(wb, sheet = paste0(clean_name, "_Down"), down_genes)
+}
+
+# Save the workbook
+saveWorkbook(wb, file = "results/scRNAseq/4_pseudobulk/degs_ko_vs_wt.xlsx", overwrite = TRUE)
 
 # Load ggplot2 for plotting
 
@@ -276,17 +367,18 @@ library(ggplot2)
 
 # Create the histogram (bar chart)
 ## het
-degN_barplot_het <- ggplot(counts_df_het, aes(x = cluster, y = count, fill = direction)) +
+degN_barplot_het <- ggplot(counts_df_het, aes(x = cell_type, y = count, fill = direction)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
-    title = "Number of Up- and Down-regulated Genes per Cluster (HET vs. WT)",
-    x = "Cluster",
+    title = "Number of Up- and Down-regulated Genes per Cell Type (HET vs. WT)",
+    x = "Cell Type",
     y = "Number of Genes",
     fill = "Regulation Direction"
   ) +
   scale_fill_manual(values = c("up" = "gold", "down" = "blue")) +
   geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +
-  theme_classic()
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
 
 degN_barplot_het
 
@@ -294,43 +386,42 @@ dev.off()
 
 ggsave(filename = paste0(DirOutQC, "degN_bar_het.pdf"), plot = degN_barplot_het, width = 6, height = 4, units = "in")
 
-## homo
-# make deg number bar plot
-# make a list of your results tables
+## KO analysis
+# List of result tables for KO vs WT using meaningful cell type names
 res_list_ko <- list(
-  c0 = rstbl_c0_wt.vs.ko,
-  c1 = rstbl_c1_wt.vs.ko,
-  c2 = rstbl_c2_wt.vs.ko,
-  c3 = rstbl_c3_wt.vs.ko,
-  c4 = rstbl_c4_wt.vs.ko,
-  c5 = rstbl_c5_wt.vs.ko,
-  c6 = rstbl_c6_wt.vs.ko
+  "NPC-G2/M" = rstbl_c0_wt.vs.ko,
+  "Neuron" = rstbl_c1_wt.vs.ko,
+  "Mes-WT" = rstbl_c2_wt.vs.ko,
+  "Mes-Mut" = rstbl_c3_wt.vs.ko,
+  "NPC-G1" = rstbl_c4_wt.vs.ko,
+  "Astrocyte" = rstbl_c5_wt.vs.ko,
+  "IPC" = rstbl_c6_wt.vs.ko
 )
 
 
-# Extract and count up- and down-regulated genes for each cluster
+# Extract and count up- and down-regulated genes for each cell type
 counts_df_ko <- data.frame(
-  cluster = character(),
+  cell_type = character(),
   direction = character(),
   count = integer()
 )
 
-for (cluster_name in names(res_list_het)) {
-  res <- res_list_ko[[cluster_name]]
+for (cell_type in names(res_list_ko)) {
+  res <- res_list_ko[[cell_type]]
   
   # Remove rows with NA p-values
   res <- na.omit(as.data.frame(res))
   
-  # Count up-regulated genes (padj < 0.05 and log2FoldChange > 0)
+  # Count up-regulated genes (padj < 0.01 and log2FoldChange > 1)
   up_genes <- sum(res$padj < 0.01 & res$log2FoldChange > 1)
   
-  # Count down-regulated genes (padj < 0.05 and log2FoldChange < 0)
+  # Count down-regulated genes (padj < 0.01 and log2FoldChange < -1)
   down_genes <- sum(res$padj < 0.01 & res$log2FoldChange < -1)
   
   # Append to the dataframe
   counts_df_ko <- rbind(counts_df_ko,
-                         data.frame(cluster = cluster_name, direction = "up", count = up_genes),
-                         data.frame(cluster = cluster_name, direction = "down", count = down_genes)
+                         data.frame(cell_type = cell_type, direction = "up", count = up_genes),
+                         data.frame(cell_type = cell_type, direction = "down", count = down_genes)
   )
 }
 
@@ -338,17 +429,18 @@ counts_df_ko
 
 # Create the histogram (bar chart)
 
-degN_barplot_ko <- ggplot(counts_df_ko, aes(x = cluster, y = count, fill = direction)) +
+degN_barplot_ko <- ggplot(counts_df_ko, aes(x = cell_type, y = count, fill = direction)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(
-    title = "Number of Up- and Down-regulated Genes per Cluster (KO vs. WT)",
-    x = "Cluster",
+    title = "Number of Up- and Down-regulated Genes per Cell Type (KO vs. WT)",
+    x = "Cell Type",
     y = "Number of Genes",
     fill = "Regulation Direction"
   ) +
   scale_fill_manual(values = c("up" = "gold", "down" = "blue")) +
   geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +
-  theme_classic()
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
 
 degN_barplot_ko
 
