@@ -28,7 +28,7 @@ code/cn_rnaseq/blueberry/input/.snakemake/*
 **/*.flagstat
 data/scRNAseq/10x_analysis_11534-BZ/*
 **/*.results
-**/*.RData
+
 **/*.cloupe
 **/*.xls
 **/*.xlsx
@@ -36,3 +36,14 @@ data/scRNAseq/10x_analysis_11534-BZ/*
 data/scRNAseq/iwaselab/*
 
 .Rproj.user
+
+
+**/*.RData
+
+# But include these specific .RData files
+
+!data/scRNAseq/iwaselab/dds_both
+!data/scRNAseq/iwaselab/dds_d20
+!data/scRNAseq/iwaselab/dds_d60
+
+
