@@ -107,3 +107,22 @@ draw(ht_glu_synaptic)
 pdf("results/cn_rnaseq/deseq2/heatmap_glutamatergic_synaptic_genes.pdf", width = 8, height = 4)
 draw(ht_glu_synaptic)
 dev.off()
+
+# make a heatmap of circ-seg linked genes
+circ_seg_genes <- c("PER1", "PER2", "HES7", "HES6")
+
+circ_seg_z <- z[rownames(z) %in% circ_seg_genes, ]
+ht_circ_seg <- Heatmap(circ_seg_z, name = "Z-score",
+                            column_title = "Circ-Seg-linked Genes Expression Heatmap",
+                            row_title = "Genes",
+                            show_row_names = TRUE,
+                            show_column_names = TRUE,
+                            column_names_side = "top",
+                            cluster_rows = TRUE,
+                            cluster_columns = FALSE,
+                            col = colorRamp2(c(-2, 0, 2), c("blue", "white", "red")))
+
+ht_circ_seg 
+
+
+

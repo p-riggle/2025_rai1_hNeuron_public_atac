@@ -7,6 +7,7 @@
 library(Seurat)
 library(BPCells)
 library(tidyverse)
+setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
 # load the R.data
 geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_markers_0.1.rds')
@@ -48,14 +49,16 @@ cts_d60 <- cts[, c(43:73)]
 
 colnames(cts_d60)
 
-# # make DEseq metadata
-# sample <- sapply(strsplit(colnames(cts), "\\."), "[[",1)
-# Gtype <- sapply(strsplit(colnames(cts), "\\."), "[[",2)
-# Clust <- paste0("Clust_",sapply(strsplit( Gtype , "_"), "[[",2))
-# samplesheet <- data.frame(sample,Gtype,Clust,  Group=colnames(cts), row.names=colnames(cts) )
-# head(samplesheet)
-# samplesheet
+# save cts objects
+saveRDS(cts, "data/scRNAseq/iwaselab/cts")
+saveRDS(cts_d20, "data/scRNAseq/iwaselab/cts_d20")
+saveRDS(cts_d60, "data/scRNAseq/iwaselab/cts_d60")
+# read cts objects
+cts <- readRDS("data/scRNAseq/iwaselab/cts")
+cts_d20 <- readRDS("data/scRNAseq/iwaselab/cts_d20")
+cts_d60 <- readRDS("data/scRNAseq/iwaselab/cts_d60")
 
+# make samplesheet for deseq2
 sample_d20 <- sapply(strsplit(colnames(cts_d20), '_'),'[[',1)
 cluster_d20 <- sapply(strsplit(colnames(cts_d20), '_'),'[[',2)
 sample_d20
@@ -78,6 +81,16 @@ genotype_cluster_d60
 samplesheet_d60 <- data.frame(sample_d60, genotype_cluster_d60, cluster_d60, genotype_d60, row.names = colnames(cts_d60))
 samplesheet_d60
 
+sample_both <- sapply(strsplit(colnames(cts), '_'),'[[',1)
+cluster_both <- sapply(strsplit(colnames(cts), '_'),'[[',2)
+sample_both
+cluster_both
+genotype_both <- sapply(strsplit(sample_both, '-'), '[[',2)
+genotype_cluster_both <- paste(genotype_both, cluster_both, sep='_')
+genotype_cluster_both
+
+samplesheet_both <- data.frame(sample_both, genotype_cluster_both, cluster_both, genotype_both, row.names = colnames(cts))
+head(samplesheet_both)
 
 library(DESeq2)
 # calculation
@@ -87,71 +100,175 @@ dds_d20 <- DESeq(dds_d20)
 dds_d60 <- DESeqDataSetFromMatrix(countData = cts_d60, colData = samplesheet_d60, design = ~ genotype_cluster_d60)
 dds_d60 <- DESeq(dds_d60)
 
+dds_both <- DESeqDataSetFromMatrix(countData = cts, colData = samplesheet_both, design = ~ genotype_cluster_both)
+
 # save the dds r object
 saveRDS(dds_d20, "data/scRNAseq/iwaselab/dds_d20")
 saveRDS(dds_d60, "data/scRNAseq/iwaselab/dds_d60")
+saveRDS(dds_both, "data/scRNAseq/iwaselab/dds_both")
 
 # read dds r objects
 dds_d20 <- readRDS("data/scRNAseq/iwaselab/dds_d20")
 dds_d60 <- readRDS("data/scRNAseq/iwaselab/dds_d60")
+dds_both <- readRDS("data/scRNAseq/iwaselab/dds_both")
 
 # PCAplots
 ## transform data
 vsd_dds_d20 <- vst(dds_d20, blind = TRUE)  
 vsd_dds_d60 <- vst(dds_d60, blind = TRUE)  
+vsd_dds_both <- vst(dds_both, blind = TRUE)
 
 head(assay(vsd_dds_d20), 3)
 head(assay(vsd_dds_d60), 3)
+head(assay(vsd_dds_both), 3)
 
 #install.packages("ggplot2")
 library("ggplot2")
 str(vsd_dds_d20)
 
+
+# Change the output to PDF
+         
+Cairo(width = 800, 
+      height = 600, 
+      file = "results/scRNAseq/4_pseudobulk/PCA_d20_plot.pdf", 
+      type = "pdf", 
+      pointsize = 12, 
+      units = "px", # Explicitly use "px" units
+      dpi = 100);    # Specify DPI for scaling if needed
+
+
+# Generate the plot object (this is what you already had)
 PCA_d20 <- plotPCA(vsd_dds_d20, intgroup = c("genotype_d20", "cluster_d20"))
-PCA_data_d20 <- plotPCA(vsd_dds_d20, intgroup = c("genotype_d20", "cluster_d20"), returnData = TRUE)
-PCA_d20
+
+# Print the plot object to the open Cairo device
+print(PCA_d20)
+dev.off()
+
+
+# filter the PCA data to include only clusters 0,2,3,4
+PCA_data_d20_filtered <- PCA_data_d20[PCA_data_d20$cluster_d20 %in% c("0", "2", "3", "4"), ]
 
 # create a shape and color mapping for the genotype and day
+# shape mapping for genotypes
 shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
-color_mapping_d20 <- c("0" = "red", "2" = "green", "3" = "darkgreen", "4" = "blue")
+
+# map numeric cluster ids to meaningful cell type names
+cluster_label_map <- c(
+  "0" = "NPC-G2/M",
+  "1" = "Neuron",
+  "2" = "Mes-WT",
+  "3" = "Mes-Mut",
+  "4" = "NPC-G1",
+  "5" = "Astrocyte",
+  "6" = "IPC"
+)
+
+# replace numeric cluster labels in the PCA data with the assigned names
+PCA_data_d20_filtered$cluster_d20 <- cluster_label_map[as.character(PCA_data_d20_filtered$cluster_d20)]
+
+# if you filtered earlier using numeric ids, update the filtered object to use names
+PCA_data_d20_filtered <- PCA_data_d20_filtered[PCA_data_d20_filtered$cluster_d20 %in% c("NPC-G2/M", "Mes-WT", "Mes-Mut", "NPC-G1"), ]
+
+# color mapping using the assigned names
+color_mapping_d20 <- c(
+  "NPC-G2/M" = "pink",
+  "Mes-WT"   = "darkgreen",
+  "Mes-Mut"  = "lightgreen",
+  "NPC-G1"   = "purple",
+  "IPC"      = "gold"
+)
+
+
 
 # create a new plot with the modified aesthetics
-pca_d20 <- ggplot(PCA_data_d20, aes(x = PC1, y = PC2, shape = genotype_d20, color = cluster_d20)) +
-  geom_point(size = 5, stroke = 2) +
+# extract percent variance explained for PC1 and PC2
+percentVar_d20 <- attr(PCA_data_d20, "percentVar")
+x_lab <- paste0("PC1 (", round(percentVar_d20[1] * 100, 1), "%)")
+y_lab <- paste0("PC2 (", round(percentVar_d20[2] * 100, 1), "%)")
+
+pca_d20_2 <- ggplot(PCA_data_d20_filtered, aes(x = PC1, y = PC2, shape = genotype_d20, color = cluster_d20)) +
+  geom_point(size = 4, stroke = 1) +
   scale_shape_manual(values = shape_mapping) +
   scale_color_manual(values = color_mapping_d20) +
-  ggtitle("PCA Plot: Day 20") +
+  labs(title = "PCA Plot: Day 20", x = x_lab, y = y_lab) +
   theme(text = element_text(family = "Helvetica", size = 10),
         axis.title = element_text(size = 10),
         axis.text = element_text(size = 8)) +
   theme_classic()
 
-pca_d20
+
+# Change the output to PDF
+         
+Cairo(width = 800, 
+      height = 600, 
+      file = "results/scRNAseq/4_pseudobulk/PCA_d20_plot_2.pdf", 
+      type = "pdf", 
+      pointsize = 12, 
+      units = "px", # Explicitly use "px" units
+      dpi = 100);    # Specify DPI for scaling if needed
+
+# Print the plot object to the open Cairo device
+print(pca_d20_2)
+dev.off()
+
 
 # day 60 pca
 PCA_d60 <- plotPCA(vsd_dds_d60, intgroup = c("genotype_d60", "cluster_d60"))
-PCA_data_d60 <- plotPCA(vsd_dds_d60, intgroup = c("genotype_d60", "cluster_d60"), returnData = TRUE)
 PCA_d60
 
 # Filter the PCA data to include only clusters 1 and 5
-PCA_data_d60_filtered <- PCA_data_d60[PCA_data_d60$cluster_d60 %in% c("1", "5"), ]
+PCA_d60_filtered <- PCA_d60[PCA_data_d60$cluster_d60 %in% c("1", "5"), ]
+
+# Apply cluster label mapping to convert numeric IDs to meaningful names
+PCA_d60_filtered <- PCA_d60_filtered[PCA_d60_filtered$cluster_d60 %in% c("Neuron", "Astrocyte"), ]
 
 # create a shape and color mapping for the genotype and day
 shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
-color_mapping_d60 <- c("1" = "gold", "5" = "purple")
+# color mapping using the assigned names
+color_mapping_d60 <- c(
+  "Neuron"    = "lightblue",
+  "Astrocyte" = "red"
+)
 
-# create a new plot with the modified aesthetics
-pca_d60 <- ggplot(PCA_data_d60_filtered, aes(x = PC1, y = PC2, shape = genotype_d60, color = cluster_d60)) +
-  geom_point(size = 5, stroke = 2) +
+# create pca plot of d60_filtered
+# extract percent variance explained for PC1 and PC2
+percentVar_d60 <- attr(PCA_d60_filtered, "percentVar")
+x_lab_d60 <- paste0("PC1 (", round(percentVar_d60[1] * 100, 1), "%)")
+y_lab_d60 <- paste0("PC2 (", round(percentVar_d60[2] * 100, 1), "%)")
+
+pca_d60_2 <- ggplot(PCA_d60_filtered, aes(x = PC1, y = PC2, shape = genotype_d60, color = cluster_d60)) +
+  geom_point(size = 4, stroke = 2) +
   scale_shape_manual(values = shape_mapping) +
   scale_color_manual(values = color_mapping_d60) +
-  ggtitle("PCA Plot: Day 60") +
+  labs(title = "PCA Plot: Day 60", x = x_lab_d60, y = y_lab_d60) +
   theme(text = element_text(family = "Helvetica", size = 10),
         axis.title = element_text(size = 10),
         axis.text = element_text(size = 8)) +
   theme_classic()
 
-pca_d60
+# save the plot as pdf
+         
+Cairo(width = 800, 
+      height = 600, 
+      file = "results/scRNAseq/4_pseudobulk/PCA_d60_plot_2.pdf", 
+      type = "pdf", 
+      pointsize = 12, 
+      units = "px", # Explicitly use "px" units
+      dpi = 100);    # Specify DPI for scaling if needed
+
+# Print the plot object to the open Cairo device
+print(pca_d60_2)
+dev.off()
+
+# make pca plot of PCA_both
+# replace numeric cluster labels in the PCA data with the assigned names
+PCA_data_d20$cluster_both <- cluster_label_map[as.character(PCA_data_both$cluster)]
+
+# if you filtered earlier using numeric ids, update the filtered object to use names
+PCA_data_d20_filtered <- PCA_data_d20_filtered[PCA_data_d20_filtered$cluster_d20 %in% c("NPC-G2/M", "Mes-WT", "Mes-Mut", "NPC-G1"), ]
+
+
 
 ggsave(filename = "results/scRNAseq/4_pseudobulk/pca2_d20.pdf", plot = pca_d20, width = 5, height = 4, units = "in")
 ggsave(filename = "results/scRNAseq/4_pseudobulk/pca2_d60.pdf", plot = pca_d60, width = 5, height = 4, units = "in")
@@ -193,6 +310,13 @@ summary(rstbl_c6_wt.vs.ko)
 
 summary(rstbl_c1_wt.vs.ko)
 summary(rstbl_c5_wt.vs.ko)
+
+# make restable of c2-c3 comparison
+# dds_d20$cluster_d20 <- factor(dds_d20$cluster_d20, levels = c("2", "3"))
+
+rstbl_c2.vs.c3 <- results(dds_d20, contrast = c("cluster_d20", "3", "2"), alpha = 0.01)
+
+
 
 # write all rstbles to the results directory
 write.csv(as.data.frame(rstbl_c0_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c0_wt.vs.het.csv")
@@ -446,5 +570,59 @@ degN_barplot_ko
 
 ggsave(filename = "results/scRNAseq/4_pseudobulk/degN_bar_ko.pdf", plot = degN_barplot_ko, width = 6, height = 4, units = "in")
 
+#########################################################################################
+##### Pseudobulk differential gene expression analysis between cluster2 and cluster3#####
+#########################################################################################
 
+# For cluster-vs-cluster comparison, we need to create a new DESeq2 object with cluster as the design factor
+# Include ALL genotypes (WT, HET, KO) since c2 is predominantly WT and c3 is predominantly KO
+
+library(DESeq2)
+
+# Filter count data for all genotypes but only clusters 2 and 3
+cts_d20_c2c3 <- cts_d20[, grepl("_(2|3)$", colnames(cts_d20))]
+colnames(cts_d20_c2c3)
+
+# Create metadata for this subset
+sample_c2c3 <- sapply(strsplit(colnames(cts_d20_c2c3), '_'),'[[',1)
+cluster_c2c3 <- sapply(strsplit(colnames(cts_d20_c2c3), '_'),'[[',2)
+genotype_c2c3 <- sapply(strsplit(sample_c2c3, '-'), '[[',2)
+
+samplesheet_c2c3 <- data.frame(
+  sample = sample_c2c3, 
+  cluster = factor(cluster_c2c3), 
+  genotype = factor(genotype_c2c3), 
+  row.names = colnames(cts_d20_c2c3)
+)
+samplesheet_c2c3
+
+# Create DESeq2 object with cluster as main design factor, accounting for genotype as a covariate
+dds_c2c3 <- DESeqDataSetFromMatrix(
+  countData = cts_d20_c2c3, 
+  colData = samplesheet_c2c3, 
+  design = ~ genotype + cluster
+)
+dds_c2c3 <- DESeq(dds_c2c3)
+
+# Compare cluster 3 vs cluster 2 (accounting for genotype differences)
+rstbl_c3.vs.c2 <- results(dds_c2c3, contrast = c("cluster", "3", "2"), alpha = 0.01)
+summary(rstbl_c3.vs.c2)
+
+# Save the result
+write.csv(as.data.frame(rstbl_c3.vs.c2), file = "results/scRNAseq/4_pseudobulk/rstbl_c3.vs.c2_all_genotypes.csv")
+
+# Also create a version without genotype correction (simpler model)
+dds_c2c3_simple <- DESeqDataSetFromMatrix(
+  countData = cts_d20_c2c3, 
+  colData = samplesheet_c2c3, 
+  design = ~ cluster
+)
+dds_c2c3_simple <- DESeq(dds_c2c3_simple)
+
+# Compare cluster 3 vs cluster 2 (simple comparison)
+rstbl_c3.vs.c2_simple <- results(dds_c2c3_simple, contrast = c("cluster", "3", "2"), alpha = 0.01)
+summary(rstbl_c3.vs.c2_simple)
+
+# Save the simple result
+write.csv(as.data.frame(rstbl_c3.vs.c2_simple), file = "results/scRNAseq/4_pseudobulk/rstbl_c3.vs.c2_simple.csv")
 
