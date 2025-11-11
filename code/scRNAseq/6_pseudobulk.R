@@ -6,6 +6,7 @@
 # Enter commands in R (or R studio, if installed)
 library(Seurat)
 library(BPCells)
+# install.packages("tidyverse")
 library(tidyverse)
 setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
