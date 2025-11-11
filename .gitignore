@@ -39,6 +39,7 @@ data/scRNAseq/iwaselab/*
 
 
 **/*.RData
+**/*.vscode/settings.json
 
 # But include these specific .RData files
 

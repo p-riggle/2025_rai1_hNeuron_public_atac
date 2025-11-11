@@ -7,6 +7,7 @@
 library(Seurat)
 library(BPCells)
 library(tidyverse)
+library(DESeq2)
 setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
 # load the R.data
@@ -53,6 +54,7 @@ colnames(cts_d60)
 saveRDS(cts, "data/scRNAseq/iwaselab/cts")
 saveRDS(cts_d20, "data/scRNAseq/iwaselab/cts_d20")
 saveRDS(cts_d60, "data/scRNAseq/iwaselab/cts_d60")
+
 # read cts objects
 cts <- readRDS("data/scRNAseq/iwaselab/cts")
 cts_d20 <- readRDS("data/scRNAseq/iwaselab/cts_d20")
@@ -92,7 +94,7 @@ genotype_cluster_both
 samplesheet_both <- data.frame(sample_both, genotype_cluster_both, cluster_both, genotype_both, row.names = colnames(cts))
 head(samplesheet_both)
 
-library(DESeq2)
+
 # calculation
 dds_d20 <- DESeqDataSetFromMatrix(countData = cts_d20, colData = samplesheet_d20, design = ~ genotype_cluster_d20)
 dds_d20 <- DESeq(dds_d20)
@@ -107,7 +109,13 @@ saveRDS(dds_d20, "data/scRNAseq/iwaselab/dds_d20")
 saveRDS(dds_d60, "data/scRNAseq/iwaselab/dds_d60")
 saveRDS(dds_both, "data/scRNAseq/iwaselab/dds_both")
 
+##############################################
+## for local project directory, start here. ##
+##############################################
+
+
 # read dds r objects
+
 dds_d20 <- readRDS("data/scRNAseq/iwaselab/dds_d20")
 dds_d60 <- readRDS("data/scRNAseq/iwaselab/dds_d60")
 dds_both <- readRDS("data/scRNAseq/iwaselab/dds_both")
