@@ -45,12 +45,6 @@ saveRDS(geo_so, file = 'data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_wit
 # load the r data
 geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
 
-# Install if you haven't: 
-install.packages("showtext")
-library(showtext)
-
-# 2. Download "Arimo" from Google Fonts, but register it as family = "Arial"
-font_add_google(name = "Arimo", family = "Arial")
 
 # Visualize UMAP clusters: the assigned celltype labels (use Arial font)
 pre_integration_umap_plot_clusters = 
@@ -68,7 +62,6 @@ pre_integration_umap_plot_clusters =
   )
 
 pre_integration_umap_plot_clusters
-
 
 ggsave(filename = 'results/scRNAseq/2_pca/6_umap_unintegrated_sct_clusters_0.1_celltype.png',
        plot = pre_integration_umap_plot_clusters,
