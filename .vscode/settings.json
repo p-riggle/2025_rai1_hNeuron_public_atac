@@ -1,6 +1,6 @@
 {
-    "r.rpath.linux": "/sw/pkgs/arc/stacks/gcc/13.2.0/R/4.4.3/bin/R",
-    "r.rterm.linux": "/sw/pkgs/arc/stacks/gcc/13.2.0/R/4.4.3/bin/R",
+    "r.rterm.windows": "C:\\Users\\siwase\\AppData\\Local\\Programs\\R\\R-4.5.2\\bin\\R.exe",
+    "r.rpath.windows": "C:\\Users\\siwase\\AppData\\Local\\Programs\\R\\R-4.5.2\\bin\\R.exe",
     "r.plot.useHttpgd": true,
-    "editor.fontSize": 15
+
 }

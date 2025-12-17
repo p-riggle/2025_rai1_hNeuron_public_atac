@@ -35,10 +35,11 @@ data/scRNAseq/10x_analysis_11534-BZ/*
 
 data/scRNAseq/iwaselab/*
 
-.Rproj.user
-
+.Rproj.user/*
+.Rhistory
 
 **/*.RData
+**/*.vscode/settings.json
 
 # But include these specific .RData files
 

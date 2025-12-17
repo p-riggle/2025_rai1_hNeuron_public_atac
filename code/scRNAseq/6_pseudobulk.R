@@ -6,7 +6,9 @@
 # Enter commands in R (or R studio, if installed)
 library(Seurat)
 library(BPCells)
+# install.packages("tidyverse")
 library(tidyverse)
+library(DESeq2)
 setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
 # load the R.data
@@ -53,6 +55,7 @@ colnames(cts_d60)
 saveRDS(cts, "data/scRNAseq/iwaselab/cts")
 saveRDS(cts_d20, "data/scRNAseq/iwaselab/cts_d20")
 saveRDS(cts_d60, "data/scRNAseq/iwaselab/cts_d60")
+
 # read cts objects
 cts <- readRDS("data/scRNAseq/iwaselab/cts")
 cts_d20 <- readRDS("data/scRNAseq/iwaselab/cts_d20")
@@ -92,7 +95,7 @@ genotype_cluster_both
 samplesheet_both <- data.frame(sample_both, genotype_cluster_both, cluster_both, genotype_both, row.names = colnames(cts))
 head(samplesheet_both)
 
-library(DESeq2)
+
 # calculation
 dds_d20 <- DESeqDataSetFromMatrix(countData = cts_d20, colData = samplesheet_d20, design = ~ genotype_cluster_d20)
 dds_d20 <- DESeq(dds_d20)
@@ -107,7 +110,12 @@ saveRDS(dds_d20, "data/scRNAseq/iwaselab/dds_d20")
 saveRDS(dds_d60, "data/scRNAseq/iwaselab/dds_d60")
 saveRDS(dds_both, "data/scRNAseq/iwaselab/dds_both")
 
+##############################################
+## for local project directory, start here. ##
+##############################################
+
 # read dds r objects
+
 dds_d20 <- readRDS("data/scRNAseq/iwaselab/dds_d20")
 dds_d60 <- readRDS("data/scRNAseq/iwaselab/dds_d60")
 dds_both <- readRDS("data/scRNAseq/iwaselab/dds_both")
@@ -125,29 +133,23 @@ head(assay(vsd_dds_both), 3)
 #install.packages("ggplot2")
 library("ggplot2")
 str(vsd_dds_d20)
-
-
-# Change the output to PDF
-         
-Cairo(width = 800, 
-      height = 600, 
-      file = "results/scRNAseq/4_pseudobulk/PCA_d20_plot.pdf", 
-      type = "pdf", 
-      pointsize = 12, 
-      units = "px", # Explicitly use "px" units
-      dpi = 100);    # Specify DPI for scaling if needed
-
+head(vsd_dds_d20)
 
 # Generate the plot object (this is what you already had)
 PCA_d20 <- plotPCA(vsd_dds_d20, intgroup = c("genotype_d20", "cluster_d20"))
+str(PCA_d20)
+
 
 # Print the plot object to the open Cairo device
 print(PCA_d20)
 dev.off()
 
-
 # filter the PCA data to include only clusters 0,2,3,4
-PCA_data_d20_filtered <- PCA_data_d20[PCA_data_d20$cluster_d20 %in% c("0", "2", "3", "4"), ]
+head(PCA_d20$data)
+PCA_d20_data <- PCA_d20$data
+PCA_d20_data_filtered <- PCA_d20_data[PCA_d20_data$cluster_d20 %in% c("0", "2", "3", "4"), ]
+PCA_d20_data_filtered
+
 
 # create a shape and color mapping for the genotype and day
 # shape mapping for genotypes
@@ -165,10 +167,9 @@ cluster_label_map <- c(
 )
 
 # replace numeric cluster labels in the PCA data with the assigned names
-PCA_data_d20_filtered$cluster_d20 <- cluster_label_map[as.character(PCA_data_d20_filtered$cluster_d20)]
-
-# if you filtered earlier using numeric ids, update the filtered object to use names
-PCA_data_d20_filtered <- PCA_data_d20_filtered[PCA_data_d20_filtered$cluster_d20 %in% c("NPC-G2/M", "Mes-WT", "Mes-Mut", "NPC-G1"), ]
+PCA_d20_data_filtered$cluster_d20 <- cluster_label_map[as.character(PCA_d20_data_filtered$cluster_d20)]
+PCA_d20_data_filtered
+PCA_d20_data
 
 # color mapping using the assigned names
 color_mapping_d20 <- c(
@@ -179,15 +180,13 @@ color_mapping_d20 <- c(
   "IPC"      = "gold"
 )
 
-
-
 # create a new plot with the modified aesthetics
 # extract percent variance explained for PC1 and PC2
-percentVar_d20 <- attr(PCA_data_d20, "percentVar")
+percentVar_d20 <- attr(PCA_d20_data, "percentVar")
 x_lab <- paste0("PC1 (", round(percentVar_d20[1] * 100, 1), "%)")
 y_lab <- paste0("PC2 (", round(percentVar_d20[2] * 100, 1), "%)")
 
-pca_d20_2 <- ggplot(PCA_data_d20_filtered, aes(x = PC1, y = PC2, shape = genotype_d20, color = cluster_d20)) +
+pca_d20_2 <- ggplot(PCA_d20_data_filtered, aes(x = PC1, y = PC2, shape = genotype_d20, color = cluster_d20)) +
   geom_point(size = 4, stroke = 1) +
   scale_shape_manual(values = shape_mapping) +
   scale_color_manual(values = color_mapping_d20) +
@@ -197,31 +196,19 @@ pca_d20_2 <- ggplot(PCA_data_d20_filtered, aes(x = PC1, y = PC2, shape = genotyp
         axis.text = element_text(size = 8)) +
   theme_classic()
 
+pca_d20_2
 
-# Change the output to PDF
-         
-Cairo(width = 800, 
-      height = 600, 
-      file = "results/scRNAseq/4_pseudobulk/PCA_d20_plot_2.pdf", 
-      type = "pdf", 
-      pointsize = 12, 
-      units = "px", # Explicitly use "px" units
-      dpi = 100);    # Specify DPI for scaling if needed
-
-# Print the plot object to the open Cairo device
-print(pca_d20_2)
-dev.off()
-
+# save the plot as a PDF file (without using Cairo)
+ggsave(filename = "results/scRNAseq/4_pseudobulk/PCA_d20_plot_2.pdf", plot = pca_d20_2, width = 800/100, height = 600/100, units = "in", dpi = 100)
 
 # day 60 pca
 PCA_d60 <- plotPCA(vsd_dds_d60, intgroup = c("genotype_d60", "cluster_d60"))
-PCA_d60
+PCA_d60_data <- PCA_d60$data
 
 # Filter the PCA data to include only clusters 1 and 5
-PCA_d60_filtered <- PCA_d60[PCA_data_d60$cluster_d60 %in% c("1", "5"), ]
-
-# Apply cluster label mapping to convert numeric IDs to meaningful names
-PCA_d60_filtered <- PCA_d60_filtered[PCA_d60_filtered$cluster_d60 %in% c("Neuron", "Astrocyte"), ]
+PCA_d60_data_filtered <- PCA_d60_data[PCA_d60_data$cluster_d60 %in% c("1", "5"), ]
+PCA_d60_data_filtered
+PCA_d60_data_filtered$cluster_d60 <- cluster_label_map[as.character(PCA_d60_data_filtered$cluster_d60)]
 
 # create a shape and color mapping for the genotype and day
 shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
@@ -233,11 +220,11 @@ color_mapping_d60 <- c(
 
 # create pca plot of d60_filtered
 # extract percent variance explained for PC1 and PC2
-percentVar_d60 <- attr(PCA_d60_filtered, "percentVar")
+percentVar_d60 <- attr(PCA_d60_data_filtered, "percentVar")
 x_lab_d60 <- paste0("PC1 (", round(percentVar_d60[1] * 100, 1), "%)")
 y_lab_d60 <- paste0("PC2 (", round(percentVar_d60[2] * 100, 1), "%)")
 
-pca_d60_2 <- ggplot(PCA_d60_filtered, aes(x = PC1, y = PC2, shape = genotype_d60, color = cluster_d60)) +
+pca_d60_2 <- ggplot(PCA_d60_data_filtered, aes(x = PC1, y = PC2, shape = genotype_d60, color = cluster_d60)) +
   geom_point(size = 4, stroke = 2) +
   scale_shape_manual(values = shape_mapping) +
   scale_color_manual(values = color_mapping_d60) +
@@ -247,31 +234,64 @@ pca_d60_2 <- ggplot(PCA_d60_filtered, aes(x = PC1, y = PC2, shape = genotype_d60
         axis.text = element_text(size = 8)) +
   theme_classic()
 
-# save the plot as pdf
-         
-Cairo(width = 800, 
-      height = 600, 
-      file = "results/scRNAseq/4_pseudobulk/PCA_d60_plot_2.pdf", 
-      type = "pdf", 
-      pointsize = 12, 
-      units = "px", # Explicitly use "px" units
-      dpi = 100);    # Specify DPI for scaling if needed
+pca_d60_2
 
-# Print the plot object to the open Cairo device
-print(pca_d60_2)
-dev.off()
+# save the plot as pdf (without using Cairo)
+ggsave(filename = "results/scRNAseq/4_pseudobulk/PCA_d60_plot_2.pdf", plot = pca_d60_2, width = 800/100, height = 600/100, units = "in", dpi = 100)
+
 
 # make pca plot of PCA_both
-# replace numeric cluster labels in the PCA data with the assigned names
-PCA_data_d20$cluster_both <- cluster_label_map[as.character(PCA_data_both$cluster)]
+vsd_dds_both$genotype_both
+PCA_both <- plotPCA(vsd_dds_both, intgroup = c("genotype_both", "cluster_both"))
+PCA_both
 
-# if you filtered earlier using numeric ids, update the filtered object to use names
-PCA_data_d20_filtered <- PCA_data_d20_filtered[PCA_data_d20_filtered$cluster_d20 %in% c("NPC-G2/M", "Mes-WT", "Mes-Mut", "NPC-G1"), ]
+PCA_both_data <- PCA_both$data
+PCA_both_data
+PCA_both_data$cluster_both <- cluster_label_map[as.character(PCA_both_data$cluster_both)]
+PCA_both_data
 
+# extract day infromation from the name column and make it as a new column 'day'
+PCA_both_data$day <- ifelse(grepl("day20", PCA_both_data$name), "day20", "day60")
+PCA_both_data
 
+# create PCA plot of PCA_both_data
 
-ggsave(filename = "results/scRNAseq/4_pseudobulk/pca2_d20.pdf", plot = pca_d20, width = 5, height = 4, units = "in")
-ggsave(filename = "results/scRNAseq/4_pseudobulk/pca2_d60.pdf", plot = pca_d60, width = 5, height = 4, units = "in")
+# create a shape and color mapping for the genotype and day
+shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
+
+color_mapping_both <- c(
+  "NPC-G2/M" = "pink",
+  "Mes-WT"   = "darkgreen",
+  "Mes-Mut"  = "lightgreen",
+  "NPC-G1"   = "purple",
+  "IPC"      = "gold", 
+  "Neuron"    = "lightblue",
+  "Astrocyte" = "red"
+)
+
+# make the shape size dependent on days
+shape_size_mapping <- c("day20" = 3, "day60" = 5)
+
+# extract percent variance explained for PC1 and PC2
+percentVar_both <- attr(PCA_both_data, "percentVar")
+x_lab_both <- paste0("PC1 (", round(percentVar_both[1] * 100, 1), "%)")
+y_lab_both <- paste0("PC2 (", round(percentVar_both[2] * 100, 1), "%)")
+
+pca_both <- ggplot(PCA_both_data, aes(x = PC1, y = PC2, shape = genotype_both, color = cluster_both, size = day)) +
+  geom_point(stroke = 2) +
+  scale_shape_manual(values = shape_mapping) +
+  scale_color_manual(values = color_mapping_both) +
+  scale_size_manual(values = shape_size_mapping) +
+  labs(title = "PCA Plot: Day 20&60", x = x_lab_both, y = y_lab_both) +
+  theme(text = element_text(family = "Helvetica", size = 10),
+        axis.title = element_text(size = 10),
+        axis.text = element_text(size = 8)) +
+  theme_classic()
+
+pca_both
+
+# save the PCA plot as pdf
+ggsave(filename = "results/scRNAseq/4_pseudobulk/PCA_both_plot.pdf", plot = pca_both, width = 800/100, height = 600/100, units = "in", dpi = 100)
 
 # make het restables
 rstbl_c0_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_0", "wt_0"), alpha = 0.01)
