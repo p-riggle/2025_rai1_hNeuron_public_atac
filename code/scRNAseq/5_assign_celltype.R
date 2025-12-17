@@ -13,7 +13,7 @@ geo_so
 # make csv file for cell type - clus# Create a data frame with your cluster assignments
 cluster_data <- data.frame(
   cluster = c(0, 1, 2, 3, 4, 5, 6),
-  cell_type = c("NPC-G2/M", "Neuron", "Mes-WT", "Mes-Mut", "NPC-G1", "Astrocyte", "IPC")
+  cell_type = c("NPC-G2/M", "Neuron", "Mes-WT", "Mes-KO", "NPC-G1", "Astrocyte", "IPC")
 )
 
 # Write the data frame to a CSV file
@@ -45,28 +45,43 @@ saveRDS(geo_so, file = 'data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_wit
 # load the r data
 geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
 
+# # Visualize UMAP clusters: the assigned celltype labels (use sans font for better readability)
 
-# Visualize UMAP clusters: the assigned celltype labels (use Arial font)
+library(ggplot2)
+
 pre_integration_umap_plot_clusters = 
   DimPlot(geo_so, 
           group.by = 'cell_type',
           label = TRUE,
-          reduction = 'umap.unintegrated.sct.rpca_0.1') + 
-  NoLegend() +
+          reduction = 'umap.unintegrated.sct.rpca_0.1',
+          raster = TRUE,            # Keep dots rasterized
+          raster.dpi = c(300, 300)
+  ) + 
+  # 1. Explicitly add the Title and Axis Labels
+  ggtitle("Unintegrated UMAP Clusters") + 
+  labs(x = "UMAP_1", y = "UMAP_2") +
+  
+  # 2. Force the axis lines and text to be visible
   theme(
-    text = element_text(family = "Arial"),
-    plot.title = element_text(family = "Arial"),
-    axis.title = element_text(family = "Arial"),
-    axis.text = element_text(family = "Arial"),
-    legend.text = element_text(family = "Arial")
-  )
+    # Set font to Arial, but fallback to sans if it fails
+    text = element_text(family = "sans", color = "black"), 
+    
+    # Ensure titles and labels are black and visible
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10, color = "black"),
+    
+    # Explicitly draw the X and Y axis lines
+    axis.line = element_line(color = "black", size = 0.5),
+    axis.ticks = element_line(color = "black")
+  ) +
+  NoLegend()
 
 pre_integration_umap_plot_clusters
 
-ggsave(filename = 'results/scRNAseq/2_pca/6_umap_unintegrated_sct_clusters_0.1_celltype.png',
+ggsave(filename = 'results/scRNAseq/2_pca/6_umap_unintegrated_sct_clusters_0.1_celltype.pdf',
        plot = pre_integration_umap_plot_clusters,
        width = 6, height = 6, units = 'in')
-
 
 #############################################################
 ### Analyze cell type composition between genotypes #########
