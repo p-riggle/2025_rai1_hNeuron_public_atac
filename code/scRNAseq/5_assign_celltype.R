@@ -83,6 +83,82 @@ ggsave(filename = 'results/scRNAseq/2_pca/6_umap_unintegrated_sct_clusters_0.1_c
        plot = pre_integration_umap_plot_clusters,
        width = 6, height = 6, units = 'in')
 
+##############################################################
+### make marker expression panel (cell type identification) ##
+##############################################################
+
+# Create lists of markers that show specific expression in each cluster
+
+markers = list()
+markers[['NPC']] = c('PAX6', 'SOX2', 'HES5') 
+markers[['Mitotic']] = c('MKI67')
+markers[['Mesenchimal']] = c('FN1', 'COL1A1','COL1A2','SNAI2')
+markers[['Neurons']] = c('DCX', 'ELAVL2', 'ELAVL3', 'GAD1')
+markers[['IPC']] = c('EOMES','NHLH1')
+markers[['Astrocyte']] = c('S100B', 'SLCO1C1')
+
+markers
+
+# make dotplot for the markers
+marker_dotplot = DotPlot(geo_so, features = unlist(markers), group.by = 'cell_type') +
+  RotatedAxis() +
+  ggtitle("Marker Expression by Cell Type") +
+  theme(
+    text = element_text(family = "sans", color = "black"),
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10, color = "black")
+  ) 
+marker_dotplot
+
+# workaround to manually make the dotplot since Seurat's DotPlot has some issues with scaling
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+
+# 1. Setup your features
+features <- unlist(markers)
+DefaultAssay(geo_so) <- "SCT" 
+
+# 2. Get the data directly from Seurat
+# This bypasses the broken DotPlot function entirely
+plot_data <- FetchData(geo_so, vars = c("ident", features))
+
+# 3. Reshape for plotting
+plot_data_long <- plot_data %>%
+  tibble::rownames_to_column("Cell") %>%
+  pivot_longer(cols = all_of(features), names_to = "Gene", values_to = "Expression") %>%
+  rename(CellType = ident)
+
+# 4. Calculate DotPlot stats (Pct Expressed & Average)
+summary_data <- plot_data_long %>%
+  group_by(CellType, Gene) %>%
+  summarise(
+    Pct_Expressed = sum(Expression > 0) / n() * 100,
+    Avg_Expression = mean(Expression),
+    .groups = 'drop'
+  ) %>%
+  group_by(Gene) %>%
+  mutate(Avg_Scaled = scale(Avg_Expression)) # Calculate Z-score
+
+# 5. Plot
+ggplot(summary_data, aes(x = Gene, y = CellType)) +
+  geom_point(aes(size = Pct_Expressed, color = Avg_Scaled)) +
+  scale_color_gradient(low = "lightgrey", high = "blue") +
+  theme_bw() +
+  labs(
+    title = "Marker Expression by Cell Type",
+    x = "Features",
+    y = "Cell Type", 
+    color = "Avg Exp\n(Scaled)", 
+    size = "% Expressed"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, color="black"),
+    panel.grid.major = element_line(color = "grey90")
+  )
+
+
 #############################################################
 ### Analyze cell type composition between genotypes #########
 #############################################################
