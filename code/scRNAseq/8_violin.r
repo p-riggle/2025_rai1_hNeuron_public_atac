@@ -14,17 +14,15 @@ geo_so
 # plot RAI1 level
 # 1. Reorder the cell_types
 # We use the factor() function to set the specific order of the levels.
-# This ensures that 'wt', 'het', and 'ko' appear in the desired order on the plot.
-geo_so$cell_type <- factor(geo_so$cell_type, levels = c("NPC", "NPC-G1", "T2", "T3", "IPC", "Neuron", "OPC"))
-head(geo_so@meta.data)
 
+geo_so$cell_type <- factor(geo_so$cell_type, levels = c("NPC-G2/M", "NPC-G1", "IPC", "Neuron", "Mes-WT", "Mes-KO", "Astrocyte"))
+head(geo_so@meta.data)
 
 viol_rai1 <- VlnPlot(
   object = geo_so,
   features = "RAI1",
   group.by = "cell_type", # Use the default clustering results
-  pt.size = 0.1, alpha = 0.1, # Setting pt.size to 0 removes all individual data points
-  layer = "data"
+  pt.size = 0.1, alpha = 0.1 # Setting pt.size to 0 removes all individual data points
 ) +
   # Use ggplot2 functions to customize the plot's appearance
   ggtitle("RAI1 Expression by Cluster") +
@@ -33,7 +31,36 @@ viol_rai1 <- VlnPlot(
 
 viol_rai1
 
-ggsave(filename = "results/scRNAseq/4_pseudobulk/viol_rai1.pdf", plot = viol_rai1, width = 5, height = 4, units = "in")
+# make violin plot using "SCT" instead of "RNA" data
+create_gene_vlnplot_log <- function(geo_so, gene_name) {
+  # Generate the violin plot using the input gene name
+  vln_plot <- VlnPlot(
+    object = geo_so,
+    features = gene_name,         # Use the function's gene_name argument
+    group.by = "cell_type",
+    pt.size = 0.1, alpha = 0.005,
+    slot = "scale.data",  # Use slot instead of layer
+    combine = TRUE
+  ) +
+    # Customize the plot using ggplot2 layers
+    ggtitle(paste(gene_name, "Expression by Cluster")) + # Create a dynamic title
+    theme(plot.title = element_text(hjust = 0.5)) 
+    # stat_summary(
+    #   fun = median,
+    #   geom = "crossbar",
+    #   width = 0.5,
+    #   color = "black",
+    #   position = position_dodge(0.9)
+    # )
+  
+  # Return the final plot object
+  return(vln_plot)
+}
+RAI1_violin_log <- create_gene_vlnplot_log(geo_so, "RAI1")
+RAI1_violin_log
+
+# save the plot as pdf
+ggsave("results/scRNAseq/4_celltype/RAI1_violin_log.pdf", plot = RAI1_violin_log)
 
 # expression is low. lets make dot plot
 # 1. Subset the Seurat object to keep only the 'wt' genotype cells
@@ -41,6 +68,8 @@ wt_so <- subset(geo_so, subset = genotype == "wt")
 
 # 2. Create the DotPlot for the RAI1 gene, grouped by cell type
 DotPlot(wt_so, features = "RAI1", group.by = "cell_type") + RotatedAxis()
+
+
 
 
 # plot BDNF beween genotypes
@@ -59,8 +88,8 @@ create_gene_vlnplot <- function(geo_so, gene_name) {
     features = gene_name,         # Use the function's gene_name argument
     group.by = "cell_type",
     split.by = "genotype",
-    pt.size = 0.1, alpha = 0.1, 
-    layer = "data",
+    pt.size = 0.1, alpha = 0.1,
+    slot = "data",  # Use slot instead of layer
     combine = TRUE
   ) +
     # Customize the plot using ggplot2 layers

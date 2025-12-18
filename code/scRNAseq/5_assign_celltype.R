@@ -114,7 +114,7 @@ cluster_data <- data.frame(
   cell_type_label = c("NPC-G2/M (0)", "Neuron (1)", "Mes-WT (2)", "Mes-KO (3)", "NPC-G1 (4)", "Astrocyte (5)", "IPC (6)")
 )
 
-# 2. Re-define the Data Function (No changes needed here, just re-running)
+# 2. Re-define the Data Function (Fixed the rename issue)
 get_dotplot_data <- function(object, assay, features, group.by) {
   DefaultAssay(object) <- assay
   clean_feats <- unique(unname(unlist(features)))
@@ -123,8 +123,10 @@ get_dotplot_data <- function(object, assay, features, group.by) {
   
   df_long <- df %>%
     rownames_to_column("Cell") %>%
-    pivot_longer(cols = all_of(clean_feats), names_to = "Gene", values_to = "Expression") %>%
-    rename(Group = !!sym(group.by))
+    pivot_longer(cols = all_of(clean_feats), names_to = "Gene", values_to = "Expression")
+  
+  # Fix the rename issue by using a simpler approach
+  names(df_long)[names(df_long) == group.by] <- "Group"
   
   df_summary <- df_long %>%
     group_by(Group, Gene) %>%
@@ -191,7 +193,7 @@ p2 <- make_labeled_plot(rna_data, "RNA Assay")
 
 # 6. Save
 combined_plot <- p1 + p2
-ggsave("results/scRNAseq/5_celltype/marker_dotplot_labeled.pdf", plot = combined_plot, width = 14, height = 6)
+ggsave("results/scRNAseq/4_celltype/marker_dotplot_labeled.pdf", plot = combined_plot, width = 14, height = 3.5)
 
 # Display just to confirm
 combined_plot
@@ -212,7 +214,6 @@ violin_plot <- VlnPlot(geo_so, features = marker_genes, assay = "SCT", group.by 
 violin_plot
 # Save the violin plot
 ggsave("results/scRNAseq/5_celltype/marker_violin_plots.pdf", plot = violin_plot, width = 12, height = 8)   
-
 
 
 #############################################################
