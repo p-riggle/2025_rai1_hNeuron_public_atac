@@ -100,63 +100,119 @@ markers[['Astrocyte']] = c('S100B', 'SLCO1C1')
 markers
 
 # make dotplot for the markers
-marker_dotplot = DotPlot(geo_so, features = unlist(markers), group.by = 'cell_type') +
-  RotatedAxis() +
-  ggtitle("Marker Expression by Cell Type") +
+##########################################################################
+
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(tibble)
+library(patchwork)
+
+# 1. Define your cluster-to-label mapping
+cluster_data <- data.frame(
+  cluster = c(0, 1, 2, 3, 4, 5, 6),
+  cell_type_label = c("NPC-G2/M (0)", "Neuron (1)", "Mes-WT (2)", "Mes-KO (3)", "NPC-G1 (4)", "Astrocyte (5)", "IPC (6)")
+)
+
+# 2. Re-define the Data Function (No changes needed here, just re-running)
+get_dotplot_data <- function(object, assay, features, group.by) {
+  DefaultAssay(object) <- assay
+  clean_feats <- unique(unname(unlist(features)))
+  
+  df <- FetchData(object, vars = c(group.by, clean_feats))
+  
+  df_long <- df %>%
+    rownames_to_column("Cell") %>%
+    pivot_longer(cols = all_of(clean_feats), names_to = "Gene", values_to = "Expression") %>%
+    rename(Group = !!sym(group.by))
+  
+  df_summary <- df_long %>%
+    group_by(Group, Gene) %>%
+    summarise(
+      Pct_Expressed = sum(Expression > 0) / n() * 100,
+      Avg_Expression = mean(Expression),
+      .groups = 'drop'
+    ) %>%
+    group_by(Gene) %>%
+    mutate(Avg_Scaled = scale(Avg_Expression))
+  
+  return(df_summary)
+}
+
+# 3. Generate Data & Apply Labels
+features_list <- markers
+
+# --- SCT Data ---
+sct_data <- get_dotplot_data(geo_so, assay = "SCT", features = features_list, group.by = "seurat_clusters")
+
+# Merge with labels
+# We convert 'Group' to numeric to match your cluster_data table
+sct_data <- sct_data %>%
+  mutate(Group_Numeric = as.numeric(as.character(Group))) %>% 
+  left_join(cluster_data, by = c("Group_Numeric" = "cluster"))
+
+# --- RNA Data ---
+rna_data <- get_dotplot_data(geo_so, assay = "RNA", features = features_list, group.by = "seurat_clusters")
+
+# Merge with labels
+rna_data <- rna_data %>%
+  mutate(Group_Numeric = as.numeric(as.character(Group))) %>% 
+  left_join(cluster_data, by = c("Group_Numeric" = "cluster"))
+
+
+# 4. Define Plotting Function (Updated to use 'cell_type_label')
+make_labeled_plot <- function(data, title) {
+  
+  # Set order of genes
+  data$Gene <- factor(data$Gene, levels = unique(unname(unlist(markers))))
+  
+  # Set order of Cell Types (Optional: arrange 0 to 6)
+  # We use the order from your cluster_data dataframe to keep them sorted 0-6
+  data$cell_type_label <- factor(data$cell_type_label, levels = cluster_data$cell_type_label)
+  
+  ggplot(data, aes(x = Gene, y = cell_type_label)) +
+    geom_point(aes(size = Pct_Expressed, color = Avg_Scaled)) +
+    scale_color_gradient(low = "lightgrey", high = "blue") +
+    theme_bw() +
+    labs(
+      title = title,
+      x = "Features", y = "Cell Type",
+      color = "Avg Exp\n(Scaled)", size = "% Expressed"
+    ) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, color="black"),
+      panel.grid.major = element_line(color = "grey90")
+    )
+}
+
+# 5. Create and Combine
+p1 <- make_labeled_plot(sct_data, "SCT Assay")
+p2 <- make_labeled_plot(rna_data, "RNA Assay")
+
+# 6. Save
+combined_plot <- p1 + p2
+ggsave("results/scRNAseq/5_celltype/marker_dotplot_labeled.pdf", plot = combined_plot, width = 14, height = 6)
+
+# Display just to confirm
+combined_plot
+
+############################################################
+### Make the violin plots for marker genes ################
+############################################################
+
+# Violin plots for marker genes in SCT assay
+marker_genes <- unname(unlist(markers))
+violin_plot <- VlnPlot(geo_so, features = marker_genes, assay = "SCT", group.by = "cell_type", pt.size = 0) +
   theme(
     text = element_text(family = "sans", color = "black"),
     plot.title = element_text(hjust = 0.5, size = 14),
     axis.title = element_text(size = 12),
     axis.text = element_text(size = 10, color = "black")
-  ) 
-marker_dotplot
-
-# workaround to manually make the dotplot since Seurat's DotPlot has some issues with scaling
-library(dplyr)
-library(ggplot2)
-library(tidyr)
-
-# 1. Setup your features
-features <- unlist(markers)
-DefaultAssay(geo_so) <- "SCT" 
-
-# 2. Get the data directly from Seurat
-# This bypasses the broken DotPlot function entirely
-plot_data <- FetchData(geo_so, vars = c("ident", features))
-
-# 3. Reshape for plotting
-plot_data_long <- plot_data %>%
-  tibble::rownames_to_column("Cell") %>%
-  pivot_longer(cols = all_of(features), names_to = "Gene", values_to = "Expression") %>%
-  rename(CellType = ident)
-
-# 4. Calculate DotPlot stats (Pct Expressed & Average)
-summary_data <- plot_data_long %>%
-  group_by(CellType, Gene) %>%
-  summarise(
-    Pct_Expressed = sum(Expression > 0) / n() * 100,
-    Avg_Expression = mean(Expression),
-    .groups = 'drop'
-  ) %>%
-  group_by(Gene) %>%
-  mutate(Avg_Scaled = scale(Avg_Expression)) # Calculate Z-score
-
-# 5. Plot
-ggplot(summary_data, aes(x = Gene, y = CellType)) +
-  geom_point(aes(size = Pct_Expressed, color = Avg_Scaled)) +
-  scale_color_gradient(low = "lightgrey", high = "blue") +
-  theme_bw() +
-  labs(
-    title = "Marker Expression by Cell Type",
-    x = "Features",
-    y = "Cell Type", 
-    color = "Avg Exp\n(Scaled)", 
-    size = "% Expressed"
-  ) +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, color="black"),
-    panel.grid.major = element_line(color = "grey90")
   )
+violin_plot
+# Save the violin plot
+ggsave("results/scRNAseq/5_celltype/marker_violin_plots.pdf", plot = violin_plot, width = 12, height = 8)   
+
 
 
 #############################################################
@@ -219,4 +275,6 @@ barplot_celltype_proportion
 ggsave(filename = "results/scRNAseq/5_celltype/barplot_celltype_proportion.pdf",
        plot = barplot_celltype_proportion,
        width = 8, height = 6, units = "in")
+
+
 
