@@ -42,10 +42,25 @@ unique(geo_so$cell_type)
 # save the r data
 saveRDS(geo_so, file = 'data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
 
+##################################################################
+#### start here ##################################################
+##################################################################
+
 # load the r data
 geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
 
 # # Visualize UMAP clusters: the assigned celltype labels (use sans font for better readability)
+
+# Define this once at the top of your script
+my_cell_colors <- c(
+  "NPC-G2/M" = "hotpink",
+  "Neuron"          = "dodgerblue",
+  "Mes-WT" = "forestgreen",
+  "Mes-KO"  = "yellowgreen",
+  "NPC-G1" = "purple",
+  "Astrocyte"       = "orangered",
+  "IPC"        = "gold"
+)
 
 library(ggplot2)
 
@@ -55,7 +70,8 @@ pre_integration_umap_plot_clusters =
           label = TRUE,
           reduction = 'umap.unintegrated.sct.rpca_0.1',
           raster = TRUE,            # Keep dots rasterized
-          raster.dpi = c(300, 300)
+          raster.dpi = c(300, 300), 
+          cols = my_cell_colors
   ) + 
   # 1. Explicitly add the Title and Axis Labels
   ggtitle("Unintegrated UMAP Clusters") + 
@@ -204,7 +220,7 @@ combined_plot
 
 # Violin plots for marker genes in SCT assay
 marker_genes <- unname(unlist(markers))
-violin_plot <- VlnPlot(geo_so, features = marker_genes, assay = "SCT", group.by = "cell_type", pt.size = 0) +
+violin_plot <- VlnPlot(geo_so, features = marker_genes, assay = "SCT", group.by = "cell_type", pt.size = 0, col = my_cell_colors) +
   theme(
     text = element_text(family = "sans", color = "black"),
     plot.title = element_text(hjust = 0.5, size = 14),
@@ -213,7 +229,7 @@ violin_plot <- VlnPlot(geo_so, features = marker_genes, assay = "SCT", group.by 
   )
 violin_plot
 # Save the violin plot
-ggsave("results/scRNAseq/5_celltype/marker_violin_plots.pdf", plot = violin_plot, width = 12, height = 8)   
+ggsave("results/scRNAseq/4_celltype/marker_violin_plots.pdf", plot = violin_plot, width = 12, height = 8)   
 
 
 #############################################################
@@ -239,10 +255,10 @@ celltype_proportions_df$Timepoint <- sapply(strsplit(as.character(celltype_propo
 celltype_proportions_df$Genotype <- factor(celltype_proportions_df$Genotype, levels = c("wt", "het", "ko"))
 
 # save the dataframe
-write.csv(celltype_proportions_df, file = "results/scRNAseq/5_celltype/celltype_proportions.csv", row.names = FALSE)
+write.csv(celltype_proportions_df, file = "results/scRNAseq/4_celltype/celltype_proportions.csv", row.names = FALSE)
 
 # read the dataframe and re-apply factor ordering
-celltype_proportions_df <- read.csv("results/scRNAseq/5_celltype/celltype_proportions.csv")
+celltype_proportions_df <- read.csv("results/scRNAseq/4_celltype/celltype_proportions.csv")
 
 # calculate the percentatage of each cell type for the three genotypes
 celltype_proportions_df$Percentage <- celltype_proportions_df$Proportion * 100
@@ -263,19 +279,108 @@ celltype_proportions_avg <- celltype_proportions_avg %>%
 celltype_proportions_avg$Genotype <- factor(celltype_proportions_avg$Genotype, levels = c("wt", "het", "ko"))
 
 # make stacked bar plot of cell type proportions (%) by genotype
-barplot_celltype_proportion <- ggplot(celltype_proportions_avg, aes(x = Genotype, y = Percentage, fill = CellType)) +
+barplot_celltype_proportion <- ggplot(celltype_proportions_avg, 
+                                      aes(x = Genotype, y = Percentage, fill = CellType)) +
   geom_bar(stat = "identity") +
+  # This is where you apply your custom color vector
+  scale_fill_manual(values = my_cell_colors) + 
   theme_minimal() +
   labs(title = "Cell Type Proportions by Genotype", x = "Genotype", y = "Percentage (%)") +
-  scale_x_discrete(labels = c("wt" = "WT", "het" = "Het", "ko" = "KO")) +  # Clean labels for display
-  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 20), expand = c(0, 0))  # Force y-axis to 0-100% with no expansion
+  scale_x_discrete(labels = c("wt" = "WT", "het" = "Het", "ko" = "KO")) +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 20), expand = c(0, 0))
 
+# Display the plot
 barplot_celltype_proportion
 
 # save the plot as a PDF file
-ggsave(filename = "results/scRNAseq/5_celltype/barplot_celltype_proportion.pdf",
+ggsave(filename = "results/scRNAseq/4_celltype/barplot_celltype_proportion.pdf",
        plot = barplot_celltype_proportion,
        width = 8, height = 6, units = "in")
 
+############################################################
+#### make replicate dimention plots with new color ########
+############################################################
+
+pre_integration_umap_plot_replicate_split = 
+  DimPlot(geo_so,
+          group.by = 'cell_type',
+          split.by = 'replicate',
+          label = FALSE,
+          cols = my_cell_colors,
+          raster = TRUE,           # Keep dots rasterized
+          raster.dpi = c(300, 300),
+          reduction = 'umap.unintegrated.sct.rpca_0.1') + 
+  # 1. Explicitly add the Title and Axis Labels
+  labs(x = "UMAP_1", y = "UMAP_2") +
+  
+  # 2. Force the axis lines and text to be visible
+  theme(
+    text = element_text(family = "sans", color = "black"), 
+    axis.line = element_line(color = "black", size = 0.5),
+    axis.ticks = element_line(color = "black")
+  ) +
+  NoLegend() +
+  # 3. Force vertical alignment
+  facet_wrap(~replicate, ncol = 1) 
+
+pre_integration_umap_plot_replicate_split
+
+
+# save the plot as pdf
+# save the plot as a PDF file
+ggsave(filename = "results/scRNAseq/4_celltype/umap_replicates.pdf",
+       plot = pre_integration_umap_plot_replicate_split,
+       width = 4, height = 8, units = "in")
+
+############################################################
+#### make demention plots of genotypes and day with assigned cell types 
+############################################################
+
+# Define the desired order of your combined factor levels
+# Day 20 plots on the top row (WT, HET, KO)
+# Day 60 plots on the bottom row (WT, HET, KO)
+
+# Create a new combined column
+geo_so$day_genotype <- paste(geo_so$day, geo_so$genotype, sep = "_")
+
+head(geo_so@meta.data)
+
+desired_order <- c(
+  "day20_wt", "day20_het", "day20_ko", # Top row
+  "day60_wt", "day60_het", "day60_ko"  # Bottom row
+)
+
+# Convert your combined metadata column to a factor with the specified levels
+geo_so$day_genotype <- factor(geo_so$day_genotype, levels = desired_order)
+
+# Verify the levels (optional, but good for debugging)
+levels(geo_so$day_genotype)
+
+
+pre_integration_umap_plot_day_genotype_split =
+  DimPlot(
+    geo_so,
+    group.by = "cell_type",
+    split.by = "day_genotype",
+    label = TRUE,
+    reduction = "umap.unintegrated.sct.rpca_0.1",
+    cols = my_cell_colors, 
+    raster = TRUE,            # Keep dots rasterized
+    raster.dpi = c(300, 300),
+    ncol = 3
+  ) + 
+  # 1. Explicitly add the Title and Axis Labels
+  labs(x = "UMAP_1", y = "UMAP_2") +
+  # 2. Force the axis lines and text to be visible
+  theme(
+    text = element_text(family = "sans", color = "black")
+  ) +
+  NoLegend() 
+
+pre_integration_umap_plot_day_genotype_split
+
+ggsave(filename = 'results/scRNAseq/4_celltype/umap_genotype_day_split_0.1.pdf',
+       plot = pre_integration_umap_plot_day_genotype_split,
+       width = 12, height = 8, units = 'in')
 
 

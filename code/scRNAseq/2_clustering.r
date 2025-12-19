@@ -137,13 +137,18 @@ geo_so$day_genotype <- factor(geo_so$day_genotype, levels = desired_order)
 # Verify the levels (optional, but good for debugging)
 levels(geo_so$day_genotype)
 
+# -------------------------------------------------------------------------
 # Visualize UMAP clusters with the custom split order and layout
-pre_integration_umap_plot_day_genotype_split = DimPlot(geo_so,
-                                                       group.by = 'seurat_clusters',
-                                                       split.by = 'day_genotype', # Use the new combined column
-                                                       label = FALSE,
-                                                       reduction = 'umap.unintegrated.sct.rpca_0.1',
-                                                       ncol = 3) # Force 3 columns
+# -------------------------------------------------------------------------
+pre_integration_umap_plot_day_genotype_split =
+  DimPlot(
+    geo_so,
+    group.by = "seurat_clusters",
+    split.by = "day_genotype",
+    label = FALSE,
+    reduction = "umap.unintegrated.sct.rpca_0.1",
+    ncol = 3
+  )
 
 pre_integration_umap_plot_day_genotype_split
 

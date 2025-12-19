@@ -15,6 +15,17 @@ geo_so
 # 1. Reorder the cell_types
 # We use the factor() function to set the specific order of the levels.
 
+# define colors
+my_cell_colors <- c(
+  "NPC-G2/M" = "hotpink",
+  "Neuron"          = "dodgerblue",
+  "Mes-WT" = "forestgreen",
+  "Mes-KO"  = "yellowgreen",
+  "NPC-G1" = "purple",
+  "Astrocyte"       = "orangered",
+  "IPC"        = "gold"
+)
+
 geo_so$cell_type <- factor(geo_so$cell_type, levels = c("NPC-G2/M", "NPC-G1", "IPC", "Neuron", "Mes-WT", "Mes-KO", "Astrocyte"))
 head(geo_so@meta.data)
 
@@ -40,7 +51,8 @@ create_gene_vlnplot_log <- function(geo_so, gene_name) {
     group.by = "cell_type",
     pt.size = 0.1, alpha = 0.005,
     slot = "scale.data",  # Use slot instead of layer
-    combine = TRUE
+    combine = TRUE, 
+    col = my_cell_colors,
   ) +
     # Customize the plot using ggplot2 layers
     ggtitle(paste(gene_name, "Expression by Cluster")) + # Create a dynamic title
@@ -49,7 +61,7 @@ create_gene_vlnplot_log <- function(geo_so, gene_name) {
     #   fun = median,
     #   geom = "crossbar",
     #   width = 0.5,
-    #   color = "black",
+    #   col = "black",
     #   position = position_dodge(0.9)
     # )
   

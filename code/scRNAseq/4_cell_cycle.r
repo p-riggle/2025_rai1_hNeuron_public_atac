@@ -7,7 +7,7 @@ library(BPCells)
 library(tidyverse)
 
 # load the R.data
-geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_markers_0.1.rds')
+geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
 
 # human CC genes
 s.genes <- cc.genes$s.genes
@@ -41,9 +41,25 @@ main_dim
 
 sctSeuFilt@meta.data
 sctSeuFilt$genotype <- factor(sctSeuFilt$genotype, levels = c("wt", "het", "ko"))
-main_dim_genotype <- DimPlot(sctSeuFilt, group.by = "Phase", split.by = "genotype")
+
+#########################################################
+### umap plot split by gentype ###########################
+#########################################################
+
+main_dim_genotype <- DimPlot(
+    sctSeuFilt, 
+    group.by = "Phase", 
+    split.by = "genotype", 
+    label = FALSE,
+    raster = TRUE,            # Keep dots rasterized
+    raster.dpi = c(300, 300)
+    ) +
+  labs(x = "UMAP_1", y = "UMAP_2") +
+  theme(
+    text = element_text(family = "sans", color = "black")
+  ) 
+
 main_dim_genotype
 
-ggsave("results/scRNAseq/4_cellcycle/main_dim.pdf", main_dim, width = 5, height = 5)
-ggsave("results/scRNAseq/4_cellcycle/main_dim_genotype.pdf", main_dim_genotype, width = 12, height = 5)
-
+ggsave("results/scRNAseq/5_cellcycle/main_dim.pdf", main_dim, width = 5, height = 5)
+ggsave("results/scRNAseq/5_cellcycle/main_dim_genotype.pdf", main_dim_genotype, width = 12, height = 5)
