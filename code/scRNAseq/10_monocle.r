@@ -123,21 +123,37 @@ ggsave(
 #   return(p)
 # }
 
-# Generate plots without cell type labels
-umap1 <- plot_cells(cds2, label_groups_by_cluster=FALSE, color_cells_by = "cell_type", label_cell_groups = FALSE)
-umap2 <- plot_cells(cds3, label_groups_by_cluster=FALSE, color_cells_by = "cell_type", label_cell_groups = FALSE)
-umap3 <- plot_cells(cds4, label_groups_by_cluster=FALSE, color_cells_by = "cell_type", label_cell_groups = FALSE)
-umap4 <- plot_cells(cds5, label_groups_by_cluster=FALSE, color_cells_by = "cell_type", label_cell_groups = FALSE)
-umap5 <- plot_cells(cds10, label_groups_by_cluster=FALSE, color_cells_by = "cell_type", label_cell_groups = FALSE) 
+# Define this once at the top of your script
+my_cell_colors <- c(
+  "NPC-G2/M" = "hotpink",
+  "Neuron"          = "dodgerblue",
+  "Mes-WT" = "forestgreen",
+  "Mes-KO"  = "yellowgreen",
+  "NPC-G1" = "purple",
+  "Astrocyte"       = "orangered",
+  "IPC"        = "gold"
+)
 
-# save the UMAP plots in single png file with 3 plots in one row, add the number of demention as the title for each plot
-umap1 <- umap1 + ggtitle("2 PCs")
-umap2 <- umap2 + ggtitle("3 PCs")
-umap3 <- umap3 + ggtitle("4 PCs")
-umap4 <- umap4 + ggtitle("5 PCs")
-umap5 <- umap5 + ggtitle("10 PCs")
+# Generate UMAP plots with consistent colors using loop
+cds_objects <- list(cds2 = cds2, cds3 = cds3, cds4 = cds4, cds5 = cds5, cds10 = cds10)
+pc_counts <- c(2, 3, 4, 5, 10)
+umap_list <- list()
 
-combined_umap <- umap1 + umap2 + umap3 + umap4 + umap5 + plot_layout(ncol = 3)
+for (i in seq_along(cds_objects)) {
+  cds_name <- names(cds_objects)[i]
+  pc_count <- pc_counts[i]
+  
+  umap_list[[i]] <- plot_cells(
+    cds_objects[[i]],
+    label_groups_by_cluster = FALSE,
+    color_cells_by = "cell_type",
+    label_cell_groups = FALSE
+  ) +
+    scale_color_manual(values = my_cell_colors) +
+    ggtitle(paste(pc_count, "PCs"))
+}
+
+combined_umap <- umap_list[[1]] + umap_list[[2]] + umap_list[[3]] + umap_list[[4]] + umap_list[[5]] + plot_layout(ncol = 3)
 ggsave(
   filename = "results/scRNAseq/6_monocle3/umap_combined.png",
   plot = combined_umap,
@@ -145,16 +161,51 @@ ggsave(
   height = 8
 )
 
-# save each plot as separate png files use loop 
-umap_list <- list(umap1, umap2, umap3, umap4, umap5)
+# save each plot as separate png files using loop
 for (i in 1:length(umap_list)) {
+  ggsave(
+    filename = paste0("results/scRNAseq/6_monocle3/umap", i, ".png"),
+    plot = umap_list[[i]],
+    width = 12,
+    height = 8
+  ) 
+}
 
+# Generate UMAP plots with consistent colors using loop
+cds_objects <- list(cds2 = cds2, cds3 = cds3, cds4 = cds4, cds5 = cds5, cds10 = cds10)
+pc_counts <- c(2, 3, 4, 5, 10)
+umap_list <- list()
+
+for (i in seq_along(cds_objects)) {
+  cds_name <- names(cds_objects)[i]
+  pc_count <- pc_counts[i]
+  
+  umap_list[[i]] <- plot_cells(
+    cds_objects[[i]],
+    label_groups_by_cluster = FALSE,
+    color_cells_by = "cell_type",
+    label_cell_groups = FALSE
+  ) +
+    scale_color_manual(values = my_cell_colors) +
+    ggtitle(paste(pc_count, "PCs"))
+}
+
+combined_umap <- umap_list[[1]] + umap_list[[2]] + umap_list[[3]] + umap_list[[4]] + umap_list[[5]] + plot_layout(ncol = 3)
 ggsave(
-  filename = paste0("results/scRNAseq/6_monocle3/umap", i, ".png"),
-  plot = umap_list[[i]],
-  width = 12,
+  filename = "results/scRNAseq/6_monocle3/umap_combined.png",
+  plot = combined_umap,
+  width = 18,
   height = 8
-) 
+)
+
+# save each plot as separate png files using loop
+for (i in 1:length(umap_list)) {
+  ggsave(
+    filename = paste0("results/scRNAseq/6_monocle3/umap", i, ".png"),
+    plot = umap_list[[i]],
+    width = 12,
+    height = 8
+  ) 
 }
 
 # umap4 and umap5 look look good. 
@@ -224,6 +275,48 @@ my_cell_colors <- c(
   "Astrocyte"       = "orangered",
   "IPC"        = "gold"
 )
+
+# make the umap plots with the new color scheme
+
+# Generate UMAP plots with consistent colors using loop
+cds_objects <- list(cds4 = cds4, cds5 = cds5, cds10 = cds10)
+pc_counts <- c(4, 5, 10)
+umap_list <- list()
+
+for (i in seq_along(cds_objects)) {
+  cds_name <- names(cds_objects)[i]
+  pc_count <- pc_counts[i]
+  
+  umap_list[[i]] <- plot_cells(
+    cds_objects[[i]],
+    label_groups_by_cluster = FALSE,
+    color_cells_by = "cell_type",
+    label_cell_groups = FALSE,
+    label_leaves = FALSE,
+    label_branch_points = FALSE,
+    graph_label_size = 0
+  ) +
+    scale_color_manual(values = my_cell_colors) +
+    ggtitle(paste(pc_count, "PCs"))
+}
+
+combined_umap <- umap_list[[1]] + umap_list[[2]] + umap_list[[3]] + plot_layout(ncol = 3)
+ggsave(
+  filename = "results/scRNAseq/6_monocle3/umap_combined.png",
+  plot = combined_umap,
+  width = 18,
+  height = 5
+)
+
+# save each plot as separate png files using loop
+for (i in seq_along(umap_list)) {
+  ggsave(
+    filename = paste0("results/scRNAseq/6_monocle3/umap_pc", pc_counts[i], ".png"),
+    plot = umap_list[[i]],
+    width = 12,
+    height = 8
+  )
+}
 
 # visualize the trajectory graph using the defined color
 # also include legends
@@ -322,9 +415,6 @@ for (cds_name in names(cds_list)) {
     theme(legend.position = "right") +
     facet_wrap(~ genotype, ncol = 3)
   
-  # Display the plot
-  print(tjt_genotype_list[[cds_name]])
-  
   # Save the plot
   ggsave(
     filename = paste0("results/scRNAseq/6_monocle3/trajectory_", cds_name, "_genotype.png"),
@@ -354,9 +444,6 @@ for (cds_name in names(cds_list)) {
     theme(legend.position = "right") +
     facet_wrap(~ genotype, ncol = 3)
   
-  # Display the plot
-  print(umap_genotype_list[[cds_name]])
-  
   # Save the plot
   ggsave(
     filename = paste0("results/scRNAseq/6_monocle3/umap_", cds_name, "_genotype.png"),
@@ -374,6 +461,14 @@ cds4 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/mono
 cds5 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds5")
 cds10 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds10")
 
+# Convert genotype to ordered factor for proper facet ordering
+colData(cds4)$genotype <- factor(colData(cds4)$genotype, 
+                                 levels = c("wt", "het", "ko"))
+colData(cds5)$genotype <- factor(colData(cds5)$genotype, 
+                                 levels = c("wt", "het", "ko"))
+colData(cds10)$genotype <- factor(colData(cds10)$genotype, 
+                                  levels = c("wt", "het", "ko"))
+
 # Order cells in pseudotime for all three cds objects using a loop
 cds_list <- list(cds4 = cds4, cds5 = cds5, cds10 = cds10)
 pseudotime_plots <- list()
@@ -387,25 +482,32 @@ for (cds_name in names(cds_list)) {
   print(table(colData(cds_obj)$cell_type))
   print("Available clusters:")
   print(table(colData(cds_obj)$clusters))
-  
+
   # Check if NPC-G2/M cells exist and which clusters they belong to
-  npc_g2m_cells <- colData(cds_obj)$cell_type == "NPC-G2/M"
+  # Filter for WT NPC-G2/M cells specifically
+  npc_g2m_cells <- colData(cds_obj)$cell_type == "NPC-G2/M" & colData(cds_obj)$genotype == "wt"
   if (sum(npc_g2m_cells) > 0) {
-    print("NPC-G2/M cells found in clusters:")
+    print("WT NPC-G2/M cells found in clusters:")
     print(table(colData(cds_obj)$clusters[npc_g2m_cells]))
 
-    # Select a few NPC-G2/M cells as root cells
+    # Select a few WT NPC-G2/M cells as root cells
     # (not all, just a subset for stability)
     npc_g2m_cell_names <- colnames(cds_obj)[npc_g2m_cells]
-    # Take first 10 NPC-G2/M cells as root cells
-    root_cells <- head(npc_g2m_cell_names, 10)
-    print(paste("Selected", length(root_cells), "root cells"))
+
+    # Better approach: randomly sample 10 cells for reproducibility and representation
+    set.seed(42)  # For reproducible results
+    if (length(npc_g2m_cell_names) >= 10) {
+      root_cells <- sample(npc_g2m_cell_names, 10)
+    } else {
+      root_cells <- npc_g2m_cell_names  # Use all if less than 10
+    }
+    print(paste("Selected", length(root_cells), "WT root cells"))
 
     # Order cells in pseudotime using the selected root cells
     cds_obj <- order_cells(cds_obj, root_cells = root_cells)
   } else {
-    print("No NPC-G2/M cells found. Using interactive root selection.")
-    # If no NPC-G2/M cells, use interactive selection
+    print("No WT NPC-G2/M cells found. Using interactive root selection.")
+    # If no WT NPC-G2/M cells, use interactive selection
     cds_obj <- order_cells(cds_obj)
   }
 
@@ -419,14 +521,12 @@ for (cds_name in names(cds_list)) {
     label_cell_groups = FALSE,
     label_leaves = FALSE,
     label_branch_points = FALSE,
-    graph_label_size = 0
+    graph_label_size = 0,
+    show_trajectory_graph = FALSE
   ) +
-    scale_color_viridis_c() +
+    scale_color_viridis_c(name = "Pseudotime") +
     theme(legend.position = "right") +
     ggtitle(paste("Pseudotime", cds_name))
-
-  # Display the plot
-  print(pseudotime_plots[[cds_name]])
 
   # Save the pseudotime plot
   ggsave(
@@ -441,17 +541,64 @@ for (cds_name in names(cds_list)) {
 
 # save the three plots in one pdf file with 3 plots in one row
 library(patchwork)
-combined_pseudotime <- pseudotime_plots[["cds4"]] + pseudotime_plots[["cds5"]] + pseudotime_plots[["cds10"]] + plot_layout(ncol = 3)
-ggsave(filename = 'results/scRNAseq/6_monocle3/pseudotime_combined.png', 
-       plot = combined_pseudotime, 
-       width = 30, height = 8, units = 'in')
+combined_pseudotime <- pseudotime_plots[["cds4"]] +
+  pseudotime_plots[["cds5"]] +
+  pseudotime_plots[["cds10"]] +
+  plot_layout(ncol = 3)
+ggsave(
+  filename = "results/scRNAseq/6_monocle3/pseudotime_combined.png",
+  plot = combined_pseudotime,
+  width = 30,
+  height = 8,
+  units = "in"
+)
 combined_pseudotime
 
+# Create pseudotime plots with genotype faceting for all three cds objects using loop
+pseudotime_genotype_plots <- list()
+
+for (cds_name in names(cds_list)) {
+  # Create pseudotime plot with genotype faceting
+  pseudotime_genotype_plots[[cds_name]] <- plot_cells(
+    cds_list[[cds_name]],
+    color_cells_by = "pseudotime",
+    label_cell_groups = FALSE,
+    label_leaves = FALSE,
+    label_branch_points = FALSE,
+    graph_label_size = 0,
+    show_trajectory_graph = FALSE
+  ) +
+    scale_color_viridis_c(name = "Pseudotime") +
+    theme(legend.position = "right") +
+    ggtitle(paste("Pseudotime", cds_name)) +
+    facet_wrap(~ genotype, ncol = 3)
+  
+  # Save the plot
+  ggsave(
+    filename = paste0("results/scRNAseq/6_monocle3/pseudotime_", cds_name, "_genotype.png"),
+    plot = pseudotime_genotype_plots[[cds_name]],
+    width = 30,
+    height = 8,
+    units = "in"
+  )
+}
 
 # Update the original objects with ordered cells
 cds4 <- cds_list[["cds4"]]
 cds5 <- cds_list[["cds5"]]
 cds10 <- cds_list[["cds10"]]
 
-cds4
+# save the updated cds objects with pseudotime
+save_monocle_objects(cds = cds4, directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds4_pseudotime")
+save_monocle_objects(cds = cds5, directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds5_pseudotime")
+save_monocle_objects(cds = cds10, directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds10_pseudotime")
+
+##### section 5 #####
+
+# Load the saved cds objects with pseudotime
+cds4 <- load_monocle_objects(directory_path = "data/scRNAseq/iwas
+elab/rdata/monocle3_cds4_pseudotime")
+cds5 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds5_pseudotime")
+cds10 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds10_pseudotime")
+
 
