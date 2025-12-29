@@ -490,18 +490,33 @@ for (cds_name in names(cds_list)) {
     print("WT NPC-G2/M cells found in clusters:")
     print(table(colData(cds_obj)$clusters[npc_g2m_cells]))
 
-    # Select a few WT NPC-G2/M cells as root cells
-    # (not all, just a subset for stability)
+    # Select a few WT NPC-G2/M cells as root cells from specific UMAP region
+    # (not all, just a subset for stability from the highlighted region)
     npc_g2m_cell_names <- colnames(cds_obj)[npc_g2m_cells]
+    
+    # Get UMAP coordinates for filtering to specific region
+    umap_coords <- reducedDims(cds_obj)[["UMAP"]]
+    npc_g2m_coords <- umap_coords[npc_g2m_cells, ]
+    
+    # Filter for cells in the upper right region (highlighted in yellow)
+    # Adjust these coordinates based on your specific region of interest
+    region_filter <- npc_g2m_coords[, 1] > 5 & npc_g2m_coords[, 2] > 5
+    regional_npc_g2m_cells <- npc_g2m_cell_names[region_filter]
+    
+    print(paste("Found", length(regional_npc_g2m_cells), "WT NPC-G2/M cells in target region"))
 
-    # Better approach: randomly sample 10 cells for reproducibility and representation
+    # Better approach: randomly sample 10 cells from the regional subset
     set.seed(42)  # For reproducible results
-    if (length(npc_g2m_cell_names) >= 10) {
-      root_cells <- sample(npc_g2m_cell_names, 10)
+    if (length(regional_npc_g2m_cells) >= 10) {
+      root_cells <- sample(regional_npc_g2m_cells, 10)
+    } else if (length(regional_npc_g2m_cells) > 0) {
+      root_cells <- regional_npc_g2m_cells  # Use all regional cells if less than 10
     } else {
-      root_cells <- npc_g2m_cell_names  # Use all if less than 10
+      # Fall back to any WT NPC-G2/M cells if none in region
+      root_cells <- sample(npc_g2m_cell_names, min(10, length(npc_g2m_cell_names)))
+      print("No cells found in target region, using random WT NPC-G2/M cells")
     }
-    print(paste("Selected", length(root_cells), "WT root cells"))
+    print(paste("Selected", length(root_cells), "WT root cells from target region"))
 
     # Order cells in pseudotime using the selected root cells
     cds_obj <- order_cells(cds_obj, root_cells = root_cells)
@@ -596,9 +611,306 @@ save_monocle_objects(cds = cds10, directory_path = "data/scRNAseq/iwaselab/rdata
 ##### section 5 #####
 
 # Load the saved cds objects with pseudotime
-cds4 <- load_monocle_objects(directory_path = "data/scRNAseq/iwas
-elab/rdata/monocle3_cds4_pseudotime")
+cds4 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds4_pseudotime")
 cds5 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds5_pseudotime")
 cds10 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds10_pseudotime")
+
+# make stack plots for binned pseudotime for cds5. Three stacked bar plots represent three genotypes (wt, het, ko). 
+library(ggplot2)
+library(dplyr)
+# Function to create stacked bar plot for a given cds object
+create_stacked_bar_plot <- function(cds_obj, cds_name) {
+  # Extract pseudotime and genotype information
+  cell_data <- data.frame(
+    pseudotime = pseudotime(cds_obj),
+    genotype = colData(cds_obj)$genotype
+  )
+  
+  # Remove cells with NA or infinite pseudotime
+  cell_data <- cell_data[!is.na(cell_data$pseudotime) & is.finite(cell_data$pseudotime), ]
+  
+  # Check if we have enough data and variation for binning
+  if (nrow(cell_data) == 0) {
+    stop(paste("No valid pseudotime data found for", cds_name))
+  }
+  
+  # Check if pseudotime has variation
+  if (diff(range(cell_data$pseudotime)) == 0) {
+    # All pseudotime values are the same, create a single bin
+    cell_data$pseudotime_bin <- factor("Single Value")
+    print(paste("Warning:", cds_name, "has no pseudotime variation, using single bin"))
+  } else {
+    # Create pseudotime bins with error handling
+    n_unique <- length(unique(cell_data$pseudotime))
+    n_bins <- min(10, max(2, n_unique))  # Use fewer bins if not enough unique values
+    
+    # Create bins and get the actual ranges
+    cell_data$pseudotime_bin <- cut(cell_data$pseudotime, 
+                                   breaks = n_bins,
+                                   include.lowest = TRUE)
+    
+    # Convert factor levels to show numerical ranges
+    levels(cell_data$pseudotime_bin) <- gsub("\\(|\\]", "", levels(cell_data$pseudotime_bin))
+    levels(cell_data$pseudotime_bin) <- gsub(",", "-", levels(cell_data$pseudotime_bin))
+    
+    # Round the numbers for cleaner display
+    new_labels <- levels(cell_data$pseudotime_bin)
+    for (i in seq_along(new_labels)) {
+      parts <- strsplit(new_labels[i], "-")[[1]]
+      if (length(parts) == 2) {
+        new_labels[i] <- paste(round(as.numeric(parts[1]), 1), 
+                              round(as.numeric(parts[2]), 1), 
+                              sep = "-")
+      }
+    }
+    levels(cell_data$pseudotime_bin) <- new_labels
+  }
+                                 
+  # Count cells in each pseudotime bin for each genotype
+  count_data <- cell_data %>%
+    group_by(genotype, pseudotime_bin) %>%
+    summarise(cell_count = n(), .groups = "drop")
+  
+  # Create stacked bar plot
+  plot <- ggplot(count_data, aes(x = pseudotime_bin, y = cell_count, fill = genotype)) +
+    geom_bar(stat = "identity") +
+    labs(title = paste("Stacked Bar Plot of Pseudotime Bins -",
+                      cds_name),
+          x = "Pseudotime Bins",
+          y = "Cell Count") +
+    theme_minimal() +
+    scale_fill_manual(values = c("wt" = "#7b7b7b", "het" = "#f1d174", "ko" = "#bd6565")) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  return(plot)
+}
+
+# Create and save stacked bar plots for each cds object
+cds_list <- list(cds4 = cds4, cds5 = cds5, cds10 = cds10)
+for (cds_name in names(cds_list)) {
+  plot <- create_stacked_bar_plot(cds_list[[cds_name]], cds_name)
+  ggsave(
+    filename = paste0("results/scRNAseq/6_monocle3/stacked_bar_pseudotime_", cds_name, ".pdf"),
+    plot = plot,
+    width = 10,
+    height = 6,
+    units = "in"
+  )
+}
+
+# save the three stacked bar plots in one pdf file with 3 plots in one row
+library(patchwork)
+stacked_bar_plots <- list()
+for (cds_name in names(cds_list)) {
+  plot <- create_stacked_bar_plot(cds_list[[cds_name]], cds_name)
+  stacked_bar_plots[[cds_name]] <- plot
+}
+combined_stacked_bar <- stacked_bar_plots[["cds4"]] +
+  stacked_bar_plots[["cds5"]] +
+  stacked_bar_plots[["cds10"]] +
+  plot_layout(ncol = 3)
+ggsave(
+  filename = "results/scRNAseq/6_monocle3/stacked_bar_pseudotime_combined.pdf",
+  plot = combined_stacked_bar,
+  width = 30,
+  height = 8,
+  units = "in"
+)
+combined_stacked_bar
+
+# in the above plots, x-axis is the bined pseudotime, and each stack is genotype. Now I am making stack plots where x-axis is genotype, and each stack is binned pseudotime. 
+
+# Function to create stacked bar plot for a given cds object with genotype on x-axis
+create_stacked_bar_plot_genotype_x <- function(cds_obj, cds_name) {
+  # Extract pseudotime and genotype information
+  cell_data <- data.frame(
+    pseudotime = pseudotime(cds_obj),
+    genotype = colData(cds_obj)$genotype
+  )
+  # Remove cells with NA or infinite pseudotime
+  cell_data <- cell_data[!is.na(cell_data$pseudotime) & is.finite(cell_data$pseudotime), ]
+  # Check if we have enough data and variation for binning
+  if (nrow(cell_data) == 0) {
+    stop(paste("No valid pseudotime data found for", cds_name))
+  }
+  # Check if pseudotime has variation
+  if (diff(range(cell_data$pseudotime)) == 0) {
+    # All pseudotime values are the same, create a single bin
+    cell_data$pseudotime_bin <- factor("Single Value")
+    print(paste("Warning:", cds_name, "has no pseudotime variation, using
+  single bin"))
+  } else {
+    # Create pseudotime bins with error handling
+    n_unique <- length(unique(cell_data$pseudotime))
+    n_bins <- min(10, max(2, n_unique))  # Use fewer bins if not enough unique values
+    # Create bins and get the actual ranges
+    cell_data$pseudotime_bin <- cut(cell_data$pseudotime, 
+                                   breaks = n_bins,
+                                   include.lowest = TRUE)
+    # Convert factor levels to show numerical ranges
+    levels(cell_data$pseudotime_bin) <- gsub("\\(|\\]", "", levels(cell_data$pseudotime_bin))
+    levels(cell_data$pseudotime_bin) <- gsub(",", "-", levels(cell_data$pseudotime_bin))
+    # Round the numbers for cleaner display
+    new_labels <- levels(cell_data$pseudotime_bin)
+    for (i in seq_along(new_labels)) {
+      parts <- strsplit(new_labels[i], "-")[[1]]
+      if (length(parts) == 2) {
+        new_labels[i] <- paste(round(as.numeric(parts[1]), 1), 
+                              round(as.numeric(parts[2]), 1), 
+                              sep = "-")
+      }
+    }
+    levels(cell_data$pseudotime_bin) <- new_labels
+  }
+  # Count cells in each pseudotime bin for each genotype
+  count_data <- cell_data %>%
+    group_by(genotype, pseudotime_bin) %>%
+    summarise(cell_count = n(), .groups = "drop") %>%
+    group_by(genotype) %>%
+    mutate(percentage = cell_count / sum(cell_count) * 100) %>%
+    ungroup()
+  # Create stacked bar plot with genotype on x-axis
+  plot <- ggplot(count_data, aes(x = genotype, y = percentage, fill = pseudotime_bin)) +
+    geom_bar(stat = "identity") +
+    labs(title = paste("Stacked Bar Plot of Genotype -",
+                      cds_name),
+          x = "Genotype",
+          y = "Percentage of Cells") +
+    theme_minimal() +
+    scale_fill_viridis_d(name = "Pseudotime Bins") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  return(plot)
+}
+# Create and save stacked bar plots for each cds object with genotype on x-axis
+cds_list <- list(cds4 = cds4, cds5 = cds5, cds10 = cds10)
+for (cds_name in names(cds_list)) {
+  plot <- create_stacked_bar_plot_genotype_x(cds_list[[cds_name]], cds_name)
+  ggsave(
+    filename = paste0("results/scRNAseq/6_monocle3/stacked
+_pseudotime_genotype_", cds_name, ".pdf"),
+    plot = plot,
+    width = 10,
+    height = 6,
+    units = "in"
+  )
+}
+# save the three stacked bar plots in one pdf file with 3 plots in one row
+library(patchwork)
+stacked_bar_genotype_x_plots <- list()
+for (cds_name in names(cds_list)) {
+  plot <- create_stacked_bar_plot_genotype_x(cds_list[[cds_name]], cds_name)
+  stacked_bar_genotype_x_plots[[cds_name]] <- plot
+}
+combined_stacked_bar_genotype_x <- stacked_bar_genotype_x_plots[["cds4"]] +
+  stacked_bar_genotype_x_plots[["cds5"]] +
+  stacked_bar_genotype_x_plots[["cds10"]] +
+  plot_layout(ncol = 3)
+ggsave(
+  filename = "results/scRNAseq/6_monocle3/stacked_bar_gen
+otype_x_pseudotime_combined.pdf",
+  plot = combined_stacked_bar_genotype_x,
+  width = 30,
+  height = 8,
+  units = "in"
+)
+combined_stacked_bar_genotype_x
+
+###### section 6 #########
+
+# set working directory
+setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
+
+# load seurat
+library(Seurat)
+library(BPCells)
+library(tidyverse)
+library(monocle3)
+
+# Load the saved cds objects with pseudotime
+cds5 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds5_pseudotime")
+
+# next subset the cds5 into the 6 cell types. Then assess whether the distribution of pseudotime in each cell types differ by genotypes. 
+
+# Convert the cds5 to a data frame for easier manipulation
+cds5_df <- as.data.frame(colData(cds5))
+cds5_df$pseudotime <- pseudotime(cds5)
+# Check the structure of the data frame
+str(cds5_df)
+
+# save the cds5_df as rdata file
+save(cds5_df, file = "data/scRNAseq/iwaselab/rdata/cds5_pseudotime_dataframe.RData")
+
+# Create violin plots of pseudotime by genotype for each cell type
+# Using base R statistical tests instead of ggpubr (which requires newer ggplot2)
+
+# Create the violin subdirectory if it doesn't exist
+if (!dir.exists("results/scRNAseq/6_monocle3/violin")) {
+  dir.create("results/scRNAseq/6_monocle3/violin", recursive = TRUE)
+}
+
+cell_types <- unique(cds5_df$cell_type)
+for (cell_type in cell_types) {
+  # Subset data for the current cell type
+  subset_df <- cds5_df %>% filter(cell_type == !!cell_type)
+  
+  # Create a filesystem-safe filename
+  clean_cell_type <- gsub("[/\\-]", "_", cell_type)
+  
+  # Calculate statistical comparisons using base R
+  comparisons <- list(c("wt", "het"), c("wt", "ko"), c("het", "ko"))
+  p_values <- c()
+  
+  for (comp in comparisons) {
+    group1_data <- subset_df$pseudotime[subset_df$genotype == comp[1]]
+    group2_data <- subset_df$pseudotime[subset_df$genotype == comp[2]]
+    
+    # Remove NA values
+    group1_data <- group1_data[!is.na(group1_data)]
+    group2_data <- group2_data[!is.na(group2_data)]
+    
+    # Perform Wilcoxon test if both groups have data
+    if (length(group1_data) > 0 & length(group2_data) > 0) {
+      test_result <- wilcox.test(group1_data, group2_data)
+      p_val <- test_result$p.value
+      p_values <- c(p_values, ifelse(p_val < 0.001, "***", 
+                                    ifelse(p_val < 0.01, "**", 
+                                          ifelse(p_val < 0.05, "*", "ns"))))
+    } else {
+      p_values <- c(p_values, "ns")
+    }
+  }
+  
+  # Create violin plot
+  p <- ggplot(subset_df, aes(x = genotype, y = pseudotime)) +
+    geom_violin(trim = FALSE, fill = "lightblue") +
+    geom_boxplot(width = 0.1, position = position_dodge(0.9), outlier.shape = NA) +
+    labs(title = paste("Pseudotime Distribution in", cell_type),
+         x = "Genotype",
+         y = "Pseudotime") +
+    theme_classic()
+  
+  # Add manual statistical annotations
+  y_max <- max(subset_df$pseudotime, na.rm = TRUE)
+  y_range <- max(subset_df$pseudotime, na.rm = TRUE) - min(subset_df$pseudotime, na.rm = TRUE)
+  
+  # Add comparison annotations manually
+  p <- p + annotate("text", x = 1.5, y = y_max + y_range * 0.1, 
+                   label = paste("wt vs het:", p_values[1]), size = 3) +
+           annotate("text", x = 2, y = y_max + y_range * 0.15, 
+                   label = paste("wt vs ko:", p_values[2]), size = 3) +
+           annotate("text", x = 2.5, y = y_max + y_range * 0.1, 
+                   label = paste("het vs ko:", p_values[3]), size = 3)
+  
+  # Save the plot with cleaned filename
+  ggsave(
+    filename = paste0("results/scRNAseq/6_monocle3/violin/pseudotime_violin_", clean_cell_type, ".pdf"),
+    plot = p,
+    width = 8,
+    height = 6
+  )
+}
+
+
+
+
 
 
