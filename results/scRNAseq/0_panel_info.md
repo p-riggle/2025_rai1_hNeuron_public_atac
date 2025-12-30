@@ -34,3 +34,35 @@ caption: Barplot of cell type proportions across genotypes
 code: code/scRNAseq/5_assign_celltype.R
 file: results/scRNAseq/5_celltype/barplot_celltype_proportion.pdf
 
+## Panel G
+caption: Stacked barplot of cell type proportions across timepoints and genotypes
+code: code/scRNAseq/5_assign_celltype.R
+file: results/scRNAseq/5_cellcycle/stack_bar_combined.pdf
+
+# Figure 4
+## Panel A
+caption: UMAP colored by celltype
+code: code/scRNAseq/10_monocle.r
+file: results/scRNAseq/6_monocle3/umap_pc5.png
+
+## Panel B
+caption: UMAP colored by pseudotime
+code: code/scRNAseq/10_monocle.r
+file: results/scRNAseq/6_monocle3/pseudotime_cds5.png
+
+## Panel C
+caption: Pseudotime density plots across genotypes
+code: code/scRNAseq/10_monocle.r
+file: results/scRNAseq/6_monocle3/umap_cds5_genotype.png
+
+## Panel D
+caption: stack bar plots of pseudotime bins across genotypes
+code: code/scRNAseq/10_monocle.r
+file: results/scRNAseq/6_monocle3/stacked_bar_pseudotime_cds5.pdf
+
+## Panel E
+caption: pseudotime violing plots of each cell type across genotypes
+code: code/scRNAseq/10_monocle.r
+file: results/scRNAseq/6_monocle3/violin/big_pseudotime_violin_plot.pdf
+
+

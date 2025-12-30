@@ -839,6 +839,9 @@ str(cds5_df)
 # save the cds5_df as rdata file
 save(cds5_df, file = "data/scRNAseq/iwaselab/rdata/cds5_pseudotime_dataframe.RData")
 
+# read the cds5_df from rdata file
+load("data/scRNAseq/iwaselab/rdata/cds5_pseudotime_dataframe.RData")
+
 # Create violin plots of pseudotime by genotype for each cell type
 # Using base R statistical tests instead of ggpubr (which requires newer ggplot2)
 
@@ -909,8 +912,35 @@ for (cell_type in cell_types) {
   )
 }
 
+# combine all the violin plots into one big violoin plots. For color use the scheme below. And save it as one pdf file. 
+# Define this once at the top of your script
 
+my_cell_colors <- c(
+  "NPC-G2/M" = "hotpink",
+  "Neuron"          = "dodgerblue",
+  "Mes-WT" = "forestgreen",
+  "Mes-KO"  = "yellowgreen",
+  "NPC-G1" = "purple",
+  "Astrocyte"       = "orangered",
+  "IPC"        = "gold"
+)
 
+# Create one big violin plot grouped by genotype within each cell type
+# Set the order of cell types
+cds5_df$cell_type <- factor(cds5_df$cell_type, 
+                           levels = c("NPC-G2/M", "NPC-G1", "Mes-WT", "Mes-KO", "IPC", "Neuron", "Astrocyte"))
 
+big_violin_plot <- ggplot(cds5_df, aes(x = interaction(genotype, cell_type), y = pseudotime, fill = cell_type)) +
+  geom_violin(trim = FALSE) +
+  geom_boxplot(width = 0.02, outlier.shape = NA, alpha = 0) +
+  scale_fill_manual(values = my_cell_colors) +
+  labs(title = "Pseudotime Distribution by Genotype Within Each Cell Type",
+       x = "Genotype . Cell Type", 
+       y = "Pseudotime") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
+# Save the big violin plot
+ggsave("results/scRNAseq/6_monocle3/violin/big_pseudotime_violin_plot.pdf", 
+       plot = big_violin_plot, width = 20, height = 5)
 

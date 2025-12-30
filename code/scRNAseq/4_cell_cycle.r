@@ -1,3 +1,5 @@
+# set working directory
+setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
 # https://satijalab.org/seurat/articles/cell_cycle_vignette.html
 
@@ -63,3 +65,60 @@ main_dim_genotype
 
 ggsave("results/scRNAseq/5_cellcycle/main_dim.pdf", main_dim, width = 5, height = 5)
 ggsave("results/scRNAseq/5_cellcycle/main_dim_genotype.pdf", main_dim_genotype, width = 12, height = 5)
+
+####################################################
+#### make stack bar plot for cell cycle phases ########
+#######################################################
+
+# make stack bar plots to compare the genotypes for both day 20 and day 60
+cell_cycle_df <- sctSeuFilt@meta.data %>%
+  select(genotype, Phase, day) %>%
+  count(genotype, Phase, day, name = "cell_count") %>%
+  group_by(genotype, day) %>%
+  mutate(percentage = cell_count / sum(cell_count) * 100) %>%
+  ungroup()
+
+# Create stacked bar plot with cell counts
+stack_bar_count <- ggplot(cell_cycle_df, aes(x = genotype, y = cell_count, fill = Phase)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ day, scales = "free_y") +
+  scale_fill_manual(values = c("G1" = "#ff6b6b", "S" = "#4dabf7", "G2M" = "#51cf66")) +
+  labs(title = "Cell Cycle Phase Distribution by Genotype",
+       x = "Genotype", 
+       y = "Cell Count",
+       fill = "Cell Cycle Phase") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5))
+
+# Create stacked bar plot with percentages
+stack_bar_percent <- ggplot(cell_cycle_df, aes(x = genotype, y = percentage, fill = Phase)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ day) +
+  scale_fill_manual(values = c("G1" = "#ff6b6b", "S" = "#4dabf7", "G2M" = "#51cf66")) +
+  labs(title = "Cell Cycle Phase Distribution by Genotype (Percentage)",
+       x = "Genotype", 
+       y = "Percentage of Cells",
+       fill = "Cell Cycle Phase") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5))
+
+# Save the plots
+ggsave("results/scRNAseq/5_cellcycle/stack_bar_count.pdf", 
+       plot = stack_bar_count, width = 10, height = 6)
+ggsave("results/scRNAseq/5_cellcycle/stack_bar_percent.pdf", 
+       plot = stack_bar_percent, width = 10, height = 6)
+
+# Also create a single plot combining both days
+stack_bar_combined <- ggplot(cell_cycle_df, aes(x = interaction(genotype, day), y = percentage, fill = Phase)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("G1" = "#ff6b6b", "S" = "#4dabf7", "G2M" = "#51cf66")) +
+  labs(title = "Cell Cycle Phase Distribution Across Genotypes and days",
+       x = "Genotype . day", 
+       y = "Percentage of Cells",
+       fill = "Cell Cycle Phase") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("results/scRNAseq/5_cellcycle/stack_bar_combined.pdf", 
+       plot = stack_bar_combined, width = 12, height = 6) 
+
