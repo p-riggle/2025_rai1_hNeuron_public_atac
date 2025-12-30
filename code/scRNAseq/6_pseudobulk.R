@@ -12,7 +12,7 @@ library(DESeq2)
 setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
 # load the R.data
-geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_markers_0.1.rds')
+geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
 
 # check the number of cells
 geo_so
@@ -20,7 +20,7 @@ ncol(geo_so)
 length(Cells(geo_so))
 
 # define the output directory
-dirout <- ("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc/results/scRNAseq/4_pseudobulk/")
+dirout <- ("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc/results/scRNAseq/7_pseudobulk/")
 
 # edit metadata
 
@@ -37,7 +37,7 @@ meta_data <- geo_so@meta.data
 
 # aggregate count data by cluster
 DefaultAssay(geo_so) <- "RNA"
-cts <- AggregateExpression(geo_so, assays = "RNA", slot = "counts", return.seurat = F, group.by =c("orig.ident", "seurat_clusters"))
+cts <- AggregateExpression(geo_so, assays = "RNA", slot = "counts", return.seurat = F, group.by =c("orig.ident", "cell_type"))
 cts <- cts$RNA
 colnames(cts)
 
@@ -147,7 +147,7 @@ dev.off()
 # filter the PCA data to include only clusters 0,2,3,4
 head(PCA_d20$data)
 PCA_d20_data <- PCA_d20$data
-PCA_d20_data_filtered <- PCA_d20_data[PCA_d20_data$cluster_d20 %in% c("0", "2", "3", "4"), ]
+PCA_d20_data_filtered <- PCA_d20_data[PCA_d20_data$cluster_d20 %in% c("NPC-G1", "NPC-G2/M", "Mes-WT", "Mes-KO"), ]
 PCA_d20_data_filtered
 
 
