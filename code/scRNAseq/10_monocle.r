@@ -785,8 +785,7 @@ cds_list <- list(cds4 = cds4, cds5 = cds5, cds10 = cds10)
 for (cds_name in names(cds_list)) {
   plot <- create_stacked_bar_plot_genotype_x(cds_list[[cds_name]], cds_name)
   ggsave(
-    filename = paste0("results/scRNAseq/6_monocle3/stacked
-_pseudotime_genotype_", cds_name, ".pdf"),
+    filename = paste0("results/scRNAseq/6_monocle3/st_pt_geno_", cds_name, ".pdf"),
     plot = plot,
     width = 10,
     height = 6,
@@ -805,8 +804,7 @@ combined_stacked_bar_genotype_x <- stacked_bar_genotype_x_plots[["cds4"]] +
   stacked_bar_genotype_x_plots[["cds10"]] +
   plot_layout(ncol = 3)
 ggsave(
-  filename = "results/scRNAseq/6_monocle3/stacked_bar_gen
-otype_x_pseudotime_combined.pdf",
+  filename = "results/scRNAseq/6_monocle3/st_pt_geno_combined.pdf",
   plot = combined_stacked_bar_genotype_x,
   width = 30,
   height = 8,
