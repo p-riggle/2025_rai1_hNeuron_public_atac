@@ -19,9 +19,6 @@ geo_so
 ncol(geo_so)
 length(Cells(geo_so))
 
-# define the output directory
-dirout <- ("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc/results/scRNAseq/7_pseudobulk/")
-
 # edit metadata
 
 # clustMetaDat <- geo_so@meta.data
@@ -42,7 +39,6 @@ cts <- cts$RNA
 colnames(cts)
 
 # split two time points
-
 cts_d20 <- cts[, c(1:42)]
 
 colnames(cts_d20)
@@ -148,7 +144,7 @@ dev.off()
 # filter the PCA data to include only clusters 0,2,3,4
 head(PCA_d20$data)
 PCA_d20_data <- PCA_d20$data
-PCA_d20_data_filtered <- PCA_d20_data[PCA_d20_data$cluster_d20 %in% c("NPC-G1", "NPC-G2/M", "Mes-WT", "Mes-KO"), ]
+PCA_d20_data_filtered <- PCA_d20_data[PCA_d20_data$cluster_d20 %in% c("NPC-G1", "NPC-G2/M", "Mes-WT", "Mes-KO", "IPC"), ]
 PCA_d20_data_filtered
 
 
@@ -277,7 +273,7 @@ pca_both
 # save the PCA plot as pdf
 ggsave(filename = "results/scRNAseq/7_pseudobulk/PCA_both_plot.pdf", plot = pca_both, width = 800/100, height = 600/100, units = "in", dpi = 100)
 
-head(dds_d20$genotype_cluster_d20)
+dds_d20$genotype_cluster_d20
 
 # make het restables
 rstbl_NPCG2M_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_0", "wt_0"), alpha = 0.01)
