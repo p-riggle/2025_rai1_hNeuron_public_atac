@@ -113,6 +113,8 @@ saveRDS(dds_both, "data/scRNAseq/iwaselab/dds_both")
 ##############################################
 ## for local project directory, start here. ##
 ##############################################
+library(tidyverse)
+library(DESeq2)
 
 # read dds r objects
 
@@ -139,7 +141,6 @@ head(vsd_dds_d20)
 PCA_d20 <- plotPCA(vsd_dds_d20, intgroup = c("genotype_d20", "cluster_d20"))
 str(PCA_d20)
 
-
 # Print the plot object to the open Cairo device
 print(PCA_d20)
 dev.off()
@@ -155,29 +156,15 @@ PCA_d20_data_filtered
 # shape mapping for genotypes
 shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
 
-# map numeric cluster ids to meaningful cell type names
-cluster_label_map <- c(
-  "0" = "NPC-G2/M",
-  "1" = "Neuron",
-  "2" = "Mes-WT",
-  "3" = "Mes-Mut",
-  "4" = "NPC-G1",
-  "5" = "Astrocyte",
-  "6" = "IPC"
-)
-
-# replace numeric cluster labels in the PCA data with the assigned names
-PCA_d20_data_filtered$cluster_d20 <- cluster_label_map[as.character(PCA_d20_data_filtered$cluster_d20)]
-PCA_d20_data_filtered
-PCA_d20_data
 
 # color mapping using the assigned names
+
 color_mapping_d20 <- c(
-  "NPC-G2/M" = "pink",
-  "Mes-WT"   = "darkgreen",
-  "Mes-Mut"  = "lightgreen",
-  "NPC-G1"   = "purple",
-  "IPC"      = "gold"
+  "NPC-G2/M" = "hotpink",
+  "Mes-WT" = "forestgreen",
+  "Mes-KO"  = "yellowgreen",
+  "NPC-G1" = "purple",
+  "IPC"        = "gold"
 )
 
 # create a new plot with the modified aesthetics
@@ -199,23 +186,22 @@ pca_d20_2 <- ggplot(PCA_d20_data_filtered, aes(x = PC1, y = PC2, shape = genotyp
 pca_d20_2
 
 # save the plot as a PDF file (without using Cairo)
-ggsave(filename = "results/scRNAseq/4_pseudobulk/PCA_d20_plot_2.pdf", plot = pca_d20_2, width = 800/100, height = 600/100, units = "in", dpi = 100)
+ggsave(filename = "results/scRNAseq/7_pseudobulk/PCA_d20_plot_2.pdf", plot = pca_d20_2, width = 800/100, height = 600/100, units = "in", dpi = 100)
 
 # day 60 pca
 PCA_d60 <- plotPCA(vsd_dds_d60, intgroup = c("genotype_d60", "cluster_d60"))
 PCA_d60_data <- PCA_d60$data
 
 # Filter the PCA data to include only clusters 1 and 5
-PCA_d60_data_filtered <- PCA_d60_data[PCA_d60_data$cluster_d60 %in% c("1", "5"), ]
+PCA_d60_data_filtered <- PCA_d60_data[PCA_d60_data$cluster_d60 %in% c("Neuron", "Astrocyte"), ]
 PCA_d60_data_filtered
-PCA_d60_data_filtered$cluster_d60 <- cluster_label_map[as.character(PCA_d60_data_filtered$cluster_d60)]
 
 # create a shape and color mapping for the genotype and day
 shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
 # color mapping using the assigned names
 color_mapping_d60 <- c(
-  "Neuron"    = "lightblue",
-  "Astrocyte" = "red"
+  "Neuron"    = "dodgerblue",
+  "Astrocyte" = "orangered"
 )
 
 # create pca plot of d60_filtered
@@ -237,7 +223,7 @@ pca_d60_2 <- ggplot(PCA_d60_data_filtered, aes(x = PC1, y = PC2, shape = genotyp
 pca_d60_2
 
 # save the plot as pdf (without using Cairo)
-ggsave(filename = "results/scRNAseq/4_pseudobulk/PCA_d60_plot_2.pdf", plot = pca_d60_2, width = 800/100, height = 600/100, units = "in", dpi = 100)
+ggsave(filename = "results/scRNAseq/7_pseudobulk/PCA_d60_plot_2.pdf", plot = pca_d60_2, width = 800/100, height = 600/100, units = "in", dpi = 100)
 
 
 # make pca plot of PCA_both
@@ -246,8 +232,6 @@ PCA_both <- plotPCA(vsd_dds_both, intgroup = c("genotype_both", "cluster_both"))
 PCA_both
 
 PCA_both_data <- PCA_both$data
-PCA_both_data
-PCA_both_data$cluster_both <- cluster_label_map[as.character(PCA_both_data$cluster_both)]
 PCA_both_data
 
 # extract day infromation from the name column and make it as a new column 'day'
@@ -260,13 +244,13 @@ PCA_both_data
 shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
 
 color_mapping_both <- c(
-  "NPC-G2/M" = "pink",
-  "Mes-WT"   = "darkgreen",
-  "Mes-Mut"  = "lightgreen",
-  "NPC-G1"   = "purple",
-  "IPC"      = "gold", 
-  "Neuron"    = "lightblue",
-  "Astrocyte" = "red"
+  "NPC-G2/M" = "hotpink",
+  "Neuron"          = "dodgerblue",
+  "Mes-WT" = "forestgreen",
+  "Mes-KO"  = "yellowgreen",
+  "NPC-G1" = "purple",
+  "Astrocyte"       = "orangered",
+  "IPC"        = "gold"
 )
 
 # make the shape size dependent on days
@@ -291,14 +275,16 @@ pca_both <- ggplot(PCA_both_data, aes(x = PC1, y = PC2, shape = genotype_both, c
 pca_both
 
 # save the PCA plot as pdf
-ggsave(filename = "results/scRNAseq/4_pseudobulk/PCA_both_plot.pdf", plot = pca_both, width = 800/100, height = 600/100, units = "in", dpi = 100)
+ggsave(filename = "results/scRNAseq/7_pseudobulk/PCA_both_plot.pdf", plot = pca_both, width = 800/100, height = 600/100, units = "in", dpi = 100)
+
+head(dds_d20$genotype_cluster_d20)
 
 # make het restables
-rstbl_c0_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_0", "wt_0"), alpha = 0.01)
-rstbl_c2_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_2", "wt_2"), alpha = 0.01)
-rstbl_c3_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_3", "wt_3"), alpha = 0.01)
-rstbl_c4_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_4", "wt_4"), alpha = 0.01)
-rstbl_c6_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_6", "wt_6"), alpha = 0.01)
+rstbl_NPCG2M_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_0", "wt_0"), alpha = 0.01)
+rstbl_MesWT_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_2", "wt_2"), alpha = 0.01)
+rstbl_MesKO_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_3", "wt_3"), alpha = 0.01)
+rstbl_NPCG1_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_4", "wt_4"), alpha = 0.01)
+rstbl_IPC_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_6", "wt_6"), alpha = 0.01)
 
 rstbl_c1_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_1", "wt_1"), alpha = 0.01)
 rstbl_c5_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_5", "wt_5"), alpha = 0.01)
