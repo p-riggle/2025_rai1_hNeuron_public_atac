@@ -30,8 +30,6 @@ data/scRNAseq/10x_analysis_11534-BZ/*
 **/*.results
 
 **/*.cloupe
-**/*.xls
-**/*.xlsx
 
 data/scRNAseq/iwaselab/*
 
@@ -47,5 +45,9 @@ data/scRNAseq/iwaselab/*
 !data/scRNAseq/iwaselab/dds_d20
 !data/scRNAseq/iwaselab/dds_d60
 
+!results/scRNAseq/7_pseudobulk/*
+
 
 .Rproj.user
+.Rhistory
+

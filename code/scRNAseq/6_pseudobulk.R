@@ -147,11 +147,9 @@ PCA_d20_data <- PCA_d20$data
 PCA_d20_data_filtered <- PCA_d20_data[PCA_d20_data$cluster_d20 %in% c("NPC-G1", "NPC-G2/M", "Mes-WT", "Mes-KO", "IPC"), ]
 PCA_d20_data_filtered
 
-
 # create a shape and color mapping for the genotype and day
 # shape mapping for genotypes
 shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
-
 
 # color mapping using the assigned names
 
@@ -221,7 +219,6 @@ pca_d60_2
 # save the plot as pdf (without using Cairo)
 ggsave(filename = "results/scRNAseq/7_pseudobulk/PCA_d60_plot_2.pdf", plot = pca_d60_2, width = 800/100, height = 600/100, units = "in", dpi = 100)
 
-
 # make pca plot of PCA_both
 vsd_dds_both$genotype_both
 PCA_both <- plotPCA(vsd_dds_both, intgroup = c("genotype_both", "cluster_both"))
@@ -276,83 +273,105 @@ ggsave(filename = "results/scRNAseq/7_pseudobulk/PCA_both_plot.pdf", plot = pca_
 dds_d20$genotype_cluster_d20
 
 # make het restables
-rstbl_NPCG2M_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_0", "wt_0"), alpha = 0.01)
-rstbl_MesWT_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_2", "wt_2"), alpha = 0.01)
-rstbl_MesKO_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_3", "wt_3"), alpha = 0.01)
-rstbl_NPCG1_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_4", "wt_4"), alpha = 0.01)
-rstbl_IPC_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_6", "wt_6"), alpha = 0.01)
+rstbl_NPCG2M_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_NPC-G2/M", "wt_NPC-G2/M"), alpha = 0.01)
+rstbl_MesWT_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_Mes-WT", "wt_Mes-WT"), alpha = 0.01)
+rstbl_MesKO_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_Mes-KO", "wt_Mes-KO"), alpha = 0.01)
+rstbl_NPCG1_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_NPC-G1", "wt_NPC-G1"), alpha = 0.01)
+rstbl_IPC_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_IPC", "wt_IPC"), alpha = 0.01)
 
-rstbl_c1_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_1", "wt_1"), alpha = 0.01)
-rstbl_c5_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_5", "wt_5"), alpha = 0.01)
+rstbl_Neuron_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_Neuron", "wt_Neuron"), alpha = 0.01)
+rstbl_Astro_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_Astrocyte", "wt_Astrocyte"), alpha = 0.01)
 
-summary(rstbl_c0_wt.vs.het)
-summary(rstbl_c2_wt.vs.het)
-summary(rstbl_c3_wt.vs.het)
-summary(rstbl_c4_wt.vs.het)
-summary(rstbl_c6_wt.vs.het)
-
-summary(rstbl_c1_wt.vs.het)
-summary(rstbl_c5_wt.vs.het)
+summary(rstbl_NPCG2M_wt.vs.het)
+summary(rstbl_MesWT_wt.vs.het)
+summary(rstbl_MesKO_wt.vs.het)
+summary(rstbl_NPCG1_wt.vs.het)
+summary(rstbl_IPC_wt.vs.het)
+summary(rstbl_Neuron_wt.vs.het)
+summary(rstbl_Astro_wt.vs.het)
 
 # make ko restables
-rstbl_c0_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_0", "wt_0"), alpha = 0.01)
-rstbl_c2_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_2", "wt_2"), alpha = 0.01)
-rstbl_c3_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_3", "wt_3"), alpha = 0.01)
-rstbl_c4_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_4", "wt_4"), alpha = 0.01)
-rstbl_c6_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_6", "wt_6"), alpha = 0.01)
+rstbl_NPCG2M_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_NPC-G2/M", "wt_NPC-G2/M"), alpha = 0.01)
+rstbl_MesWT_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_Mes-WT", "wt_Mes-WT"), alpha = 0.01)
+rstbl_MesKO_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_Mes-KO", "wt_Mes-KO"), alpha = 0.01)
+rstbl_NPCG1_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_NPC-G1", "wt_NPC-G1"), alpha = 0.01)
+rstbl_IPC_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_IPC", "wt_IPC"), alpha = 0.01)
+rstbl_Neuron_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_Neuron", "wt_Neuron"), alpha = 0.01)
+rstbl_Astro_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_Astrocyte", "wt_Astrocyte"), alpha = 0.01)
 
-rstbl_c1_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_1", "wt_1"), alpha = 0.01)
-rstbl_c5_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_5", "wt_5"), alpha = 0.01)
-
-summary(rstbl_c0_wt.vs.ko)
-summary(rstbl_c2_wt.vs.ko)
-summary(rstbl_c3_wt.vs.ko)
-summary(rstbl_c4_wt.vs.ko)
-summary(rstbl_c6_wt.vs.ko)
-
-summary(rstbl_c1_wt.vs.ko)
-summary(rstbl_c5_wt.vs.ko)
-
-# make restable of c2-c3 comparison
-# dds_d20$cluster_d20 <- factor(dds_d20$cluster_d20, levels = c("2", "3"))
-
-rstbl_c2.vs.c3 <- results(dds_d20, contrast = c("cluster_d20", "3", "2"), alpha = 0.01)
-
-
+summary(rstbl_NPCG2M_wt.vs.ko)
+summary(rstbl_MesWT_wt.vs.ko)
+summary(rstbl_MesKO_wt.vs.ko)
+summary(rstbl_NPCG1_wt.vs.ko)
+summary(rstbl_IPC_wt.vs.ko)
+summary(rstbl_Neuron_wt.vs.ko)
+summary(rstbl_Astro_wt.vs.ko)
 
 # write all rstbles to the results directory
-write.csv(as.data.frame(rstbl_c0_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c0_wt.vs.het.csv")
-write.csv(as.data.frame(rstbl_c2_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c2_wt.vs.het.csv")
-write.csv(as.data.frame(rstbl_c3_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c3_wt.vs.het.csv")
-write.csv(as.data.frame(rstbl_c4_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c4_wt.vs.het.csv")
-write.csv(as.data.frame(rstbl_c6_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c6_wt.vs.het.csv")
-write.csv(as.data.frame(rstbl_c1_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c1_wt.vs.het.csv")
-write.csv(as.data.frame(rstbl_c5_wt.vs.het), file = "results/scRNAseq/4_pseudobulk/rstbl_c5_wt.vs.het.csv")
+# 1. Define the parts that change in the variable/file names
+cell_types <- c(
+  "NPCG2M", "MesWT", "MesKO", "NPCG1", 
+  "IPC", "Neuron", "Astro"
+)
 
-write.csv(as.data.frame(rstbl_c0_wt.vs.ko), file = "results/scRNAseq/4_pseudobulk/rstbl_c0_wt.vs.ko.csv")
-write.csv(as.data.frame(rstbl_c2_wt.vs.ko), file = "results/scRNAseq/4_pseudobulk/rstbl_c2_wt.vs.ko.csv")
-write.csv(as.data.frame(rstbl_c3_wt.vs.ko), file = "results/scRNAseq/4_pseudobulk/rstbl_c3_wt.vs.ko.csv")
-write.csv(as.data.frame(rstbl_c4_wt.vs.ko), file = "results/scRNAseq/4_pseudobulk/rstbl_c4_wt.vs.ko.csv")
-write.csv(as.data.frame(rstbl_c6_wt.vs.ko), file = "results/scRNAseq/4_pseudobulk/rstbl_c6_wt.vs.ko.csv")
-write.csv(as.data.frame(rstbl_c1_wt.vs.ko), file = "results/scRNAseq/4_pseudobulk/rstbl_c1_wt.vs.ko.csv")
-write.csv(as.data.frame(rstbl_c5_wt.vs.ko), file = "results/scRNAseq/4_pseudobulk/rstbl_c5_wt.vs.ko.csv")
+comparisons <- c("wt.vs.het", "wt.vs.ko")
 
-# read restbls
-rstbl_c0_wt.vs.het <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c0_wt.vs.het.csv", row.names = 1)
-rstbl_c2_wt.vs.het <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c2_wt.vs.het.csv", row.names = 1)
-rstbl_c3_wt.vs.het <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c3_wt.vs.het.csv", row.names = 1)
-rstbl_c4_wt.vs.het <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c4_wt.vs.het.csv", row.names = 1)
-rstbl_c6_wt.vs.het <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c6_wt.vs.het.csv", row.names = 1)
-rstbl_c1_wt.vs.het <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c1_wt.vs.het.csv", row.names = 1)
-rstbl_c5_wt.vs.het <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c5_wt.vs.het.csv", row.names = 1)
+# 2. Use nested loops to iterate through all combinations
+for (comp in comparisons) {
+  for (cell in cell_types) {
+    
+    # A. Construct the R object name (e.g., "rstbl_NPCG2M_wt.vs.het")
+    object_name <- paste0("rstbl_", cell, "_", comp)
+    
+    # B. Construct the output file path
+    # The file name is identical to the object name plus the path and extension
+    file_path <- paste0("results/scRNAseq/7_pseudobulk/", object_name, ".csv")
+    
+    # C. Get the data object using get()
+    # This assumes the object (e.g., rstbl_NPCG2M_wt.vs.het) exists in your global environment.
+    data_to_write <- get(object_name)
+    
+    # D. Write the file
+    write.csv(as.data.frame(data_to_write), file = file_path)
+    
+    # Print a confirmation (optional)
+    cat("Saved:", object_name, "to", file_path, "\n")
+  }
+}
 
-rstbl_c0_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c0_wt.vs.ko.csv", row.names = 1)
-rstbl_c1_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c1_wt.vs.ko.csv", row.names = 1)
-rstbl_c2_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c2_wt.vs.ko.csv", row.names = 1)
-rstbl_c3_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c3_wt.vs.ko.csv", row.names = 1)
-rstbl_c4_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c4_wt.vs.ko.csv", row.names = 1)
-rstbl_c5_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c5_wt.vs.ko.csv", row.names = 1)
-rstbl_c6_wt.vs.ko <- read.csv("results/scRNAseq/4_pseudobulk/rstbl_c6_wt.vs.ko.csv", row.names = 1)
+
+# read restbls from the results directory
+
+# 1. Define the parts that change in the file/variable names
+cell_types <- c(
+  "NPCG2M", "MesWT", "MesKO", "NPCG1", 
+  "IPC", "Neuron", "Astro"
+)
+
+comparisons <- c("wt.vs.het", "wt.vs.ko")
+
+# 2. Use nested loops to iterate through all combinations
+for (comp in comparisons) {
+  for (cell in cell_types) {
+    
+    # A. Construct the R object name (e.g., "rstbl_NPCG2M_wt.vs.het")
+    object_name <- paste0("rstbl_", cell, "_", comp)
+    
+    # B. Construct the input file path
+    file_path <- paste0("results/scRNAseq/7_pseudobulk/", object_name, ".csv")
+    
+    # C. Read the file
+    data_to_assign <- read.csv(file_path, row.names = 1)
+    
+    # D. Assign the data to the dynamically created variable name in the environment
+    # The assign() function is necessary to use a variable name stored in a string (object_name)
+    assign(x = object_name, value = data_to_assign)
+    
+    # Print a confirmation (optional)
+    cat("Read:", file_path, "into object:", object_name, "\n")
+  }
+}
+
 
 # save the restables of each cluster as excel spreadsheet with up- and down-regulated genes in separate tabs
 library(openxlsx)
@@ -360,26 +379,15 @@ library(openxlsx)
 # Create a new workbook
 wb <- createWorkbook()
 
-# Define cell type names for clusters
-cluster_names <- list(
-  "c0" = "NPC-G2/M",
-  "c1" = "Neuron", 
-  "c2" = "Mes-WT",
-  "c3" = "Mes-Mut",
-  "c4" = "NPC-G1",
-  "c5" = "Astrocyte",
-  "c6" = "IPC"
-)
-
 # List of result tables for HET vs WT using meaningful cell type names
 res_list_het <- list(
-  "NPC-G2/M" = rstbl_c0_wt.vs.het,
-  "Neuron" = rstbl_c1_wt.vs.het,
-  "Mes-WT" = rstbl_c2_wt.vs.het,
-  "Mes-Mut" = rstbl_c3_wt.vs.het,
-  "NPC-G1" = rstbl_c4_wt.vs.het,
-  "Astrocyte" = rstbl_c5_wt.vs.het,
-  "IPC" = rstbl_c6_wt.vs.het
+  "NPC-G2/M" = rstbl_NPCG2M_wt.vs.het,
+  "Neuron" = rstbl_Neuron_wt.vs.het,
+  "Mes-WT" = rstbl_MesWT_wt.vs.het,
+  "Mes-Mut" = rstbl_MesKO_wt.vs.het,
+  "NPC-G1" = rstbl_NPCG1_wt.vs.het,
+  "Astrocyte" = rstbl_Astro_wt.vs.het,
+  "IPC" = rstbl_IPC_wt.vs.het
 )
 
 # Add worksheets for each cell type with up- and down-regulated genes
@@ -415,7 +423,7 @@ for (cell_type in names(res_list_het)) {
 }
 
 # Save the workbook
-saveWorkbook(wb, file = "results/scRNAseq/4_pseudobulk/degs_het_vs_wt.xlsx", overwrite = TRUE)
+saveWorkbook(wb, file = "results/scRNAseq/7_pseudobulk/degs_het_vs_wt.xlsx", overwrite = TRUE)
 
 # make similar workbook for KO vs WT
 library(openxlsx)
@@ -423,34 +431,15 @@ library(openxlsx)
 # Create a new workbook
 wb_ko <- createWorkbook()
 
-# Define cell type names for clusters
-cluster_names <- list( 
-  "c0" = "NPC-G2/M",
-  "c1" = "Neuron", 
-  "c2" = "Mes-WT",
-  "c3" = "Mes-Mut",
-  "c4" = "NPC-G1",
-  "c5" = "Astrocyte",
-  "c6" = "IPC"
-)
-
-# Add worksheets for each cell type with up- and down-regulated genes
-for (cell_type in names(cluster_names)) {
-  # Clean cell type name for worksheet (remove special characters)
-  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
-  addWorksheet(wb_ko, paste0(clean_name, "_Up"))
-  addWorksheet(wb_ko, paste0(clean_name, "_Down"))
-}
-
 # extract and save data for KO vs WT
 res_list_ko <- list(
-  "NPC-G2/M" = rstbl_c0_wt.vs.ko,
-  "Neuron" = rstbl_c1_wt.vs.ko,
-  "Mes-WT" = rstbl_c2_wt.vs.ko,
-  "Mes-Mut" = rstbl_c3_wt.vs.ko,
-  "NPC-G1" = rstbl_c4_wt.vs.ko,
-  "Astrocyte" = rstbl_c5_wt.vs.ko,
-  "IPC" = rstbl_c6_wt.vs.ko
+  "NPC-G2/M" = rstbl_NPCG2M_wt.vs.ko,
+  "Neuron" = rstbl_Neuron_wt.vs.ko,
+  "Mes-WT" = rstbl_MesWT_wt.vs.ko,
+  "Mes-Mut" = rstbl_MesKO_wt.vs.ko,
+  "NPC-G1" = rstbl_NPCG1_wt.vs.ko,
+  "Astrocyte" = rstbl_Astro_wt.vs.ko,
+  "IPC" = rstbl_IPC_wt.vs.ko
 )
 
 # Add worksheets for each cell type with up- and down-regulated genes
@@ -491,140 +480,37 @@ saveWorkbook(wb, file = "results/scRNAseq/4_pseudobulk/degs_ko_vs_wt.xlsx", over
 
 library(ggplot2)
 
-# Create the histogram (bar chart)
-## het
-degN_barplot_het <- ggplot(counts_df_het, aes(x = cell_type, y = count, fill = direction)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(
-    title = "Number of Up- and Down-regulated Genes per Cell Type (HET vs. WT)",
-    x = "Cell Type",
-    y = "Number of Genes",
-    fill = "Regulation Direction"
-  ) +
-  scale_fill_manual(values = c("up" = "gold", "down" = "blue")) +
-  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
-
-degN_barplot_het
-
-dev.off()
-
-ggsave(filename = paste0(DirOutQC, "degN_bar_het.pdf"), plot = degN_barplot_het, width = 6, height = 4, units = "in")
-
-## KO analysis
-# List of result tables for KO vs WT using meaningful cell type names
-res_list_ko <- list(
-  "NPC-G2/M" = rstbl_c0_wt.vs.ko,
-  "Neuron" = rstbl_c1_wt.vs.ko,
-  "Mes-WT" = rstbl_c2_wt.vs.ko,
-  "Mes-Mut" = rstbl_c3_wt.vs.ko,
-  "NPC-G1" = rstbl_c4_wt.vs.ko,
-  "Astrocyte" = rstbl_c5_wt.vs.ko,
-  "IPC" = rstbl_c6_wt.vs.ko
-)
-
-
-# Extract and count up- and down-regulated genes for each cell type
-counts_df_ko <- data.frame(
-  cell_type = character(),
-  direction = character(),
-  count = integer()
-)
-
-for (cell_type in names(res_list_ko)) {
-  res <- res_list_ko[[cell_type]]
-  
-  # Remove rows with NA p-values
-  res <- na.omit(as.data.frame(res))
-  
-  # Count up-regulated genes (padj < 0.01 and log2FoldChange > 1)
-  up_genes <- sum(res$padj < 0.01 & res$log2FoldChange > 1)
-  
-  # Count down-regulated genes (padj < 0.01 and log2FoldChange < -1)
-  down_genes <- sum(res$padj < 0.01 & res$log2FoldChange < -1)
-  
-  # Append to the dataframe
-  counts_df_ko <- rbind(counts_df_ko,
-                         data.frame(cell_type = cell_type, direction = "up", count = up_genes),
-                         data.frame(cell_type = cell_type, direction = "down", count = down_genes)
+# Create the histogram (bar chart) of DEGs of HET vs WT
+deg_counts_het <- data.frame(
+  Cell_Type = c("NPC-G2/M", "Mes-WT", "Mes-KO", "NPC-G1", "IPC", "Neuron", "Astrocyte"),
+  Upregulated = c(
+    sum(rstbl_NPCG2M_wt.vs.het$padj < 0.01 & rstbl_NPCG2M_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
+    sum(rstbl_MesWT_wt.vs.het$padj < 0.01 & rstbl_MesWT_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
+    sum(rstbl_MesKO_wt.vs.het$padj < 0.01 & rstbl_MesKO_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
+    sum(rstbl_NPCG1_wt.vs.het$padj < 0.01 & rstbl_NPCG1_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
+    sum(rstbl_IPC_wt.vs.het$padj < 0.01 & rstbl_IPC_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
+    sum(rstbl_Neuron_wt.vs.het$padj < 0.01 & rstbl_Neuron_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
+    sum(rstbl_Astro_wt.vs.het$padj < 0.01 & rstbl_Astro_wt.vs.het$log2FoldChange > 1, na.rm = TRUE)
+  ),
+  Downregulated = c(
+    sum(rstbl_NPCG2M_wt.vs.het$padj < 0.01 & rstbl_NPCG2M_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
+    sum(rstbl_MesWT_wt.vs.het$padj < 0.01 & rstbl_MesWT_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
+    sum(rstbl_MesKO_wt.vs.het$padj < 0.01 & rstbl_MesKO_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
+    sum(rstbl_NPCG1_wt.vs.het$padj < 0.01 & rstbl_NPCG1_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
+    sum(rstbl_IPC_wt.vs.het$padj < 0.01 & rstbl_IPC_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
+    sum(rstbl_Neuron_wt.vs.het$padj < 0.01 & rstbl_Neuron_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
+    sum(rstbl_Astro_wt.vs.het$padj < 0.01 & rstbl_Astro_wt.vs.het$log2FoldChange < -1, na.rm = TRUE)
   )
-}
+)
 
-counts_df_ko
+deg_counts_het_melted <- reshape2::melt(deg_counts_het, id.vars = "Cell_Type", variable.name = "Regulation", value.name = "Count")
 
-# Create the histogram (bar chart)
-
-degN_barplot_ko <- ggplot(counts_df_ko, aes(x = cell_type, y = count, fill = direction)) +
+# Plot the bar chart
+p_het <- ggplot(deg_counts_het_melted, aes(x = Cell_Type, y = Count, fill = Regulation)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(
-    title = "Number of Up- and Down-regulated Genes per Cell Type (KO vs. WT)",
-    x = "Cell Type",
-    y = "Number of Genes",
-    fill = "Regulation Direction"
-  ) +
-  scale_fill_manual(values = c("up" = "gold", "down" = "blue")) +
-  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
-
-degN_barplot_ko
-
-ggsave(filename = "results/scRNAseq/4_pseudobulk/degN_bar_ko.pdf", plot = degN_barplot_ko, width = 6, height = 4, units = "in")
-
-#########################################################################################
-##### Pseudobulk differential gene expression analysis between cluster2 and cluster3#####
-#########################################################################################
-
-# For cluster-vs-cluster comparison, we need to create a new DESeq2 object with cluster as the design factor
-# Include ALL genotypes (WT, HET, KO) since c2 is predominantly WT and c3 is predominantly KO
-
-library(DESeq2)
-
-# Filter count data for all genotypes but only clusters 2 and 3
-cts_d20_c2c3 <- cts_d20[, grepl("_(2|3)$", colnames(cts_d20))]
-colnames(cts_d20_c2c3)
-
-# Create metadata for this subset
-sample_c2c3 <- sapply(strsplit(colnames(cts_d20_c2c3), '_'),'[[',1)
-cluster_c2c3 <- sapply(strsplit(colnames(cts_d20_c2c3), '_'),'[[',2)
-genotype_c2c3 <- sapply(strsplit(sample_c2c3, '-'), '[[',2)
-
-samplesheet_c2c3 <- data.frame(
-  sample = sample_c2c3, 
-  cluster = factor(cluster_c2c3), 
-  genotype = factor(genotype_c2c3), 
-  row.names = colnames(cts_d20_c2c3)
-)
-samplesheet_c2c3
-
-# Create DESeq2 object with cluster as main design factor, accounting for genotype as a covariate
-dds_c2c3 <- DESeqDataSetFromMatrix(
-  countData = cts_d20_c2c3, 
-  colData = samplesheet_c2c3, 
-  design = ~ genotype + cluster
-)
-dds_c2c3 <- DESeq(dds_c2c3)
-
-# Compare cluster 3 vs cluster 2 (accounting for genotype differences)
-rstbl_c3.vs.c2 <- results(dds_c2c3, contrast = c("cluster", "3", "2"), alpha = 0.01)
-summary(rstbl_c3.vs.c2)
-
-# Save the result
-write.csv(as.data.frame(rstbl_c3.vs.c2), file = "results/scRNAseq/4_pseudobulk/rstbl_c3.vs.c2_all_genotypes.csv")
-
-# Also create a version without genotype correction (simpler model)
-dds_c2c3_simple <- DESeqDataSetFromMatrix(
-  countData = cts_d20_c2c3, 
-  colData = samplesheet_c2c3, 
-  design = ~ cluster
-)
-dds_c2c3_simple <- DESeq(dds_c2c3_simple)
-
-# Compare cluster 3 vs cluster 2 (simple comparison)
-rstbl_c3.vs.c2_simple <- results(dds_c2c3_simple, contrast = c("cluster", "3", "2"), alpha = 0.01)
-summary(rstbl_c3.vs.c2_simple)
-
-# Save the simple result
-write.csv(as.data.frame(rstbl_c3.vs.c2_simple), file = "results/scRNAseq/4_pseudobulk/rstbl_c3.vs.c2_simple.csv")
+  labs(title = "Number of DEGs in HET vs WT by Cell Type", x = "Cell Type", y = "Number of DEGs") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Upregulated" = "steelblue", "Downregulated" = "salmon")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+p_het
 
