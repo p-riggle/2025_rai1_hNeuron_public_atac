@@ -684,3 +684,23 @@ ggsave(
   dpi = 300
 )
 
+# 2026.02.03 examine expression of gliogenic radial glia
+gliogenic_radial_glia_markers = c('HOPX', 'FABP7', 'SLC1A3', 'GFAP', 'AQP4', 'ID4', 'NFIA', 'NFIB', 'SOX9', 'EAAT1')
+gliogenic_radial_glia_plots = list()
+for (gene in gliogenic_radial_glia_markers) {
+  gliogenic_radial_glia_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+gliogenic_radial_glia_plots = wrap_plots(gliogenic_radial_glia_plots, ncol = 4) +
+  plot_annotation(title = "Gliogenic Radial Glia Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+gliogenic_radial_glia_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/27_gliogenic_radial_glia_0.1.png',
+  plot = gliogenic_radial_glia_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+)
+
