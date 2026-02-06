@@ -22,11 +22,11 @@ my_cell_colors <- c(
   "Mes-WT" = "forestgreen",
   "Mes-KO"  = "yellowgreen",
   "NPC-G1" = "purple",
-  "Astrocyte"       = "orangered",
+  "gRG"       = "orangered",
   "IPC"        = "gold"
 )
 
-geo_so$cell_type <- factor(geo_so$cell_type, levels = c("NPC-G2/M", "NPC-G1", "IPC", "Neuron", "Mes-WT", "Mes-KO", "Astrocyte"))
+geo_so$cell_type <- factor(geo_so$cell_type, levels = c("NPC-G2/M", "NPC-G1", "IPC", "Neuron", "Mes-WT", "Mes-KO", "gRG"))
 head(geo_so@meta.data)
 
 viol_rai1 <- VlnPlot(

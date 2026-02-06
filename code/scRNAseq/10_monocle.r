@@ -130,7 +130,7 @@ my_cell_colors <- c(
   "Mes-WT" = "forestgreen",
   "Mes-KO"  = "yellowgreen",
   "NPC-G1" = "purple",
-  "Astrocyte"       = "orangered",
+  "gRG"       = "orangered",
   "IPC"        = "gold"
 )
 
@@ -272,7 +272,7 @@ my_cell_colors <- c(
   "Mes-WT" = "forestgreen",
   "Mes-KO"  = "yellowgreen",
   "NPC-G1" = "purple",
-  "Astrocyte"       = "orangered",
+  "gRG"       = "orangered",
   "IPC"        = "gold"
 )
 
@@ -919,14 +919,14 @@ my_cell_colors <- c(
   "Mes-WT" = "forestgreen",
   "Mes-KO"  = "yellowgreen",
   "NPC-G1" = "purple",
-  "Astrocyte"       = "orangered",
+  "gRG"       = "orangered",
   "IPC"        = "gold"
 )
 
 # Create one big violin plot grouped by genotype within each cell type
 # Set the order of cell types
 cds5_df$cell_type <- factor(cds5_df$cell_type, 
-                           levels = c("NPC-G2/M", "NPC-G1", "Mes-WT", "Mes-KO", "IPC", "Neuron", "Astrocyte"))
+                           levels = c("NPC-G2/M", "NPC-G1", "Mes-WT", "Mes-KO", "IPC", "Neuron", "gRG"))
 
 big_violin_plot <- ggplot(cds5_df, aes(x = interaction(genotype, cell_type), y = pseudotime, fill = cell_type)) +
   geom_violin(trim = FALSE) +

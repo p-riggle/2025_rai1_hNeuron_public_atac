@@ -187,7 +187,7 @@ PCA_d60 <- plotPCA(vsd_dds_d60, intgroup = c("genotype_d60", "cluster_d60"))
 PCA_d60_data <- PCA_d60$data
 
 # Filter the PCA data to include only clusters 1 and 5
-PCA_d60_data_filtered <- PCA_d60_data[PCA_d60_data$cluster_d60 %in% c("Neuron", "Astrocyte"), ]
+PCA_d60_data_filtered <- PCA_d60_data[PCA_d60_data$cluster_d60 %in% c("Neuron", "gRG"), ]
 PCA_d60_data_filtered
 
 # create a shape and color mapping for the genotype and day
@@ -195,7 +195,7 @@ shape_mapping <- c("wt" = 1, "het" = 2, "ko" = 4)
 # color mapping using the assigned names
 color_mapping_d60 <- c(
   "Neuron"    = "dodgerblue",
-  "Astrocyte" = "orangered"
+  "gRG" = "orangered"
 )
 
 # create pca plot of d60_filtered
@@ -242,7 +242,7 @@ color_mapping_both <- c(
   "Mes-WT" = "forestgreen",
   "Mes-KO"  = "yellowgreen",
   "NPC-G1" = "purple",
-  "Astrocyte"       = "orangered",
+  "gRG"       = "orangered",
   "IPC"        = "gold"
 )
 
@@ -280,7 +280,7 @@ rstbl_NPCG1_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "
 rstbl_IPC_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_IPC", "wt_IPC"), alpha = 0.01)
 
 rstbl_Neuron_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_Neuron", "wt_Neuron"), alpha = 0.01)
-rstbl_Astro_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_Astrocyte", "wt_Astrocyte"), alpha = 0.01)
+rstbl_Astro_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_gRG", "wt_gRG"), alpha = 0.01)
 
 summary(rstbl_NPCG2M_wt.vs.het)
 summary(rstbl_MesWT_wt.vs.het)
@@ -297,7 +297,7 @@ rstbl_MesKO_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "k
 rstbl_NPCG1_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_NPC-G1", "wt_NPC-G1"), alpha = 0.01)
 rstbl_IPC_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_IPC", "wt_IPC"), alpha = 0.01)
 rstbl_Neuron_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_Neuron", "wt_Neuron"), alpha = 0.01)
-rstbl_Astro_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_Astrocyte", "wt_Astrocyte"), alpha = 0.01)
+rstbl_Astro_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_gRG", "wt_gRG"), alpha = 0.01)
 
 summary(rstbl_NPCG2M_wt.vs.ko)
 summary(rstbl_MesWT_wt.vs.ko)
@@ -386,7 +386,7 @@ res_list_het <- list(
   "Mes-WT" = rstbl_MesWT_wt.vs.het,
   "Mes-Mut" = rstbl_MesKO_wt.vs.het,
   "NPC-G1" = rstbl_NPCG1_wt.vs.het,
-  "Astrocyte" = rstbl_Astro_wt.vs.het,
+  "gRG" = rstbl_Astro_wt.vs.het,
   "IPC" = rstbl_IPC_wt.vs.het
 )
 
@@ -438,7 +438,7 @@ res_list_ko <- list(
   "Mes-WT" = rstbl_MesWT_wt.vs.ko,
   "Mes-Mut" = rstbl_MesKO_wt.vs.ko,
   "NPC-G1" = rstbl_NPCG1_wt.vs.ko,
-  "Astrocyte" = rstbl_Astro_wt.vs.ko,
+  "gRG" = rstbl_Astro_wt.vs.ko,
   "IPC" = rstbl_IPC_wt.vs.ko
 )
 
@@ -482,7 +482,7 @@ library(ggplot2)
 
 # Create the histogram (bar chart) of DEGs of HET vs WT
 deg_counts_het <- data.frame(
-  Cell_Type = c("NPC-G2/M", "Mes-WT", "Mes-KO", "NPC-G1", "IPC", "Neuron", "Astrocyte"),
+  Cell_Type = c("NPC-G2/M", "Mes-WT", "Mes-KO", "NPC-G1", "IPC", "Neuron", "gRG"),
   Upregulated = c(
     sum(rstbl_NPCG2M_wt.vs.het$padj < 0.01 & rstbl_NPCG2M_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
     sum(rstbl_MesWT_wt.vs.het$padj < 0.01 & rstbl_MesWT_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
