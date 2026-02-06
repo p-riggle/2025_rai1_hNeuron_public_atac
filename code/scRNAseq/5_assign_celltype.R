@@ -13,14 +13,14 @@ geo_so
 # make csv file for cell type - clus# Create a data frame with your cluster assignments
 cluster_data <- data.frame(
   cluster = c(0, 1, 2, 3, 4, 5, 6),
-  cell_type = c("NPC-G2/M", "Neuron", "Mes-WT", "Mes-KO", "NPC-G1", "Astrocyte", "IPC")
+  cell_type = c("NPC-G2/M", "Neuron", "Mes-WT", "Mes-KO", "NPC-G1", "gRG", "IPC")
 )
 
 # Write the data frame to a CSV file
-write.csv(cluster_data, file = "results/scRNAseq/5_celltype/cluster_annotations.csv", row.names = FALSE)
+write.csv(cluster_data, file = "results/scRNAseq/4_celltype/cluster_annotations.csv", row.names = FALSE)
 
 # Load the annotations from prepared file
-celltype_annos = read_csv('results/scRNAseq/5_celltype/cluster_annotations.csv') %>%
+celltype_annos = read_csv('results/scRNAseq/4_celltype/cluster_annotations.csv') %>%
   mutate(cluster=factor(cluster))
 head(celltype_annos)
 
@@ -58,7 +58,7 @@ my_cell_colors <- c(
   "Mes-WT" = "forestgreen",
   "Mes-KO"  = "yellowgreen",
   "NPC-G1" = "purple",
-  "Astrocyte"       = "orangered",
+  "gRG"       = "orangered",
   "IPC"        = "gold"
 )
 
@@ -111,7 +111,7 @@ markers[['Mitotic']] = c('MKI67')
 markers[['Mesenchimal']] = c('FN1', 'COL1A1','COL1A2','SNAI2')
 markers[['Neurons']] = c('DCX', 'ELAVL2', 'ELAVL3', 'GAD1')
 markers[['IPC']] = c('EOMES','NHLH1')
-markers[['Astrocyte']] = c('S100B', 'SLCO1C1')
+markers[['gRG']] = c('NFIA', 'NFIB', 'SOX9', 'S100B')
 
 markers
 
@@ -127,7 +127,7 @@ library(patchwork)
 # 1. Define your cluster-to-label mapping
 cluster_data <- data.frame(
   cluster = c(0, 1, 2, 3, 4, 5, 6),
-  cell_type_label = c("NPC-G2/M (0)", "Neuron (1)", "Mes-WT (2)", "Mes-KO (3)", "NPC-G1 (4)", "Astrocyte (5)", "IPC (6)")
+  cell_type_label = c("NPC-G2/M (0)", "Neuron (1)", "Mes-WT (2)", "Mes-KO (3)", "NPC-G1 (4)", "gRG (5)", "IPC (6)")
 )
 
 # 2. Re-define the Data Function (Fixed the rename issue)
@@ -159,6 +159,7 @@ get_dotplot_data <- function(object, assay, features, group.by) {
 
 # 3. Generate Data & Apply Labels
 features_list <- markers
+features_list
 
 # --- SCT Data ---
 sct_data <- get_dotplot_data(geo_so, assay = "SCT", features = features_list, group.by = "seurat_clusters")

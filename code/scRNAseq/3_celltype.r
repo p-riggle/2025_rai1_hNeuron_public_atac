@@ -704,3 +704,82 @@ ggsave(
   dpi = 300
 )
 
+# gliogenic switch markers
+gliogenic_switch_markers = c('NFIA', 'NFIB', 'SOX9', 'CD44')
+gliogenic_switch_plots = list()
+for (gene in gliogenic_switch_markers) {
+  gliogenic_switch_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+gliogenic_switch_plots = wrap_plots(gliogenic_switch_plots, ncol = 4) +
+  plot_annotation(title = "Gliogenic Switch Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+gliogenic_switch_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/28_gliogenic_switch_0.1.png',
+  plot = gliogenic_switch_plots,
+  width = 16, height = 4, units = 'in',
+  dpi = 300
+)
+
+## truncated tripotent radial glia markers
+truncated_tripotent_radial_glia_markers = c('ASCL1', 'EGFR', 'OLIG2')
+truncated_tripotent_radial_glia_plots = list()
+for (gene in truncated_tripotent_radial_glia_markers) {
+  truncated_tripotent_radial_glia_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+truncated_tripotent_radial_glia_plots = wrap_plots(truncated_tripotent_radial_glia_plots, ncol = 3) +
+  plot_annotation(title = "Truncated Tripotent Radial Glia Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+truncated_tripotent_radial_glia_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/29_truncated_tripotent_radial_glia_0.1.png',
+  plot = truncated_tripotent_radial_glia_plots,
+  width = 12, height = 4, units = 'in',
+  dpi = 300
+)
+
+## ependymal tuncated radial glia markers
+ependymal_radial_glia_markers = c('CRYAB', 'FOXJ1', 'ANXA2', 'SLIT2', 'RFX2')
+ependymal_radial_glia_plots = list()
+for (gene in ependymal_radial_glia_markers) {
+  ependymal_radial_glia_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+ependymal_radial_glia_plots = wrap_plots(ependymal_radial_glia_plots, ncol = 4) +
+  plot_annotation(title = "Ependymal Radial Glia Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+ependymal_radial_glia_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/30_ependymal_radial_glia_0.1.png',
+  plot = ependymal_radial_glia_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+)
+
+## outer radial glia markers
+outer_radial_glia_markers = c('HOPX', 'PTPRZ1', 'TNC', 'LIFR', 'ITGB5')
+outer_radial_glia_plots = list()
+for (gene in outer_radial_glia_markers) {
+  outer_radial_glia_plots[[gene]] = FeaturePlot(geo_so, features = gene, label = TRUE) +
+    ggtitle(gene) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+## Use patchwork to combine all three plots into a single row
+outer_radial_glia_plots = wrap_plots(outer_radial_glia_plots, ncol = 4) +
+  plot_annotation(title = "Outer Radial Glia Markers") +
+  theme(plot.title = element_text(size = 14, face = "bold"))
+outer_radial_glia_plots
+ggsave(
+  filename = 'results/scRNAseq/3_markers/31_outer_radial_glia_0.1.png',
+  plot = outer_radial_glia_plots,
+  width = 16, height = 8, units = 'in',
+  dpi = 300
+)
