@@ -1,0 +1,19 @@
+"Cluster","Cellular_Component","p.adjust","GeneRatio","Count"
+"Cluster2","extracellular matrix",1.95747104005688e-05,"20/204",20
+"Cluster2","external encapsulating structure",1.95747104005688e-05,"20/204",20
+"Cluster2","monoatomic ion channel complex",1.95747104005688e-05,"17/204",17
+"Cluster2","excitatory synapse",0.000258726266249094,"7/204",7
+"Cluster3","axoneme",5.7858366723463e-09,"12/92",12
+"Cluster3","ciliary plasm",5.7858366723463e-09,"12/92",12
+"Cluster3","plasma membrane bounded cell projection cytoplasm",2.12583557977325e-08,"13/92",13
+"Cluster3","nucleosome",2.12583557977325e-08,"10/92",10
+"Cluster4","extracellular matrix",0.00010755845608283,"13/101",13
+"Cluster4","external encapsulating structure",0.00010755845608283,"13/101",13
+"Cluster4","interstitial matrix",0.00610330971267867,"3/101",3
+"Cluster4","endoplasmic reticulum lumen",0.00868368988092664,"8/101",8
+"Cluster5","extracellular matrix",2.92533081745882e-22,"42/230",42
+"Cluster5","external encapsulating structure",2.92533081745882e-22,"42/230",42
+"Cluster5","complex of collagen trimers",2.06592969771603e-11,"10/230",10
+"Cluster5","endoplasmic reticulum lumen",1.35568190210995e-09,"22/230",22
+"Cluster6","axon terminus",0.0269400395447418,"4/58",4
+"Cluster6","neuron projection terminus",0.0269400395447418,"4/58",4
