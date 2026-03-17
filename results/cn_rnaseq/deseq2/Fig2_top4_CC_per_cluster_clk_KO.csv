@@ -1,0 +1,17 @@
+"Cluster","Cellular_Component","p.adjust","GeneRatio","Count"
+"Cluster1","extracellular matrix",6.03183695055422e-15,"22/84",22
+"Cluster1","external encapsulating structure",6.03183695055422e-15,"22/84",22
+"Cluster1","endoplasmic reticulum lumen",3.35921122486504e-09,"14/84",14
+"Cluster1","basement membrane",8.56394312618016e-06,"7/84",7
+"Cluster2","extracellular matrix",2.16932459100015e-07,"17/113",17
+"Cluster2","external encapsulating structure",2.16932459100015e-07,"17/113",17
+"Cluster2","symbiont cell surface",0.0092841773312978,"3/113",3
+"Cluster2","cornified envelope",0.0138046934905942,"4/113",4
+"Cluster4","axoneme",2.37324726946291e-60,"55/226",55
+"Cluster4","ciliary plasm",2.37324726946291e-60,"55/226",55
+"Cluster4","motile cilium",3.25971237889361e-60,"65/226",65
+"Cluster4","9+2 motile cilium",2.3146292939181e-52,"54/226",54
+"Cluster5","axon terminus",2.21441777140033e-07,"9/84",9
+"Cluster5","neuron projection terminus",3.81178506400135e-07,"9/84",9
+"Cluster5","neuronal cell body",7.14927192673081e-06,"13/84",13
+"Cluster5","distal axon",0.000124399991284157,"9/84",9
