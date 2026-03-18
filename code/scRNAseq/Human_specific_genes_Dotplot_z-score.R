@@ -194,7 +194,7 @@ dot_plot <- ggplot(dot_data,
   
   scale_size(
     range = c(1,6),
-    name = "|Z-score|"
+    name = "Z-score"
   ) +
   
   theme_minimal(base_size = 13) +
