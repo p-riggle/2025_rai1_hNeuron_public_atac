@@ -98,7 +98,7 @@ write.csv(top4_genes_cc,
           "/Users/satabdi/Downloads/top4_genes_per_CC.csv",
           row.names = FALSE)
 
-pdf("GO_CC_dotplot.pdf", width = 10, height = 8)
+pdf("/Users/satabdi/Downloads/GO_CC_dotplot.pdf", width = 10, height = 8)
 
 dotplot(go_cc,
         showCategory = 10,
