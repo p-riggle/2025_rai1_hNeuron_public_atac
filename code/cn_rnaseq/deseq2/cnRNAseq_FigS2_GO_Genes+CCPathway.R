@@ -98,9 +98,10 @@ write.csv(top4_genes_cc,
           "/Users/satabdi/Downloads/top4_genes_per_CC.csv",
           row.names = FALSE)
 
-# ==================================================
-# 9️⃣ Optional: Visualize GO Results
-# ==================================================
+pdf("GO_CC_dotplot.pdf", width = 10, height = 8)
 
-dotplot(go_cc, showCategory = 10,
+dotplot(go_cc,
+        showCategory = 10,
         title = "GO Cellular Component Enrichment")
+
+dev.off()
