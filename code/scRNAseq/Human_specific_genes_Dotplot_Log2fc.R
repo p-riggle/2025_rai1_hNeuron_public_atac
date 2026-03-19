@@ -43,7 +43,7 @@ npcg2m_het <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.het.csv")
 npcg2m_ko  <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.ko.csv")
 
 # ==========================================================
-# 4️⃣ Extract genes
+# 4️⃣ Function to extract genes
 # ==========================================================
 
 extract_data <- function(df, celltype, comparison){
@@ -130,7 +130,7 @@ dot_plot <- ggplot(dot_data,
                  size = neglog10_padj),
              shape = 21,
              color = "black",
-             stroke = 0.4) +
+             stroke = 0.6) +   # slightly thicker border
   
   scale_fill_gradient2(
     low = "blue",
@@ -141,7 +141,7 @@ dot_plot <- ggplot(dot_data,
   ) +
   
   scale_size(
-    range = c(1.5,8),
+    range = c(3, 14),   
     name = "-log10(padj)"
   ) +
   
@@ -161,6 +161,7 @@ dot_plot <- ggplot(dot_data,
   )
 
 dot_plot
+
 
 # ==========================================================
 # 9️⃣ Save Dot Plot
