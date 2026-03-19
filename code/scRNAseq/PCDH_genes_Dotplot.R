@@ -59,7 +59,7 @@ npcg2m_het <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.het.csv")
 npcg2m_ko  <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.ko.csv")
 
 # ==========================================================
-# 4️⃣ Function to extract genes
+# 4️⃣ Extract genes
 # ==========================================================
 
 extract_data <- function(df, celltype, comparison){
@@ -166,12 +166,14 @@ dot_plot <- ggplot(dot_data,
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
     axis.text.y = element_text(size = 7),
-    panel.grid.major = element_line(color = "grey85"),
+    
+    
+    panel.grid.major = element_blank(),
     panel.grid.minor = element_blank()
   ) +
   
   labs(
-    x = "Cell Type ",
+    x = "Cell Type",
     y = "Gene",
     title = "Protocadherin Gene Expression Changes"
   )
