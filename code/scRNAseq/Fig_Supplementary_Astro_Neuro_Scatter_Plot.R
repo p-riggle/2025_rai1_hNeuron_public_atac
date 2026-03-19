@@ -38,7 +38,7 @@ neuron_all <- neuron_het %>%
   inner_join(neuron_ko, by = "gene", suffix = c("_het", "_ko"))
 
 # ==================================================
-# Filter DEGs (padj < 0.05 in either comparison)
+# Filter DEGs (padj < 0.05 )
 # ==================================================
 
 astro_deg <- astro_all %>%
@@ -74,7 +74,7 @@ neuron_limit <- max(
 neuron_limit <- ceiling(neuron_limit)
 
 # ==================================================
-# Scatterplot function (fixed aspect ratio)
+# Scatterplot function 
 # ==================================================
 
 make_hex_scatter <- function(df, title, limit, subtitle = NULL) {
