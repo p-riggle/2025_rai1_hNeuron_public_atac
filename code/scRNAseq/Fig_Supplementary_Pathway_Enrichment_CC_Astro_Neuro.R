@@ -177,6 +177,7 @@ astro_down_ko_top  <- get_top_genes_per_CC(astro_down_ko_CC, astro_deg_ko)
 neuron_down_het_top <- get_top_genes_per_CC(neuron_down_het_CC, neuron_deg_het)
 neuron_down_ko_top  <- get_top_genes_per_CC(neuron_down_ko_CC, neuron_deg_ko)
 
+#Save the results
 write.csv(astro_up_het_top,
           "/Users/satabdi/Downloads/Astro_HET_up_top4_genes_per_CC.csv",
           row.names = FALSE)
