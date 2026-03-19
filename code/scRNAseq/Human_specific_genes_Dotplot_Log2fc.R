@@ -102,7 +102,7 @@ dot_data <- combined %>%
   )
 
 # ==========================================================
-# 7️⃣ Order groups (PI requested order)
+# 7️⃣ Order groups 
 # ==========================================================
 
 desired_order <- c(
@@ -163,7 +163,7 @@ dot_plot <- ggplot(dot_data,
 dot_plot
 
 # ==========================================================
-# 9️⃣ Save publication quality figure
+# 9️⃣ Save the Dot plot
 # ==========================================================
 
 ggsave("/Users/satabdi/Downloads/human_specific_gene_dotplot.pdf",
