@@ -43,7 +43,7 @@ npcg2m_het <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.het.csv")
 npcg2m_ko  <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.ko.csv")
 
 # ==========================================================
-# 4️⃣ Function to extract genes
+# 4️⃣ Extract genes
 # ==========================================================
 
 extract_data <- function(df, celltype, comparison){
@@ -128,9 +128,9 @@ dot_plot <- ggplot(dot_data,
   
   geom_point(aes(fill = log2FoldChange,
                  size = neglog10_padj),
-             shape = 21,        # circle with border
-             color = "black",   # border color
-             stroke = 0.4) +    # border thickness
+             shape = 21,
+             color = "black",
+             stroke = 0.4) +
   
   scale_fill_gradient2(
     low = "blue",
@@ -150,7 +150,7 @@ dot_plot <- ggplot(dot_data,
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
     axis.text.y = element_text(size = 10),
-    panel.grid.major = element_line(color = "grey85"),
+    panel.grid.major = element_blank(),
     panel.grid.minor = element_blank()
   ) +
   
@@ -163,7 +163,7 @@ dot_plot <- ggplot(dot_data,
 dot_plot
 
 # ==========================================================
-# 9️⃣ Save the Dot plot
+# 9️⃣ Save Dot Plot
 # ==========================================================
 
 ggsave("/Users/satabdi/Downloads/human_specific_gene_dotplot.pdf",
