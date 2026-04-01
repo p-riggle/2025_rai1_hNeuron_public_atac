@@ -1,0 +1,14 @@
+"Cluster","Description","p.adjust","GeneRatio","BgRatio","Count"
+"Cluster1","myofibril",0.00335735561459835,"7/76","243/19944",7
+"Cluster1","contractile muscle fiber",0.00335735561459835,"7/76","253/19944",7
+"Cluster1","sarcomere",0.00899927549138697,"6/76","222/19944",6
+"Cluster1","I band",0.00899927549138697,"5/76","150/19944",5
+"Cluster2","endoplasmic reticulum lumen",0.00154014347994121,"8/66","319/19944",8
+"Cluster3","synaptic membrane",1.97690151365148e-06,"21/206","449/19944",21
+"Cluster3","presynaptic membrane",3.98121273444439e-05,"12/206","179/19944",12
+"Cluster3","postsynaptic membrane",0.000465360720863478,"14/206","320/19944",14
+"Cluster3","chloride channel complex",0.0011090634879712,"6/206","55/19944",6
+"Cluster4","chromosome passenger complex",0.0162018956238578,"2/68","6/19944",2
+"Cluster4","multivesicular body lumen",0.0162018956238578,"2/68","7/19944",2
+"Cluster4","late endosome lumen",0.0162018956238578,"2/68","9/19944",2
+"Cluster4","condensed chromosome, centromeric region",0.0162018956238578,"5/68","187/19944",5
