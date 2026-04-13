@@ -32,15 +32,15 @@ tpm <- tpm[, c(1, 10:13, 2:5, 6:9)]
 head(tpm)
 
 # import restables
-rstbl_d0_het <- read.table("results/deseq2/rstbl_d0_wt.vs.het.txt", header = TRUE)
-rstbl_d20_het <- read.table("results/deseq2/rstbl_d20_wt.vs.het.txt", header = TRUE)
-rstbl_d34_het <- read.table("results/deseq2/rstbl_d34_wt.vs.het.txt", header = TRUE)
-rstbl_d60_het <- read.table("results/deseq2/rstbl_d60_wt.vs.het.txt", header = TRUE)
+rstbl_d0_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d0_wt.vs.het.txt", header = TRUE)
+rstbl_d20_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d20_wt.vs.het.txt", header = TRUE)
+rstbl_d34_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d34_wt.vs.het.txt", header = TRUE)
+rstbl_d60_het <- read.table("results/cn_rnaseq/deseq2/rstbl_d60_wt.vs.het.txt", header = TRUE)
 
-rstbl_d0_ko <- read.table("results/deseq2/rstbl_d0_wt.vs.ko.txt", header = TRUE)
-rstbl_d20_ko <- read.table("results/deseq2/rstbl_d20_wt.vs.ko.txt", header = TRUE)
-rstbl_d34_ko <- read.table("results/deseq2/rstbl_d34_wt.vs.ko.txt", header = TRUE)
-rstbl_d60_ko <- read.table("results/deseq2/rstbl_d60_wt.vs.ko.txt", header = TRUE)
+rstbl_d0_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d0_wt.vs.ko.txt", header = TRUE)
+rstbl_d20_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d20_wt.vs.ko.txt", header = TRUE)
+rstbl_d34_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d34_wt.vs.ko.txt", header = TRUE)
+rstbl_d60_ko <- read.table("results/cn_rnaseq/deseq2/rstbl_d60_wt.vs.ko.txt", header = TRUE)
 
 #combine the 8 restables
 rstbls <- cbind.data.frame(list(rstbl_d0_het, rstbl_d0_ko, rstbl_d20_het, rstbl_d20_ko, rstbl_d34_het, rstbl_d34_ko, rstbl_d60_het, rstbl_d60_ko))
@@ -170,7 +170,7 @@ tree_deg_het <- as.dendrogram(hr_het, method = "average")
 tree_deg_ko <- as.dendrogram(hr_ko, method = "average")
 
 # save the dendrograms as a pdf 
-pdf(sprintf("results/cluster/sep/%s-dendrograms_sep.pdf", Sys.Date()), width=10, height=5)
+pdf("results/cn_rnaseq/cluster/sep/dendrograms_sep.pdf", width=10, height=5)
 par(mfrow=c(1,2))
 plot(tree_deg_het, main = "Hierarchical clustering of HET-DEGs", leaflab = "none", ylab="Height")
 plot(tree_deg_ko, main = "Hierarchical clustering of KO-DEGs", leaflab = "none", ylab="Height")
@@ -197,7 +197,7 @@ library('dendextend')
 library(gridExtra)
 library(ggplot2)
 
-pdf(sprintf("results/cluster/sep/%s-dendrograms_sep.pdf", Sys.Date()), width=10, height=5)
+pdf("results/cn_rnaseq/cluster/sep/dendrograms_sep.pdf", width=10, height=5)
 par(mfrow=c(1,2))
 
 c1 <- plot(tree_deg_het, main = "Hierarchical clustering of HET-DEGs", leaflab = "none", ylab="Height")
@@ -208,7 +208,7 @@ colored_bars(barko, tree_deg_ko, sort_by_lables_order = TRUE, y_shift = -0.1, ro
 dev.off()
 
 # make line plot for each cluster
-install.packages("tidyverse")
+# install.packages("tidyverse")
 library(tidyverse)
 str(hclust_het_1.75)
 head(hclust_het_1.75)
@@ -294,13 +294,14 @@ mh_ko
 mk_ko
 
 # write cluster dataframe for pathway analysis
-write.table(mh_het, file = "results/cluster/sep/mh_het.txt", sep = "\t")
-write.table(mk_het, file = "results/cluster/sep/mk_het.txt", sep = "\t")
-write.table(mh_ko, file = "results/cluster/sep/mh_ko.txt", sep = "\t")
-write.table(mk_ko, file = "results/cluster/sep/mk_ko.txt", sep = "\t")
+write.table(mh_het, file = "results/cn_rnaseq/cluster/sep/mh_het_2026.04.13.txt", sep = "\t")
+write.table(mk_het, file = "results/cn_rnaseq/cluster/sep/mk_het_2026.04.13.txt", sep = "\t")
+write.table(mh_ko, file = "results/cn_rnaseq/cluster/sep/mh_ko_2026.04.13.txt", sep = "\t")
+write.table(mk_ko, file = "results/cn_rnaseq/cluster/sep/mk_ko_2026.04.13.txt", sep = "\t")
 
 # Plot gene expression of each cluster ####
-color1 <- c("#757582", "#5876D1") 
+color1 <- c("#757582", "#f1d174")
+color2 <- c("#7b7b7b", "#bd6565")  # gray (WT), yellow (HET), red (KO)
 
 cluster_lplot1 <- function(data) {
   # Convert the genotype column to factor with the specified order
@@ -333,7 +334,7 @@ cluster_lplot2 <- function(data) {
   data %>% 
   ggplot(aes(day, z, group = genotype_ko)) +
   geom_line(stat = "summary", fun = "median", size = 1.0, aes(col = genotype_ko)) +
-  scale_color_manual(values = color1) +
+  scale_color_manual(values = color2) +
   scale_x_continuous(minor_breaks = NULL, breaks= c(0, 20, 34, 60)) +
   xlab("Time") +
   ylab("Expression") +
@@ -350,9 +351,9 @@ lp_k_ko <- cluster_lplot2(mk_ko)
 
 # arrange lp_h_het and lp_k_het in two rows and save them as one pdf.
 # add the title "Hiearchical clustering" to lp_h_het and "K-means clustering" to lp_k_het
-
+# install.packages("gridExtra")
 library(gridExtra)
-pdf(sprintf("results/cluster/sep/%s_cluster_lineplot_het.pdf", Sys.Date()), width = 12, height = 9)
+pdf(sprintf("results/cn_rnaseq/cluster/sep/%s_cluster_lineplot_het.pdf", Sys.Date()), width = 12, height = 9)
 
 lp_h_het <- lp_h_het + ggtitle("Hierarchical clustering")
 lp_k_het <- lp_k_het + ggtitle("K-means clustering")
@@ -361,14 +362,12 @@ grid.arrange(lp_h_het, lp_k_het, ncol = 1)
 dev.off()
 
 # save ko line plots
-pdf(sprintf("results/cluster/sep/%s_cluster_lineplot_ko.pdf", Sys.Date()), width = 12, height = 9)
+pdf(sprintf("results/cn_rnaseq/cluster/sep/%s_cluster_lineplot_ko.pdf", Sys.Date()), width = 12, height = 9)
 
 lp_h_ko <- lp_h_ko + ggtitle("Hierarchical clustering")
 lp_k_ko <- lp_k_ko + ggtitle("K-means clustering")
 
 grid.arrange(lp_h_ko, lp_k_ko, ncol = 1)
-dev.off()
-dev.off()
 dev.off()
 
 # know the number of genes in each cluster

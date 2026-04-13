@@ -2,6 +2,12 @@
 # redo the analysis with het and homo separately. 
 # this script generates PCA plot and bar plot of DEgene numbers. 
 
+## intall DEseq2
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("DESeq2")
+
 ## Load DEseq2 ####
 library(DESeq2)
 
