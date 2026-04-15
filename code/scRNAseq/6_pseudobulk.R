@@ -13,6 +13,7 @@ setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
 
 # load the R.data
 geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
+unique(geo_so@meta.data$cell_type)
 
 # check the number of cells
 geo_so
@@ -139,6 +140,7 @@ str(PCA_d20)
 
 # Print the plot object to the open Cairo device
 print(PCA_d20)
+
 dev.off()
 
 # filter the PCA data to include only clusters 0,2,3,4
@@ -280,7 +282,7 @@ rstbl_NPCG1_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "
 rstbl_IPC_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_IPC", "wt_IPC"), alpha = 0.01)
 
 rstbl_Neuron_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_Neuron", "wt_Neuron"), alpha = 0.01)
-rstbl_Astro_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_gRG", "wt_gRG"), alpha = 0.01)
+rstbl_gRG_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_gRG", "wt_gRG"), alpha = 0.01)
 
 summary(rstbl_NPCG2M_wt.vs.het)
 summary(rstbl_MesWT_wt.vs.het)
@@ -288,7 +290,7 @@ summary(rstbl_MesKO_wt.vs.het)
 summary(rstbl_NPCG1_wt.vs.het)
 summary(rstbl_IPC_wt.vs.het)
 summary(rstbl_Neuron_wt.vs.het)
-summary(rstbl_Astro_wt.vs.het)
+summary(rstbl_gRG_wt.vs.het)
 
 # make ko restables
 rstbl_NPCG2M_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_NPC-G2/M", "wt_NPC-G2/M"), alpha = 0.01)
@@ -297,7 +299,7 @@ rstbl_MesKO_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "k
 rstbl_NPCG1_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_NPC-G1", "wt_NPC-G1"), alpha = 0.01)
 rstbl_IPC_wt.vs.ko <- results(dds_d20, contrast = c("genotype_cluster_d20", "ko_IPC", "wt_IPC"), alpha = 0.01)
 rstbl_Neuron_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_Neuron", "wt_Neuron"), alpha = 0.01)
-rstbl_Astro_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_gRG", "wt_gRG"), alpha = 0.01)
+rstbl_gRG_wt.vs.ko <- results(dds_d60, contrast = c("genotype_cluster_d60", "ko_gRG", "wt_gRG"), alpha = 0.01)
 
 summary(rstbl_NPCG2M_wt.vs.ko)
 summary(rstbl_MesWT_wt.vs.ko)
@@ -305,13 +307,13 @@ summary(rstbl_MesKO_wt.vs.ko)
 summary(rstbl_NPCG1_wt.vs.ko)
 summary(rstbl_IPC_wt.vs.ko)
 summary(rstbl_Neuron_wt.vs.ko)
-summary(rstbl_Astro_wt.vs.ko)
+summary(rstbl_gRG_wt.vs.ko)
 
 # write all rstbles to the results directory
 # 1. Define the parts that change in the variable/file names
 cell_types <- c(
   "NPCG2M", "MesWT", "MesKO", "NPCG1", 
-  "IPC", "Neuron", "Astro"
+  "IPC", "Neuron", "gRG"
 )
 
 comparisons <- c("wt.vs.het", "wt.vs.ko")
@@ -345,7 +347,7 @@ for (comp in comparisons) {
 # 1. Define the parts that change in the file/variable names
 cell_types <- c(
   "NPCG2M", "MesWT", "MesKO", "NPCG1", 
-  "IPC", "Neuron", "Astro"
+  "IPC", "Neuron", "gRG"
 )
 
 comparisons <- c("wt.vs.het", "wt.vs.ko")
@@ -386,7 +388,7 @@ res_list_het <- list(
   "Mes-WT" = rstbl_MesWT_wt.vs.het,
   "Mes-Mut" = rstbl_MesKO_wt.vs.het,
   "NPC-G1" = rstbl_NPCG1_wt.vs.het,
-  "gRG" = rstbl_Astro_wt.vs.het,
+  "gRG" = rstbl_gRG_wt.vs.het,
   "IPC" = rstbl_IPC_wt.vs.het
 )
 
@@ -438,7 +440,7 @@ res_list_ko <- list(
   "Mes-WT" = rstbl_MesWT_wt.vs.ko,
   "Mes-Mut" = rstbl_MesKO_wt.vs.ko,
   "NPC-G1" = rstbl_NPCG1_wt.vs.ko,
-  "gRG" = rstbl_Astro_wt.vs.ko,
+  "gRG" = rstbl_gRG_wt.vs.ko,
   "IPC" = rstbl_IPC_wt.vs.ko
 )
 
@@ -490,7 +492,7 @@ deg_counts_het <- data.frame(
     sum(rstbl_NPCG1_wt.vs.het$padj < 0.01 & rstbl_NPCG1_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
     sum(rstbl_IPC_wt.vs.het$padj < 0.01 & rstbl_IPC_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
     sum(rstbl_Neuron_wt.vs.het$padj < 0.01 & rstbl_Neuron_wt.vs.het$log2FoldChange > 1, na.rm = TRUE),
-    sum(rstbl_Astro_wt.vs.het$padj < 0.01 & rstbl_Astro_wt.vs.het$log2FoldChange > 1, na.rm = TRUE)
+    sum(rstbl_gRG_wt.vs.het$padj < 0.01 & rstbl_gRG_wt.vs.het$log2FoldChange > 1, na.rm = TRUE)
   ),
   Downregulated = c(
     sum(rstbl_NPCG2M_wt.vs.het$padj < 0.01 & rstbl_NPCG2M_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
@@ -499,7 +501,7 @@ deg_counts_het <- data.frame(
     sum(rstbl_NPCG1_wt.vs.het$padj < 0.01 & rstbl_NPCG1_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
     sum(rstbl_IPC_wt.vs.het$padj < 0.01 & rstbl_IPC_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
     sum(rstbl_Neuron_wt.vs.het$padj < 0.01 & rstbl_Neuron_wt.vs.het$log2FoldChange < -1, na.rm = TRUE),
-    sum(rstbl_Astro_wt.vs.het$padj < 0.01 & rstbl_Astro_wt.vs.het$log2FoldChange < -1, na.rm = TRUE)
+    sum(rstbl_gRG_wt.vs.het$padj < 0.01 & rstbl_gRG_wt.vs.het$log2FoldChange < -1, na.rm = TRUE)
   )
 )
 
