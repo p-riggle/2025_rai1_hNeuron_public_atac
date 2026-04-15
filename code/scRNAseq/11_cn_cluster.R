@@ -121,7 +121,6 @@ plot_cluster_violin <- function(cluster_id, cluster_table, expr_table, color_map
     ) +
     labs(
       title = paste0("Expression of Cluster ", cluster_id, " Genes Across Cell Types"),
-      subtitle = "Violin plots with internal boxplots (Log10 scale)",
       x = "Cell Type",
       y = "Expression"
     )
@@ -154,6 +153,25 @@ ggsave(
   width = 8, 
   height = 18 # Increased height to fit 6 plots vertically
 )
+
+# WT-KO comparison: make the same violin plots for clusters 1 to 5
+plot_list_ko <- list()
+
+for (cluster_id in 1:5) {
+  plot_list_ko[[cluster_id]] <- plot_cluster_violin(cluster_id, hcl_ko, vsd_long, cell_colors)
+}
+
+final_plot_ko <- wrap_plots(plot_list_ko, ncol = 1)
+
+ggsave(
+  filename = "results/cn_rnaseq/cluster/sep/cluster1_to_5_violin_plots_wt_ko.pdf",
+  plot = final_plot_ko,
+  width = 8,
+  height = 15
+)
+
+# 
+
 
 ###############################################
 
