@@ -98,7 +98,6 @@ ggplot(vsd_cluster1, aes(x = cell_type, y = expression, fill = cell_type)) +
 
 # make plots for cluster1 to 6 in the same way
 
-  
 
 ###############################################
 
