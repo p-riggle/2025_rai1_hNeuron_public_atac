@@ -96,8 +96,64 @@ ggplot(vsd_cluster1, aes(x = cell_type, y = expression, fill = cell_type)) +
     y = "Expression"
   )
 
-# make plots for cluster1 to 6 in the same way
+# make plots for cluster 2 to 6 in the same way
+plot_cluster_violin <- function(cluster_id, cluster_table, expr_table, color_map) {
+  cluster_genes <- unique(cluster_table$gene[cluster_table$cluster == cluster_id])
+  genes_to_keep <- intersect(cluster_genes, expr_table$gene)
 
+  message(
+    "Cluster ", cluster_id, ": Found ",
+    length(genes_to_keep), " out of ", length(cluster_genes), " genes."
+  )
+
+  vsd_cluster <- expr_table %>%
+    filter(gene %in% genes_to_keep) %>%
+    mutate(cell_type = factor(cell_type, levels = names(color_map)))
+
+  p <- ggplot(vsd_cluster, aes(x = cell_type, y = expression, fill = cell_type)) +
+    geom_violin(alpha = 0.7) +
+    geom_boxplot(width = 0.1, color = "black", outlier.shape = NA) +
+    scale_fill_manual(values = color_map) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "none"
+    ) +
+    labs(
+      title = paste0("Expression of Cluster ", cluster_id, " Genes Across Cell Types"),
+      subtitle = "Violin plots with internal boxplots (Log10 scale)",
+      x = "Cell Type",
+      y = "Expression"
+    )
+
+  print(p)
+}
+
+for (cluster_id in 2:6) {
+  plot_cluster_violin(cluster_id, hcl_het, vsd_long, cell_colors)
+}
+
+
+library(patchwork)
+
+# 1. Create a list to hold the plots
+plot_list <- list()
+
+# 2. Run the loop to fill the list (make sure your function RETURNs the plot object)
+for (cluster_id in 1:6) {
+  plot_list[[cluster_id]] <- plot_cluster_violin(cluster_id, hcl_het, vsd_long, cell_colors)
+}
+
+# 3. Wrap them together and save
+# ncol = 1 forces them to align vertically
+final_plot <- wrap_plots(plot_list, ncol = 1)
+
+ggsave(
+  filename = "results/cn_rnaseq/cluster/sep/cluster1_to_6_violin_plots.pdf", 
+  plot = final_plot, 
+  width = 8, 
+  height = 18 # Increased height to fit 6 plots vertically
+)
 
 ###############################################
 
