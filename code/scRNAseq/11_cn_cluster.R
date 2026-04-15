@@ -18,10 +18,12 @@ head(assay(vsd_dds_both), 3)
 vsd_long <- as.data.frame(assay(vsd_dds_both)) %>%
   rownames_to_column(var = "gene") %>%
   pivot_longer(-gene, names_to = "sample_id", values_to = "expression") %>%
-  separate(
+  # Use extract() to define exactly what each part looks like
+  # ([^-]+) means "match everything until the next hyphen"
+  extract(
     sample_id, 
     into = c("day_raw", "genotype", "replicate_celltype"), 
-    sep = "-", 
+    regex = "^([^-]+)-([^-]+)-(.*)$", 
     remove = FALSE
   ) %>%
   separate(
@@ -35,7 +37,8 @@ vsd_long <- as.data.frame(assay(vsd_dds_both)) %>%
   ) %>%
   select(gene, day, genotype, replicate, cell_type, expression)
 
-head(vsd_long)
+head(vsd_long) 
+
 
 # load the cluster from bulk-RNAseq analysis
 hcl_het <- read.table("results/cn_rnaseq/cluster/sep/mh_het_2026.04.13.txt", sep = "\t", header = TRUE, row.names = 1)
@@ -58,12 +61,43 @@ vsd_cluster1 <- vsd_long %>%
 # 2. Check how many genes were lost (optional but helpful)
 message("Found ", length(genes_to_keep), " out of ", length(cluster1_genes), " genes.")
 
-# violin plot the expression of cluster 1 genes across cell types
-ggplot(vsd_cluster1, aes(x = cell_type, y = expression)) +
-  geom_violin(fill = "steelblue") +
+# 1. Define your custom color palette as a named vector
+cell_colors <- c(
+  "NPC-G2/M" = "hotpink",
+  "NPC-G1"   = "purple",
+  "Mes-WT"   = "forestgreen",
+  "Mes-KO"   = "yellowgreen",
+  "IPC"      = "gold",
+  "Neuron"   = "dodgerblue",
+  "gRG"      = "orangered"
+)
+
+# 2. Update vsd_cluster1 to set the order of cell_type
+vsd_cluster1 <- vsd_cluster1 %>%
+  mutate(cell_type = factor(cell_type, levels = names(cell_colors)))
+
+ggplot(vsd_cluster1, aes(x = cell_type, y = expression, fill = cell_type)) +
+  # 1. The Violin layer
+  geom_violin(alpha = 0.7) +
+  
+  # 2. The Boxplot layer (narrowed with a white median line or black)
+  geom_boxplot(width = 0.1, color = "black", outlier.shape = NA) +
+  
+  scale_fill_manual(values = cell_colors) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Expression of Cluster 1 Genes Across Cell Types", x = "Cell Type", y = "Expression")
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
+  labs(
+    title = "Expression of Cluster 1 Genes Across Cell Types",
+    subtitle = "Violin plots with internal boxplots (Log10 scale)",
+    x = "Cell Type",
+    y = "Expression"
+  )
+
+# make plots for cluster1 to 6 in the same way
+
   
 
 ###############################################
