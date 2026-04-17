@@ -244,6 +244,7 @@ head(geo_so@meta.data)
 # get cell type proportions for each sample
 celltype_proportions <- prop.table(table(geo_so$orig.ident, geo_so$cell_type), margin = 1)
 celltype_proportions_df <- as.data.frame(celltype_proportions)
+head(celltype_proportions_df)
 colnames(celltype_proportions_df) <- c("Sample", "CellType", "Proportion")
 
 # add genotype information by splitting on underscore and extracting genotype
@@ -297,6 +298,49 @@ barplot_celltype_proportion
 ggsave(filename = "results/scRNAseq/4_celltype/barplot_celltype_proportion.pdf",
        plot = barplot_celltype_proportion,
        width = 8, height = 6, units = "in")
+
+#################################################################
+### cell type compostion analysis: two day points separately ####
+#################################################################
+
+library(dplyr)
+library(ggplot2)
+
+# 1. Take the average percentage, grouping by both Genotype AND Timepoint
+celltype_proportions_avg <- celltype_proportions_df %>%
+  group_by(Timepoint, Genotype, CellType) %>%
+  summarize(Percentage = mean(Percentage), .groups = 'drop')
+
+# 2. Scale within each (Timepoint + Genotype) combination to ensure they sum to 100%
+celltype_proportions_avg <- celltype_proportions_avg %>%
+  group_by(Timepoint, Genotype) %>%
+  mutate(Percentage = Percentage / sum(Percentage) * 100) %>%
+  ungroup()
+
+# 3. Ensure Genotype factor ordering is preserved
+celltype_proportions_avg$Genotype <- factor(celltype_proportions_avg$Genotype, levels = c("wt", "het", "ko"))
+
+# 4. Create the plot using facet_wrap to separate Day 20 and Day 60
+barplot_celltype_proportion <- ggplot(celltype_proportions_avg, 
+                                      aes(x = Genotype, y = Percentage, fill = CellType)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = my_cell_colors) + 
+  facet_wrap(~Timepoint) +  # This creates two side-by-side plots
+  theme_minimal() +
+  labs(title = "Cell Type Proportions by Genotype and Timepoint", 
+       x = "Genotype", 
+       y = "Percentage (%)") +
+  scale_x_discrete(labels = c("wt" = "WT", "het" = "Het", "ko" = "KO")) +
+  scale_y_continuous(limits = c(0, 100.1), breaks = seq(0, 100, 20), expand = c(0, 0)) +
+  theme(panel.spacing = unit(2, "lines")) # Adds a bit of space between the two plots
+
+# Display
+print(barplot_celltype_proportion)
+
+# 5. Save the faceted plot
+ggsave(filename = "results/scRNAseq/4_celltype/barplot_celltype_proportion_day_split.pdf",
+       plot = barplot_celltype_proportion,
+       width = 10, height = 6, units = "in")
 
 ############################################################
 #### make replicate dimention plots with new color ########

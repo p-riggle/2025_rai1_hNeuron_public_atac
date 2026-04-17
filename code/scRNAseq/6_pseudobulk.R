@@ -280,7 +280,6 @@ rstbl_MesWT_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "
 rstbl_MesKO_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_Mes-KO", "wt_Mes-KO"), alpha = 0.01)
 rstbl_NPCG1_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_NPC-G1", "wt_NPC-G1"), alpha = 0.01)
 rstbl_IPC_wt.vs.het <- results(dds_d20, contrast = c("genotype_cluster_d20", "het_IPC", "wt_IPC"), alpha = 0.01)
-
 rstbl_Neuron_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_Neuron", "wt_Neuron"), alpha = 0.01)
 rstbl_gRG_wt.vs.het <- results(dds_d60, contrast = c("genotype_cluster_d60", "het_gRG", "wt_gRG"), alpha = 0.01)
 
@@ -343,7 +342,6 @@ for (comp in comparisons) {
 
 
 # read restbls from the results directory
-
 # 1. Define the parts that change in the file/variable names
 cell_types <- c(
   "NPCG2M", "MesWT", "MesKO", "NPCG1", 
@@ -515,4 +513,289 @@ p_het <- ggplot(deg_counts_het_melted, aes(x = Cell_Type, y = Count, fill = Regu
   scale_fill_manual(values = c("Upregulated" = "steelblue", "Downregulated" = "salmon")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p_het
+
+#############################################################################################
+### go analysis of DEGs of HET vs WT in each cell type using clusterProfiler and enrichGO ###
+#############################################################################################
+
+# install.packages(c("clusterProfiler", "enrichplot", "org.Hs.eg.db"))
+library(clusterProfiler)
+library(enrichplot)
+library(org.Hs.eg.db)
+library(tidyverse)
+
+# read restbls from the results directory
+# 1. Define the parts that change in the file/variable names
+cell_types <- c(
+  "NPCG2M", "MesWT", "MesKO", "NPCG1", 
+  "IPC", "Neuron", "gRG"
+)
+
+comparisons <- c("wt.vs.het", "wt.vs.ko")
+
+# 2. Use nested loops to iterate through all combinations
+for (comp in comparisons) {
+  for (cell in cell_types) {
+    
+    # A. Construct the R object name (e.g., "rstbl_NPCG2M_wt.vs.het")
+    object_name <- paste0("rstbl_", cell, "_", comp)
+    
+    # B. Construct the input file path
+    file_path <- paste0("results/scRNAseq/7_pseudobulk/", object_name, ".csv")
+    
+    # C. Read the file
+    data_to_assign <- read.csv(file_path, row.names = 1)
+    
+    # D. Assign the data to the dynamically created variable name in the environment
+    # The assign() function is necessary to use a variable name stored in a string (object_name)
+    assign(x = object_name, value = data_to_assign)
+    
+    # Print a confirmation (optional)
+    cat("Read:", file_path, "into object:", object_name, "\n")
+  }
+}
+
+# output directory for GO analysis
+go_outdir <- "results/scRNAseq/7_pseudobulk/go_het_vs_wt"
+if (!dir.exists(go_outdir)) {
+  dir.create(go_outdir, recursive = TRUE)
+}
+
+# use HET vs WT result tables already created above
+res_list_het <- list(
+  "NPC-G2/M" = rstbl_NPCG2M_wt.vs.het,
+  "NPC-G1" = rstbl_NPCG1_wt.vs.het,
+  "Mes-WT" = rstbl_MesWT_wt.vs.het,
+  "IPC" = rstbl_IPC_wt.vs.het,
+  "Neuron" = rstbl_Neuron_wt.vs.het,
+  "gRG" = rstbl_gRG_wt.vs.het,
+  "Mes-Mut" = rstbl_MesKO_wt.vs.het
+)
+
+# explicit cell type order for big dotplots (exclude Mes-Mut)
+all_cell_types <- c("NPC-G2/M", "NPC-G1", "Mes-WT", "IPC", "Neuron", "gRG")
+
+# keep only selected cell types in requested order
+res_list_het <- res_list_het[all_cell_types]
+
+# DEG thresholds for GO input
+padj_cutoff <- 0.01
+lfc_cutoff <- 1
+
+# helper: run enrichGO for one gene vector using gene-specific universe
+run_enrichgo <- function(sig_symbols, universe_symbols, ontology = "BP") {
+  if (length(sig_symbols) == 0) {
+    return(NULL)
+  }
+
+  gene_map <- bitr(sig_symbols,
+                   fromType = "SYMBOL",
+                   toType = "ENTREZID",
+                   OrgDb = org.Hs.eg.db)
+
+  universe_map <- bitr(universe_symbols,
+                       fromType = "SYMBOL",
+                       toType = "ENTREZID",
+                       OrgDb = org.Hs.eg.db)
+
+  if (is.null(gene_map) || nrow(gene_map) == 0 || is.null(universe_map) || nrow(universe_map) == 0) {
+    return(NULL)
+  }
+
+  ego <- enrichGO(
+    gene = unique(gene_map$ENTREZID),
+    universe = unique(universe_map$ENTREZID),
+    OrgDb = org.Hs.eg.db,
+    keyType = "ENTREZID",
+    ont = ontology,
+    pAdjustMethod = "BH",
+    pvalueCutoff = 0.05,
+    qvalueCutoff = 0.2,
+    minGSSize = 10,
+    maxGSSize = 299,
+    readable = TRUE
+  )
+
+  if (is.null(ego) || nrow(as.data.frame(ego)) == 0) {
+    return(NULL)
+  }
+
+  ego
+}
+
+# helper: parse GeneRatio string "x/y" into numeric value
+parse_gene_ratio <- function(gene_ratio_vec) {
+  sapply(gene_ratio_vec, function(x) {
+    if (is.na(x) || !grepl("/", x)) return(NA_real_)
+    parts <- as.numeric(strsplit(x, "/")[[1]])
+    if (length(parts) != 2 || any(is.na(parts)) || parts[2] == 0) return(NA_real_)
+    parts[1] / parts[2]
+  })
+}
+
+# helper: one-line top gene label (top five by abs(log2FoldChange))
+format_top_genes_one_line <- function(gene_str, res_df, n_genes = 5) {
+  genes <- unlist(strsplit(gene_str, "/"))
+  sub <- res_df[res_df$gene %in% genes & !is.na(res_df$log2FoldChange), ]
+  if (nrow(sub) == 0) {
+    return(paste(head(genes, n_genes), collapse = ", "))
+  }
+  sub <- sub[order(abs(sub$log2FoldChange), decreasing = TRUE), ]
+  paste(head(sub$gene, n_genes), collapse = ", ")
+}
+
+# helper: create one big dotplot across all cell types and selected GO terms
+make_big_go_dotplot <- function(go_tbl, all_cell_types, title_text) {
+  if (nrow(go_tbl) == 0) {
+    return(NULL)
+  }
+
+  go_tbl <- go_tbl %>%
+    mutate(
+      enrich_ratio = parse_gene_ratio(GeneRatio),
+      neglog10_padj = -log10(p.adjust)
+    )
+
+  plot_df <- go_tbl %>%
+    select(cell_type, Description, p.adjust, enrich_ratio, neglog10_padj, top_genes) %>%
+    mutate(cell_type = factor(cell_type, levels = all_cell_types)) %>%
+    arrange(cell_type, p.adjust, Description) %>%
+    group_by(cell_type) %>%
+    mutate(term_rank = row_number()) %>%
+    ungroup() %>%
+    mutate(
+      term_id = paste(cell_type, sprintf("%02d", term_rank), Description, sep = "__")
+    )
+
+  term_levels <- rev(unique(plot_df$term_id))
+  plot_df$term_id <- factor(plot_df$term_id, levels = term_levels)
+  term_labels <- setNames(plot_df$Description, plot_df$term_id)
+
+  ggplot(plot_df, aes(x = cell_type, y = term_id)) +
+    geom_point(aes(size = enrich_ratio, color = neglog10_padj), alpha = 0.95) +
+    geom_text(
+      aes(label = top_genes),
+      nudge_x = 0.22,
+      hjust = 0,
+      size = 2.0,
+      check_overlap = TRUE
+    ) +
+    scale_color_gradient(low = "lightskyblue", high = "darkblue", name = "-log10(adj p)") +
+    scale_size_continuous(name = "Enrichment ratio", range = c(2, 9)) +
+    scale_x_discrete(drop = FALSE) +
+    scale_y_discrete(labels = term_labels) +
+    labs(
+      title = title_text,
+      x = "Cell type",
+      y = "GO term"
+    ) +
+    coord_cartesian(clip = "off") +
+    theme_classic() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      axis.text.y = element_text(size = 7),
+      plot.margin = margin(5.5, 170, 5.5, 5.5)
+    )
+}
+
+go_up_all <- list()
+go_down_all <- list()
+
+# run GO for each cell type (up- and down-regulated separately)
+for (cell_type in names(res_list_het)) {
+  res <- as.data.frame(res_list_het[[cell_type]])
+  res$gene <- rownames(res)
+
+  # define significant DEGs
+  up_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange > lfc_cutoff) %>%
+    pull(gene)
+
+  down_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange < -lfc_cutoff) %>%
+    pull(gene)
+
+  # universe: all genes tested by DESeq2 for this cell type
+  universe_symbols <- res %>%
+    filter(!is.na(padj)) %>%
+    pull(gene)
+
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+
+  # run enrichGO
+  ego_up <- run_enrichgo(up_symbols, universe_symbols, ontology = "BP")
+  ego_down <- run_enrichgo(down_symbols, universe_symbols, ontology = "BP")
+
+  # write enrichment tables
+  if (!is.null(ego_up)) {
+    up_tbl <- as.data.frame(ego_up)
+    up_tbl$cell_type <- cell_type
+    up_tbl$top_genes <- sapply(up_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(up_tbl,
+              file = file.path(go_outdir, paste0(clean_name, "_UP_enrichGO_BP.csv")),
+              row.names = FALSE)
+    go_up_all[[cell_type]] <- up_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-BP enrichment for UP genes in ", cell_type)
+  }
+
+  if (!is.null(ego_down)) {
+    down_tbl <- as.data.frame(ego_down)
+    down_tbl$cell_type <- cell_type
+    down_tbl$top_genes <- sapply(down_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(down_tbl,
+              file = file.path(go_outdir, paste0(clean_name, "_DOWN_enrichGO_BP.csv")),
+              row.names = FALSE)
+    go_down_all[[cell_type]] <- down_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-BP enrichment for DOWN genes in ", cell_type)
+  }
+}
+
+# build one big dotplot for UP and one for DOWN
+if (length(go_up_all) > 0) {
+  go_up_tbl <- bind_rows(go_up_all)
+  p_big_up <- make_big_go_dotplot(
+    go_tbl = go_up_tbl,
+    all_cell_types = all_cell_types,
+    title_text = "HET vs WT Upregulated DEGs: GO-BP across cell types"
+  )
+  if (!is.null(p_big_up)) {
+    up_h <- max(10, 0.22 * length(unique(go_up_tbl$Description)))
+    ggsave(
+      filename = file.path(go_outdir, "HET_vs_WT_UP_big_dotplot_GO_BP.pdf"),
+      plot = p_big_up,
+      width = 20,
+      height = up_h,
+      limitsize = FALSE
+    )
+  }
+}
+
+if (length(go_down_all) > 0) {
+  go_down_tbl <- bind_rows(go_down_all)
+  p_big_down <- make_big_go_dotplot(
+    go_tbl = go_down_tbl,
+    all_cell_types = all_cell_types,
+    title_text = "HET vs WT Downregulated DEGs: GO-BP across cell types"
+  )
+  if (!is.null(p_big_down)) {
+    down_h <- max(10, 0.22 * length(unique(go_down_tbl$Description)))
+    ggsave(
+      filename = file.path(go_outdir, "HET_vs_WT_DOWN_big_dotplot_GO_BP.pdf"),
+      plot = p_big_down,
+      width = 20,
+      height = down_h,
+      limitsize = FALSE
+    )
+  }
+}
+
+message("GO enrichment analysis (HET vs WT) completed. Results saved to: ", go_outdir)
+
+
 
