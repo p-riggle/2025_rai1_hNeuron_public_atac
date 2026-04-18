@@ -524,6 +524,7 @@ library(enrichplot)
 library(org.Hs.eg.db)
 library(tidyverse)
 
+
 # read restbls from the results directory
 # 1. Define the parts that change in the file/variable names
 cell_types <- c(
@@ -644,58 +645,109 @@ format_top_genes_one_line <- function(gene_str, res_df, n_genes = 5) {
   paste(head(sub$gene, n_genes), collapse = ", ")
 }
 
-# helper: create one big dotplot across all cell types and selected GO terms
-make_big_go_dotplot <- function(go_tbl, all_cell_types, title_text) {
-  if (nrow(go_tbl) == 0) {
+# helper: create one regulation-specific dotplot with vertical cell-type alignment
+# each plot keeps GO terms on the y-axis
+make_regulation_go_dotplot <- function(go_tbl, all_cell_types, title_text, regulation = c("Up", "Down")) {
+  regulation <- match.arg(regulation)
+
+  if (is.null(go_tbl) || nrow(go_tbl) == 0) {
     return(NULL)
+  }
+
+  # Check which cell types actually have data rows BEFORE any factor conversion.
+  present_types <- unique(go_tbl$cell_type)          # character at this point
+  missing_types <- setdiff(all_cell_types, present_types)
+
+  # Inject one placeholder row per missing cell type so facet_grid renders
+  # an empty panel for them. Do this BEFORE building term_id factors.
+  if (length(missing_types) > 0) {
+    padding <- data.frame(
+      cell_type        = missing_types,
+      GeneRatio        = NA_character_,
+      p.adjust         = NA_real_,
+      Description      = NA_character_,
+      top_genes        = NA_character_,
+      stringsAsFactors = FALSE
+    )
+    go_tbl <- bind_rows(go_tbl, padding)
   }
 
   go_tbl <- go_tbl %>%
     mutate(
-      enrich_ratio = parse_gene_ratio(GeneRatio),
-      neglog10_padj = -log10(p.adjust)
-    )
-
-  plot_df <- go_tbl %>%
-    select(cell_type, Description, p.adjust, enrich_ratio, neglog10_padj, top_genes) %>%
-    mutate(cell_type = factor(cell_type, levels = all_cell_types)) %>%
-    arrange(cell_type, p.adjust, Description) %>%
+      enrich_ratio   = parse_gene_ratio(GeneRatio),
+      neglog10_padj  = -log10(p.adjust),
+      adj_p_for_plot = pmax(p.adjust, .Machine$double.xmin),
+      cell_type      = factor(cell_type, levels = all_cell_types)
+    ) %>%
     group_by(cell_type) %>%
+    arrange(p.adjust, Description, .by_group = TRUE) %>%
     mutate(term_rank = row_number()) %>%
     ungroup() %>%
     mutate(
-      term_id = paste(cell_type, sprintf("%02d", term_rank), Description, sep = "__")
+      # Placeholder rows get a stable unique term_id; real rows encode rank.
+      term_id = ifelse(
+        is.na(Description),
+        paste(as.character(cell_type), "99", "no enrichment", sep = "__"),
+        paste(as.character(cell_type), sprintf("%02d", term_rank), Description, sep = "__")
+      ),
+      x_col = "GO"
     )
 
-  term_levels <- rev(unique(plot_df$term_id))
-  plot_df$term_id <- factor(plot_df$term_id, levels = term_levels)
-  term_labels <- setNames(plot_df$Description, plot_df$term_id)
+  # Build y-axis factor levels: low p-value (rank 1) at top, high p-value at
+  # bottom, placeholder rows last within each cell type.
+  term_levels <- go_tbl %>%
+    arrange(cell_type, desc(is.na(term_rank)), desc(term_rank)) %>%
+    pull(term_id) %>%
+    unique()
+  go_tbl$term_id <- factor(go_tbl$term_id, levels = term_levels)
 
-  ggplot(plot_df, aes(x = cell_type, y = term_id)) +
-    geom_point(aes(size = enrich_ratio, color = neglog10_padj), alpha = 0.95) +
-    geom_text(
-      aes(label = top_genes),
-      nudge_x = 0.22,
-      hjust = 0,
-      size = 2.0,
-      check_overlap = TRUE
-    ) +
-    scale_color_gradient(low = "lightskyblue", high = "darkblue", name = "-log10(adj p)") +
-    scale_size_continuous(name = "Enrichment ratio", range = c(2, 9)) +
-    scale_x_discrete(drop = FALSE) +
-    scale_y_discrete(labels = term_labels) +
-    labs(
-      title = title_text,
-      x = "Cell type",
-      y = "GO term"
-    ) +
-    coord_cartesian(clip = "off") +
-    theme_classic() +
-    theme(
-      axis.text.x = element_text(angle = 45, hjust = 1),
-      axis.text.y = element_text(size = 7),
-      plot.margin = margin(5.5, 170, 5.5, 5.5)
-    )
+  color_low <- if (regulation == "Down") "#08519c" else "#cb181d"
+  color_high <- if (regulation == "Down") "#deebf7" else "#fee5d9"
+
+  p <- ggplot(go_tbl, aes(x = x_col, y = term_id))
+  p <- p + geom_point(aes(size = enrich_ratio, color = adj_p_for_plot), alpha = 0.95)
+  p <- p + geom_text(
+    aes(label = top_genes),
+    nudge_x = 0.08,
+    hjust = 0,
+    size = 2.0,
+    check_overlap = TRUE
+  )
+  p <- p + scale_color_gradient(
+    name = "Adjusted p-value",
+    low = color_low,
+    high = color_high,
+    trans = "log10",
+    labels = scales::label_scientific(digits = 2)
+  )
+  p <- p + scale_size_continuous(name = "Enrichment ratio", range = c(2, 8))
+  p <- p + scale_x_discrete(drop = FALSE)
+  p <- p + facet_grid(rows = vars(cell_type), scales = "free_y", space = "free_y", switch = "y", drop = FALSE)
+  p <- p + scale_y_discrete(labels = function(x) sub("^.*__[0-9]{2}__", "", x))
+  p <- p + guides(
+    size = guide_legend(order = 1),
+    color = guide_colorbar(order = 2, barheight = grid::unit(3, "cm"))
+  )
+  p <- p + labs(
+    title = title_text,
+    x = NULL,
+    y = "GO term"
+  )
+  p <- p + coord_cartesian(clip = "off")
+  p <- p + theme_classic()
+  p <- p + theme(
+    strip.background = element_rect(fill = "grey95", color = "grey70"),
+    strip.text = element_text(face = "bold", size = 8),
+    strip.placement = "outside",
+    axis.text.x = element_text(size = 8),
+    axis.text.y = element_text(size = 7),
+    legend.position = "bottom",
+    legend.box = "vertical",
+    panel.spacing = grid::unit(0.6, "lines"),
+    plot.margin = margin(5.5, 120, 5.5, 40)
+  )
+
+  return(p)
 }
 
 go_up_all <- list()
@@ -756,46 +808,73 @@ for (cell_type in names(res_list_het)) {
   }
 }
 
-# build one big dotplot for UP and one for DOWN
-if (length(go_up_all) > 0) {
-  go_up_tbl <- bind_rows(go_up_all)
-  p_big_up <- make_big_go_dotplot(
-    go_tbl = go_up_tbl,
-    all_cell_types = all_cell_types,
-    title_text = "HET vs WT Upregulated DEGs: GO-BP across cell types"
+# build separate figures for Downregulated and Upregulated GO terms
+go_up_tbl <- if (length(go_up_all) > 0) bind_rows(go_up_all) else NULL
+go_down_tbl <- if (length(go_down_all) > 0) bind_rows(go_down_all) else NULL
+
+p_down <- make_regulation_go_dotplot(
+  go_tbl = go_down_tbl,
+  all_cell_types = all_cell_types,
+  title_text = "HET vs WT DEGs: GO-BP (Downregulated)",
+  regulation = "Down"
+)
+
+p_up <- make_regulation_go_dotplot(
+  go_tbl = go_up_tbl,
+  all_cell_types = all_cell_types,
+  title_text = "HET vs WT DEGs: GO-BP (Upregulated)",
+  regulation = "Up"
+)
+
+if (!is.null(p_down)) {
+  n_terms_down <- nrow(go_down_tbl)
+  plot_h_down <- max(11, 0.20 * n_terms_down)
+
+  ggsave(
+    filename = file.path(go_outdir, "HET_vs_WT_DOWN_GO_BP_dotplot.pdf"),
+    plot = p_down,
+    width = 10,
+    height = plot_h_down,
+    limitsize = FALSE
   )
-  if (!is.null(p_big_up)) {
-    up_h <- max(10, 0.22 * length(unique(go_up_tbl$Description)))
-    ggsave(
-      filename = file.path(go_outdir, "HET_vs_WT_UP_big_dotplot_GO_BP.pdf"),
-      plot = p_big_up,
-      width = 20,
-      height = up_h,
-      limitsize = FALSE
-    )
-  }
 }
 
-if (length(go_down_all) > 0) {
-  go_down_tbl <- bind_rows(go_down_all)
-  p_big_down <- make_big_go_dotplot(
-    go_tbl = go_down_tbl,
-    all_cell_types = all_cell_types,
-    title_text = "HET vs WT Downregulated DEGs: GO-BP across cell types"
+if (!is.null(p_up)) {
+  n_terms_up <- nrow(go_up_tbl)
+  plot_h_up <- max(11, 0.20 * n_terms_up)
+
+  ggsave(
+    filename = file.path(go_outdir, "HET_vs_WT_UP_GO_BP_dotplot.pdf"),
+    plot = p_up,
+    width = 10,
+    height = plot_h_up,
+    limitsize = FALSE
   )
-  if (!is.null(p_big_down)) {
-    down_h <- max(10, 0.22 * length(unique(go_down_tbl$Description)))
-    ggsave(
-      filename = file.path(go_outdir, "HET_vs_WT_DOWN_big_dotplot_GO_BP.pdf"),
-      plot = p_big_down,
-      width = 20,
-      height = down_h,
-      limitsize = FALSE
-    )
-  }
+}
+
+if (!is.null(p_down) && !is.null(p_up)) {
+  combined_h <- max(
+    max(11, 0.20 * nrow(go_down_tbl)),
+    max(11, 0.20 * nrow(go_up_tbl))
+  )
+
+  grDevices::pdf(
+    file = file.path(go_outdir, "HET_vs_WT_UP_DOWN_GO_BP_dotplot_combined.pdf"),
+    width = 20,
+    height = combined_h,
+    onefile = TRUE
+  )
+
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_up, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
 }
 
 message("GO enrichment analysis (HET vs WT) completed. Results saved to: ", go_outdir)
+
+
 
 
 
