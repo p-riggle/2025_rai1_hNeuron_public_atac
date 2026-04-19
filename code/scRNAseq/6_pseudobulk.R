@@ -557,7 +557,7 @@ for (comp in comparisons) {
 }
 
 # output directory for GO analysis
-go_outdir <- "results/scRNAseq/7_pseudobulk/go_het_vs_wt"
+go_outdir <- "results/scRNAseq/7_pseudobulk/go_bp_het_vs_wt"
 if (!dir.exists(go_outdir)) {
   dir.create(go_outdir, recursive = TRUE)
 }
@@ -722,7 +722,7 @@ make_regulation_go_dotplot <- function(go_tbl, all_cell_types, title_text, regul
   )
   p <- p + scale_size_continuous(name = "Enrichment ratio", range = c(2, 8))
   p <- p + scale_x_discrete(drop = FALSE)
-  p <- p + facet_grid(rows = vars(cell_type), scales = "free_y", space = "free_y", switch = "y", drop = FALSE)
+  p <- p + facet_grid(rows = vars(cell_type), scales = "free_y", switch = "y", drop = FALSE)
   p <- p + scale_y_discrete(labels = function(x) sub("^.*__[0-9]{2}__", "", x))
   p <- p + guides(
     size = guide_legend(order = 1),
@@ -875,6 +875,1073 @@ if (!is.null(p_down) && !is.null(p_up)) {
 message("GO enrichment analysis (HET vs WT) completed. Results saved to: ", go_outdir)
 
 
+##################################################################################################################
+### go analysis (cellular component) of DEGs of HET vs WT in each cell type using clusterProfiler and enrichGO ###
+##################################################################################################################
 
+# output directory for GO-CC analysis
+go_cc_outdir <- "results/scRNAseq/7_pseudobulk/go_cc_het_vs_wt"
+if (!dir.exists(go_cc_outdir)) {
+  dir.create(go_cc_outdir, recursive = TRUE)
+}
+
+go_cc_up_all   <- list()
+go_cc_down_all <- list()
+
+# run GO-CC for each cell type (up- and down-regulated separately)
+for (cell_type in names(res_list_het)) {
+  res <- as.data.frame(res_list_het[[cell_type]])
+  res$gene <- rownames(res)
+
+  up_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange > lfc_cutoff) %>%
+    pull(gene)
+
+  down_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange < -lfc_cutoff) %>%
+    pull(gene)
+
+  universe_symbols <- res %>%
+    filter(!is.na(padj)) %>%
+    pull(gene)
+
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+
+  ego_up   <- run_enrichgo(up_symbols,   universe_symbols, ontology = "CC")
+  ego_down <- run_enrichgo(down_symbols, universe_symbols, ontology = "CC")
+
+  if (!is.null(ego_up)) {
+    up_tbl <- as.data.frame(ego_up)
+    up_tbl$cell_type  <- cell_type
+    up_tbl$top_genes  <- sapply(up_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(up_tbl,
+              file = file.path(go_cc_outdir, paste0(clean_name, "_UP_enrichGO_CC.csv")),
+              row.names = FALSE)
+    go_cc_up_all[[cell_type]] <- up_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-CC enrichment for UP genes in ", cell_type)
+  }
+
+  if (!is.null(ego_down)) {
+    down_tbl <- as.data.frame(ego_down)
+    down_tbl$cell_type  <- cell_type
+    down_tbl$top_genes  <- sapply(down_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(down_tbl,
+              file = file.path(go_cc_outdir, paste0(clean_name, "_DOWN_enrichGO_CC.csv")),
+              row.names = FALSE)
+    go_cc_down_all[[cell_type]] <- down_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-CC enrichment for DOWN genes in ", cell_type)
+  }
+}
+
+# build dotplots for CC
+go_cc_up_tbl   <- if (length(go_cc_up_all)   > 0) bind_rows(go_cc_up_all)   else NULL
+go_cc_down_tbl <- if (length(go_cc_down_all) > 0) bind_rows(go_cc_down_all) else NULL
+
+p_cc_down <- make_regulation_go_dotplot(
+  go_tbl      = go_cc_down_tbl,
+  all_cell_types = all_cell_types,
+  title_text  = "HET vs WT DEGs: GO-CC (Downregulated)",
+  regulation  = "Down"
+)
+
+p_cc_up <- make_regulation_go_dotplot(
+  go_tbl      = go_cc_up_tbl,
+  all_cell_types = all_cell_types,
+  title_text  = "HET vs WT DEGs: GO-CC (Upregulated)",
+  regulation  = "Up"
+)
+
+if (!is.null(p_cc_down)) {
+  n_terms_cc_down <- nrow(go_cc_down_tbl)
+  plot_h_cc_down  <- max(11, 0.20 * n_terms_cc_down)
+
+  ggsave(
+    filename  = file.path(go_cc_outdir, "HET_vs_WT_DOWN_GO_CC_dotplot.pdf"),
+    plot      = p_cc_down,
+    width     = 10,
+    height    = plot_h_cc_down,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_cc_up)) {
+  n_terms_cc_up <- nrow(go_cc_up_tbl)
+  plot_h_cc_up  <- max(11, 0.20 * n_terms_cc_up)
+
+  ggsave(
+    filename  = file.path(go_cc_outdir, "HET_vs_WT_UP_GO_CC_dotplot.pdf"),
+    plot      = p_cc_up,
+    width     = 10,
+    height    = plot_h_cc_up,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_cc_down) && !is.null(p_cc_up)) {
+  combined_h_cc <- max(
+    max(11, 0.20 * nrow(go_cc_down_tbl)),
+    max(11, 0.20 * nrow(go_cc_up_tbl))
+  )
+
+  grDevices::pdf(
+    file    = file.path(go_cc_outdir, "HET_vs_WT_UP_DOWN_GO_CC_dotplot_combined.pdf"),
+    width   = 20,
+    height  = combined_h_cc,
+    onefile = TRUE
+  )
+
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_cc_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_cc_up,   vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+message("GO-CC enrichment analysis (HET vs WT) completed. Results saved to: ", go_cc_outdir)
+
+
+##################################################################################################################
+### KEGG pathway analysis of DEGs of HET vs WT in each cell type using clusterProfiler and enrichKEGG ###
+##################################################################################################################
+
+# output directory
+kegg_outdir <- "results/scRNAseq/7_pseudobulk/kegg_het_vs_wt"
+if (!dir.exists(kegg_outdir)) {
+  dir.create(kegg_outdir, recursive = TRUE)
+}
+
+# helper: run enrichKEGG for one gene vector
+run_enrichkegg <- function(sig_symbols, universe_symbols) {
+  if (length(sig_symbols) == 0) {
+    return(NULL)
+  }
+
+  gene_map <- bitr(sig_symbols,
+                   fromType = "SYMBOL",
+                   toType   = "ENTREZID",
+                   OrgDb    = org.Hs.eg.db)
+
+  universe_map <- bitr(universe_symbols,
+                       fromType = "SYMBOL",
+                       toType   = "ENTREZID",
+                       OrgDb    = org.Hs.eg.db)
+
+  if (is.null(gene_map) || nrow(gene_map) == 0 ||
+      is.null(universe_map) || nrow(universe_map) == 0) {
+    return(NULL)
+  }
+
+  ek <- enrichKEGG(
+    gene          = unique(gene_map$ENTREZID),
+    universe      = unique(universe_map$ENTREZID),
+    organism      = "hsa",
+    pAdjustMethod = "BH",
+    pvalueCutoff  = 0.05,
+    qvalueCutoff  = 0.2,
+    minGSSize     = 10,
+    maxGSSize     = 299
+  )
+
+  if (is.null(ek) || nrow(as.data.frame(ek)) == 0) {
+    return(NULL)
+  }
+
+  # convert ENTREZID back to gene symbols for readable labels
+  ek <- setReadable(ek, OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
+  ek
+}
+
+kegg_up_all   <- list()
+kegg_down_all <- list()
+
+for (cell_type in names(res_list_het)) {
+  res <- as.data.frame(res_list_het[[cell_type]])
+  res$gene <- rownames(res)
+
+  up_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange > lfc_cutoff) %>%
+    pull(gene)
+
+  down_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange < -lfc_cutoff) %>%
+    pull(gene)
+
+  universe_symbols <- res %>%
+    filter(!is.na(padj)) %>%
+    pull(gene)
+
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+
+  ek_up   <- run_enrichkegg(up_symbols,   universe_symbols)
+  ek_down <- run_enrichkegg(down_symbols, universe_symbols)
+
+  if (!is.null(ek_up)) {
+    up_tbl <- as.data.frame(ek_up)
+    up_tbl$cell_type <- cell_type
+    up_tbl$top_genes <- sapply(up_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(up_tbl,
+              file = file.path(kegg_outdir, paste0(clean_name, "_UP_enrichKEGG.csv")),
+              row.names = FALSE)
+    kegg_up_all[[cell_type]] <- up_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant KEGG enrichment for UP genes in ", cell_type)
+  }
+
+  if (!is.null(ek_down)) {
+    down_tbl <- as.data.frame(ek_down)
+    down_tbl$cell_type <- cell_type
+    down_tbl$top_genes <- sapply(down_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(down_tbl,
+              file = file.path(kegg_outdir, paste0(clean_name, "_DOWN_enrichKEGG.csv")),
+              row.names = FALSE)
+    kegg_down_all[[cell_type]] <- down_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant KEGG enrichment for DOWN genes in ", cell_type)
+  }
+}
+
+kegg_up_tbl   <- if (length(kegg_up_all)   > 0) bind_rows(kegg_up_all)   else NULL
+kegg_down_tbl <- if (length(kegg_down_all) > 0) bind_rows(kegg_down_all) else NULL
+
+p_kegg_down <- make_regulation_go_dotplot(
+  go_tbl         = kegg_down_tbl,
+  all_cell_types = all_cell_types,
+  title_text     = "HET vs WT DEGs: KEGG (Downregulated)",
+  regulation     = "Down"
+)
+
+p_kegg_up <- make_regulation_go_dotplot(
+  go_tbl         = kegg_up_tbl,
+  all_cell_types = all_cell_types,
+  title_text     = "HET vs WT DEGs: KEGG (Upregulated)",
+  regulation     = "Up"
+)
+
+if (!is.null(p_kegg_down)) {
+  n_terms_kegg_down <- nrow(kegg_down_tbl)
+  plot_h_kegg_down  <- max(11, 0.20 * n_terms_kegg_down)
+
+  ggsave(
+    filename  = file.path(kegg_outdir, "HET_vs_WT_DOWN_KEGG_dotplot.pdf"),
+    plot      = p_kegg_down,
+    width     = 10,
+    height    = plot_h_kegg_down,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_kegg_up)) {
+  n_terms_kegg_up <- nrow(kegg_up_tbl)
+  plot_h_kegg_up  <- max(11, 0.20 * n_terms_kegg_up)
+
+  ggsave(
+    filename  = file.path(kegg_outdir, "HET_vs_WT_UP_KEGG_dotplot.pdf"),
+    plot      = p_kegg_up,
+    width     = 10,
+    height    = plot_h_kegg_up,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_kegg_down) && !is.null(p_kegg_up)) {
+  combined_h_kegg <- max(
+    max(11, 0.20 * nrow(kegg_down_tbl)),
+    max(11, 0.20 * nrow(kegg_up_tbl))
+  )
+
+  grDevices::pdf(
+    file    = file.path(kegg_outdir, "HET_vs_WT_UP_DOWN_KEGG_dotplot_combined.pdf"),
+    width   = 20,
+    height  = combined_h_kegg,
+    onefile = TRUE
+  )
+
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_kegg_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_kegg_up,   vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+message("KEGG enrichment analysis (HET vs WT) completed. Results saved to: ", kegg_outdir)
+
+
+##################################################################################################################
+### GO-BP / GO-CC / KEGG analysis of DEGs of WT vs KO in selected cell types (exclude Mes-WT, IPC; include Mes-Mut)
+##################################################################################################################
+
+# use WT vs KO result tables and keep only requested cell types
+res_list_ko <- list(
+  "NPC-G2/M" = rstbl_NPCG2M_wt.vs.ko,
+  "NPC-G1" = rstbl_NPCG1_wt.vs.ko,
+  "Mes-Mut" = rstbl_MesKO_wt.vs.ko,
+  "Neuron" = rstbl_Neuron_wt.vs.ko,
+  "gRG" = rstbl_gRG_wt.vs.ko
+)
+
+all_cell_types_ko <- c("NPC-G2/M", "NPC-G1", "Mes-Mut", "Neuron", "gRG")
+res_list_ko <- res_list_ko[all_cell_types_ko]
+
+
+##################################################################################################################
+### GO-BP analysis (WT vs KO)
+##################################################################################################################
+
+go_bp_ko_outdir <- "results/scRNAseq/7_pseudobulk/go_bp_wt_vs_ko"
+if (!dir.exists(go_bp_ko_outdir)) {
+  dir.create(go_bp_ko_outdir, recursive = TRUE)
+}
+
+go_bp_ko_up_all <- list()
+go_bp_ko_down_all <- list()
+
+for (cell_type in names(res_list_ko)) {
+  res <- as.data.frame(res_list_ko[[cell_type]])
+  res$gene <- rownames(res)
+
+  up_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange > lfc_cutoff) %>%
+    pull(gene)
+
+  down_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange < -lfc_cutoff) %>%
+    pull(gene)
+
+  universe_symbols <- res %>%
+    filter(!is.na(padj)) %>%
+    pull(gene)
+
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+
+  ego_up <- run_enrichgo(up_symbols, universe_symbols, ontology = "BP")
+  ego_down <- run_enrichgo(down_symbols, universe_symbols, ontology = "BP")
+
+  if (!is.null(ego_up)) {
+    up_tbl <- as.data.frame(ego_up)
+    up_tbl$cell_type <- cell_type
+    up_tbl$top_genes <- sapply(up_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(up_tbl,
+              file = file.path(go_bp_ko_outdir, paste0(clean_name, "_UP_enrichGO_BP.csv")),
+              row.names = FALSE)
+    go_bp_ko_up_all[[cell_type]] <- up_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-BP enrichment for UP genes in ", cell_type, " (WT vs KO)")
+  }
+
+  if (!is.null(ego_down)) {
+    down_tbl <- as.data.frame(ego_down)
+    down_tbl$cell_type <- cell_type
+    down_tbl$top_genes <- sapply(down_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(down_tbl,
+              file = file.path(go_bp_ko_outdir, paste0(clean_name, "_DOWN_enrichGO_BP.csv")),
+              row.names = FALSE)
+    go_bp_ko_down_all[[cell_type]] <- down_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-BP enrichment for DOWN genes in ", cell_type, " (WT vs KO)")
+  }
+}
+
+go_bp_ko_up_tbl <- if (length(go_bp_ko_up_all) > 0) bind_rows(go_bp_ko_up_all) else NULL
+go_bp_ko_down_tbl <- if (length(go_bp_ko_down_all) > 0) bind_rows(go_bp_ko_down_all) else NULL
+
+p_bp_ko_down <- make_regulation_go_dotplot(
+  go_tbl = go_bp_ko_down_tbl,
+  all_cell_types = all_cell_types_ko,
+  title_text = "WT vs KO DEGs: GO-BP (Downregulated)",
+  regulation = "Down"
+)
+
+p_bp_ko_up <- make_regulation_go_dotplot(
+  go_tbl = go_bp_ko_up_tbl,
+  all_cell_types = all_cell_types_ko,
+  title_text = "WT vs KO DEGs: GO-BP (Upregulated)",
+  regulation = "Up"
+)
+
+if (!is.null(p_bp_ko_down)) {
+  n_terms_bp_ko_down <- nrow(go_bp_ko_down_tbl)
+  plot_h_bp_ko_down <- max(11, 0.20 * n_terms_bp_ko_down)
+
+  ggsave(
+    filename = file.path(go_bp_ko_outdir, "WT_vs_KO_DOWN_GO_BP_dotplot.pdf"),
+    plot = p_bp_ko_down,
+    width = 10,
+    height = plot_h_bp_ko_down,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_bp_ko_up)) {
+  n_terms_bp_ko_up <- nrow(go_bp_ko_up_tbl)
+  plot_h_bp_ko_up <- max(11, 0.20 * n_terms_bp_ko_up)
+
+  ggsave(
+    filename = file.path(go_bp_ko_outdir, "WT_vs_KO_UP_GO_BP_dotplot.pdf"),
+    plot = p_bp_ko_up,
+    width = 10,
+    height = plot_h_bp_ko_up,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_bp_ko_down) && !is.null(p_bp_ko_up)) {
+  combined_h_bp_ko <- max(
+    max(11, 0.20 * nrow(go_bp_ko_down_tbl)),
+    max(11, 0.20 * nrow(go_bp_ko_up_tbl))
+  )
+
+  grDevices::pdf(
+    file = file.path(go_bp_ko_outdir, "WT_vs_KO_UP_DOWN_GO_BP_dotplot_combined.pdf"),
+    width = 20,
+    height = combined_h_bp_ko,
+    onefile = TRUE
+  )
+
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_bp_ko_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_bp_ko_up, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+message("GO-BP enrichment analysis (WT vs KO) completed. Results saved to: ", go_bp_ko_outdir)
+
+
+##################################################################################################################
+### GO-CC analysis (WT vs KO)
+##################################################################################################################
+
+go_cc_ko_outdir <- "results/scRNAseq/7_pseudobulk/go_cc_wt_vs_ko"
+if (!dir.exists(go_cc_ko_outdir)) {
+  dir.create(go_cc_ko_outdir, recursive = TRUE)
+}
+
+go_cc_ko_up_all <- list()
+go_cc_ko_down_all <- list()
+
+for (cell_type in names(res_list_ko)) {
+  res <- as.data.frame(res_list_ko[[cell_type]])
+  res$gene <- rownames(res)
+
+  up_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange > lfc_cutoff) %>%
+    pull(gene)
+
+  down_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange < -lfc_cutoff) %>%
+    pull(gene)
+
+  universe_symbols <- res %>%
+    filter(!is.na(padj)) %>%
+    pull(gene)
+
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+
+  ego_up <- run_enrichgo(up_symbols, universe_symbols, ontology = "CC")
+  ego_down <- run_enrichgo(down_symbols, universe_symbols, ontology = "CC")
+
+  if (!is.null(ego_up)) {
+    up_tbl <- as.data.frame(ego_up)
+    up_tbl$cell_type <- cell_type
+    up_tbl$top_genes <- sapply(up_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(up_tbl,
+              file = file.path(go_cc_ko_outdir, paste0(clean_name, "_UP_enrichGO_CC.csv")),
+              row.names = FALSE)
+    go_cc_ko_up_all[[cell_type]] <- up_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-CC enrichment for UP genes in ", cell_type, " (WT vs KO)")
+  }
+
+  if (!is.null(ego_down)) {
+    down_tbl <- as.data.frame(ego_down)
+    down_tbl$cell_type <- cell_type
+    down_tbl$top_genes <- sapply(down_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(down_tbl,
+              file = file.path(go_cc_ko_outdir, paste0(clean_name, "_DOWN_enrichGO_CC.csv")),
+              row.names = FALSE)
+    go_cc_ko_down_all[[cell_type]] <- down_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant GO-CC enrichment for DOWN genes in ", cell_type, " (WT vs KO)")
+  }
+}
+
+go_cc_ko_up_tbl <- if (length(go_cc_ko_up_all) > 0) bind_rows(go_cc_ko_up_all) else NULL
+go_cc_ko_down_tbl <- if (length(go_cc_ko_down_all) > 0) bind_rows(go_cc_ko_down_all) else NULL
+
+p_cc_ko_down <- make_regulation_go_dotplot(
+  go_tbl = go_cc_ko_down_tbl,
+  all_cell_types = all_cell_types_ko,
+  title_text = "WT vs KO DEGs: GO-CC (Downregulated)",
+  regulation = "Down"
+)
+
+p_cc_ko_up <- make_regulation_go_dotplot(
+  go_tbl = go_cc_ko_up_tbl,
+  all_cell_types = all_cell_types_ko,
+  title_text = "WT vs KO DEGs: GO-CC (Upregulated)",
+  regulation = "Up"
+)
+
+if (!is.null(p_cc_ko_down)) {
+  n_terms_cc_ko_down <- nrow(go_cc_ko_down_tbl)
+  plot_h_cc_ko_down <- max(11, 0.20 * n_terms_cc_ko_down)
+
+  ggsave(
+    filename = file.path(go_cc_ko_outdir, "WT_vs_KO_DOWN_GO_CC_dotplot.pdf"),
+    plot = p_cc_ko_down,
+    width = 10,
+    height = plot_h_cc_ko_down,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_cc_ko_up)) {
+  n_terms_cc_ko_up <- nrow(go_cc_ko_up_tbl)
+  plot_h_cc_ko_up <- max(11, 0.20 * n_terms_cc_ko_up)
+
+  ggsave(
+    filename = file.path(go_cc_ko_outdir, "WT_vs_KO_UP_GO_CC_dotplot.pdf"),
+    plot = p_cc_ko_up,
+    width = 10,
+    height = plot_h_cc_ko_up,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_cc_ko_down) && !is.null(p_cc_ko_up)) {
+  combined_h_cc_ko <- max(
+    max(11, 0.20 * nrow(go_cc_ko_down_tbl)),
+    max(11, 0.20 * nrow(go_cc_ko_up_tbl))
+  )
+
+  grDevices::pdf(
+    file = file.path(go_cc_ko_outdir, "WT_vs_KO_UP_DOWN_GO_CC_dotplot_combined.pdf"),
+    width = 20,
+    height = combined_h_cc_ko,
+    onefile = TRUE
+  )
+
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_cc_ko_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_cc_ko_up, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+message("GO-CC enrichment analysis (WT vs KO) completed. Results saved to: ", go_cc_ko_outdir)
+
+
+##################################################################################################################
+### KEGG analysis (WT vs KO)
+##################################################################################################################
+
+kegg_ko_outdir <- "results/scRNAseq/7_pseudobulk/kegg_wt_vs_ko"
+if (!dir.exists(kegg_ko_outdir)) {
+  dir.create(kegg_ko_outdir, recursive = TRUE)
+}
+
+kegg_ko_up_all <- list()
+kegg_ko_down_all <- list()
+
+for (cell_type in names(res_list_ko)) {
+  res <- as.data.frame(res_list_ko[[cell_type]])
+  res$gene <- rownames(res)
+
+  up_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange > lfc_cutoff) %>%
+    pull(gene)
+
+  down_symbols <- res %>%
+    filter(!is.na(padj), padj < padj_cutoff, log2FoldChange < -lfc_cutoff) %>%
+    pull(gene)
+
+  universe_symbols <- res %>%
+    filter(!is.na(padj)) %>%
+    pull(gene)
+
+  clean_name <- gsub("[^A-Za-z0-9]", "_", cell_type)
+
+  ek_up <- run_enrichkegg(up_symbols, universe_symbols)
+  ek_down <- run_enrichkegg(down_symbols, universe_symbols)
+
+  if (!is.null(ek_up)) {
+    up_tbl <- as.data.frame(ek_up)
+    up_tbl$cell_type <- cell_type
+    up_tbl$top_genes <- sapply(up_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(up_tbl,
+              file = file.path(kegg_ko_outdir, paste0(clean_name, "_UP_enrichKEGG.csv")),
+              row.names = FALSE)
+    kegg_ko_up_all[[cell_type]] <- up_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant KEGG enrichment for UP genes in ", cell_type, " (WT vs KO)")
+  }
+
+  if (!is.null(ek_down)) {
+    down_tbl <- as.data.frame(ek_down)
+    down_tbl$cell_type <- cell_type
+    down_tbl$top_genes <- sapply(down_tbl$geneID, format_top_genes_one_line, res_df = res)
+    write.csv(down_tbl,
+              file = file.path(kegg_ko_outdir, paste0(clean_name, "_DOWN_enrichKEGG.csv")),
+              row.names = FALSE)
+    kegg_ko_down_all[[cell_type]] <- down_tbl %>%
+      arrange(p.adjust) %>%
+      slice_head(n = 5)
+  } else {
+    message("No significant KEGG enrichment for DOWN genes in ", cell_type, " (WT vs KO)")
+  }
+}
+
+kegg_ko_up_tbl <- if (length(kegg_ko_up_all) > 0) bind_rows(kegg_ko_up_all) else NULL
+kegg_ko_down_tbl <- if (length(kegg_ko_down_all) > 0) bind_rows(kegg_ko_down_all) else NULL
+
+p_kegg_ko_down <- make_regulation_go_dotplot(
+  go_tbl = kegg_ko_down_tbl,
+  all_cell_types = all_cell_types_ko,
+  title_text = "WT vs KO DEGs: KEGG (Downregulated)",
+  regulation = "Down"
+)
+
+p_kegg_ko_up <- make_regulation_go_dotplot(
+  go_tbl = kegg_ko_up_tbl,
+  all_cell_types = all_cell_types_ko,
+  title_text = "WT vs KO DEGs: KEGG (Upregulated)",
+  regulation = "Up"
+)
+
+if (!is.null(p_kegg_ko_down)) {
+  n_terms_kegg_ko_down <- nrow(kegg_ko_down_tbl)
+  plot_h_kegg_ko_down <- max(11, 0.20 * n_terms_kegg_ko_down)
+
+  ggsave(
+    filename = file.path(kegg_ko_outdir, "WT_vs_KO_DOWN_KEGG_dotplot.pdf"),
+    plot = p_kegg_ko_down,
+    width = 10,
+    height = plot_h_kegg_ko_down,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_kegg_ko_up)) {
+  n_terms_kegg_ko_up <- nrow(kegg_ko_up_tbl)
+  plot_h_kegg_ko_up <- max(11, 0.20 * n_terms_kegg_ko_up)
+
+  ggsave(
+    filename = file.path(kegg_ko_outdir, "WT_vs_KO_UP_KEGG_dotplot.pdf"),
+    plot = p_kegg_ko_up,
+    width = 10,
+    height = plot_h_kegg_ko_up,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_kegg_ko_down) && !is.null(p_kegg_ko_up)) {
+  combined_h_kegg_ko <- max(
+    max(11, 0.20 * nrow(kegg_ko_down_tbl)),
+    max(11, 0.20 * nrow(kegg_ko_up_tbl))
+  )
+
+  grDevices::pdf(
+    file = file.path(kegg_ko_outdir, "WT_vs_KO_UP_DOWN_KEGG_dotplot_combined.pdf"),
+    width = 20,
+    height = combined_h_kegg_ko,
+    onefile = TRUE
+  )
+
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_kegg_ko_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_kegg_ko_up, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+message("KEGG enrichment analysis (WT vs KO) completed. Results saved to: ", kegg_ko_outdir)
+
+#########################################################################################
+#### GO and KEGG analysis of DEGs between Mes-WT of WT and Mes-mut of KO ################
+#########################################################################################
+
+# direct contrast: Mes-WT (WT) vs Mes-Mut (KO)
+rstbl_MesWT_wt.vs.MesMut_ko <- results(
+  dds_d20,
+  contrast = c("genotype_cluster_d20", "ko_Mes-KO", "wt_Mes-WT"),
+  alpha = 0.01
+)
+
+res_mes_wt_vs_mut <- as.data.frame(rstbl_MesWT_wt.vs.MesMut_ko)
+res_mes_wt_vs_mut$gene <- rownames(res_mes_wt_vs_mut)
+
+mes_outdir <- "results/scRNAseq/7_pseudobulk/mes_wt_vs_mes_mut_ko"
+if (!dir.exists(mes_outdir)) {
+  dir.create(mes_outdir, recursive = TRUE)
+}
+
+# save full DE table
+write.csv(
+  res_mes_wt_vs_mut,
+  file = file.path(mes_outdir, "rstbl_MesWT_wt.vs.MesMut_ko.csv"),
+  row.names = FALSE
+)
+
+# define significant DEGs
+mes_up_symbols <- res_mes_wt_vs_mut %>%
+  filter(!is.na(padj), padj < padj_cutoff, log2FoldChange > lfc_cutoff) %>%
+  pull(gene)
+
+mes_down_symbols <- res_mes_wt_vs_mut %>%
+  filter(!is.na(padj), padj < padj_cutoff, log2FoldChange < -lfc_cutoff) %>%
+  pull(gene)
+
+mes_universe_symbols <- res_mes_wt_vs_mut %>%
+  filter(!is.na(padj)) %>%
+  pull(gene)
+
+mes_cell_label <- "Mes-WT(WT)-vs-Mes-Mut(KO)"
+mes_cell_types <- c(mes_cell_label)
+
+
+##################################################################################################################
+### GO-BP (Mes-WT WT vs Mes-Mut KO)
+##################################################################################################################
+
+mes_bp_up <- run_enrichgo(mes_up_symbols, mes_universe_symbols, ontology = "BP")
+mes_bp_down <- run_enrichgo(mes_down_symbols, mes_universe_symbols, ontology = "BP")
+
+mes_bp_up_tbl <- NULL
+mes_bp_down_tbl <- NULL
+
+if (!is.null(mes_bp_up)) {
+  mes_bp_up_tbl <- as.data.frame(mes_bp_up)
+  mes_bp_up_tbl$cell_type <- mes_cell_label
+  mes_bp_up_tbl$top_genes <- sapply(mes_bp_up_tbl$geneID, format_top_genes_one_line, res_df = res_mes_wt_vs_mut)
+  write.csv(
+    mes_bp_up_tbl,
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_enrichGO_BP.csv"),
+    row.names = FALSE
+  )
+  mes_bp_up_tbl <- mes_bp_up_tbl %>% arrange(p.adjust) %>% slice_head(n = 10)
+} else {
+  message("No significant GO-BP enrichment for UP genes in Mes-WT (WT) vs Mes-Mut (KO)")
+}
+
+if (!is.null(mes_bp_down)) {
+  mes_bp_down_tbl <- as.data.frame(mes_bp_down)
+  mes_bp_down_tbl$cell_type <- mes_cell_label
+  mes_bp_down_tbl$top_genes <- sapply(mes_bp_down_tbl$geneID, format_top_genes_one_line, res_df = res_mes_wt_vs_mut)
+  write.csv(
+    mes_bp_down_tbl,
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_DOWN_enrichGO_BP.csv"),
+    row.names = FALSE
+  )
+  mes_bp_down_tbl <- mes_bp_down_tbl %>% arrange(p.adjust) %>% slice_head(n = 10)
+} else {
+  message("No significant GO-BP enrichment for DOWN genes in Mes-WT (WT) vs Mes-Mut (KO)")
+}
+
+p_mes_bp_down <- make_regulation_go_dotplot(
+  go_tbl = mes_bp_down_tbl,
+  all_cell_types = mes_cell_types,
+  title_text = "Mes-WT (WT) vs Mes-Mut (KO): GO-BP (Downregulated)",
+  regulation = "Down"
+)
+
+p_mes_bp_up <- make_regulation_go_dotplot(
+  go_tbl = mes_bp_up_tbl,
+  all_cell_types = mes_cell_types,
+  title_text = "Mes-WT (WT) vs Mes-Mut (KO): GO-BP (Upregulated)",
+  regulation = "Up"
+)
+
+if (!is.null(p_mes_bp_down)) {
+  ggsave(
+    filename = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_DOWN_GO_BP_dotplot.pdf"),
+    plot = p_mes_bp_down,
+    width = 10,
+    height = 11,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_mes_bp_up)) {
+  ggsave(
+    filename = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_GO_BP_dotplot.pdf"),
+    plot = p_mes_bp_up,
+    width = 10,
+    height = 11,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_mes_bp_down) && !is.null(p_mes_bp_up)) {
+  grDevices::pdf(
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_DOWN_GO_BP_dotplot_combined.pdf"),
+    width = 20,
+    height = 11,
+    onefile = TRUE
+  )
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_mes_bp_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_mes_bp_up, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+
+##################################################################################################################
+### GO-CC (Mes-WT WT vs Mes-Mut KO)
+##################################################################################################################
+
+mes_cc_up <- run_enrichgo(mes_up_symbols, mes_universe_symbols, ontology = "CC")
+mes_cc_down <- run_enrichgo(mes_down_symbols, mes_universe_symbols, ontology = "CC")
+
+mes_cc_up_tbl <- NULL
+mes_cc_down_tbl <- NULL
+
+if (!is.null(mes_cc_up)) {
+  mes_cc_up_tbl <- as.data.frame(mes_cc_up)
+  mes_cc_up_tbl$cell_type <- mes_cell_label
+  mes_cc_up_tbl$top_genes <- sapply(mes_cc_up_tbl$geneID, format_top_genes_one_line, res_df = res_mes_wt_vs_mut)
+  write.csv(
+    mes_cc_up_tbl,
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_enrichGO_CC.csv"),
+    row.names = FALSE
+  )
+  mes_cc_up_tbl <- mes_cc_up_tbl %>% arrange(p.adjust) %>% slice_head(n = 10)
+} else {
+  message("No significant GO-CC enrichment for UP genes in Mes-WT (WT) vs Mes-Mut (KO)")
+}
+
+if (!is.null(mes_cc_down)) {
+  mes_cc_down_tbl <- as.data.frame(mes_cc_down)
+  mes_cc_down_tbl$cell_type <- mes_cell_label
+  mes_cc_down_tbl$top_genes <- sapply(mes_cc_down_tbl$geneID, format_top_genes_one_line, res_df = res_mes_wt_vs_mut)
+  write.csv(
+    mes_cc_down_tbl,
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_DOWN_enrichGO_CC.csv"),
+    row.names = FALSE
+  )
+  mes_cc_down_tbl <- mes_cc_down_tbl %>% arrange(p.adjust) %>% slice_head(n = 10)
+} else {
+  message("No significant GO-CC enrichment for DOWN genes in Mes-WT (WT) vs Mes-Mut (KO)")
+}
+
+p_mes_cc_down <- make_regulation_go_dotplot(
+  go_tbl = mes_cc_down_tbl,
+  all_cell_types = mes_cell_types,
+  title_text = "Mes-WT (WT) vs Mes-Mut (KO): GO-CC (Downregulated)",
+  regulation = "Down"
+)
+
+p_mes_cc_up <- make_regulation_go_dotplot(
+  go_tbl = mes_cc_up_tbl,
+  all_cell_types = mes_cell_types,
+  title_text = "Mes-WT (WT) vs Mes-Mut (KO): GO-CC (Upregulated)",
+  regulation = "Up"
+)
+
+if (!is.null(p_mes_cc_down)) {
+  ggsave(
+    filename = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_DOWN_GO_CC_dotplot.pdf"),
+    plot = p_mes_cc_down,
+    width = 10,
+    height = 11,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_mes_cc_up)) {
+  ggsave(
+    filename = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_GO_CC_dotplot.pdf"),
+    plot = p_mes_cc_up,
+    width = 10,
+    height = 11,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_mes_cc_down) && !is.null(p_mes_cc_up)) {
+  grDevices::pdf(
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_DOWN_GO_CC_dotplot_combined.pdf"),
+    width = 20,
+    height = 11,
+    onefile = TRUE
+  )
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_mes_cc_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_mes_cc_up, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+
+##################################################################################################################
+### KEGG (Mes-WT WT vs Mes-Mut KO)
+##################################################################################################################
+
+mes_kegg_up <- run_enrichkegg(mes_up_symbols, mes_universe_symbols)
+mes_kegg_down <- run_enrichkegg(mes_down_symbols, mes_universe_symbols)
+
+mes_kegg_up_tbl <- NULL
+mes_kegg_down_tbl <- NULL
+
+if (!is.null(mes_kegg_up)) {
+  mes_kegg_up_tbl <- as.data.frame(mes_kegg_up)
+  mes_kegg_up_tbl$cell_type <- mes_cell_label
+  mes_kegg_up_tbl$top_genes <- sapply(mes_kegg_up_tbl$geneID, format_top_genes_one_line, res_df = res_mes_wt_vs_mut)
+  write.csv(
+    mes_kegg_up_tbl,
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_enrichKEGG.csv"),
+    row.names = FALSE
+  )
+  mes_kegg_up_tbl <- mes_kegg_up_tbl %>% arrange(p.adjust) %>% slice_head(n = 10)
+} else {
+  message("No significant KEGG enrichment for UP genes in Mes-WT (WT) vs Mes-Mut (KO)")
+}
+
+if (!is.null(mes_kegg_down)) {
+  mes_kegg_down_tbl <- as.data.frame(mes_kegg_down)
+  mes_kegg_down_tbl$cell_type <- mes_cell_label
+  mes_kegg_down_tbl$top_genes <- sapply(mes_kegg_down_tbl$geneID, format_top_genes_one_line, res_df = res_mes_wt_vs_mut)
+  write.csv(
+    mes_kegg_down_tbl,
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_DOWN_enrichKEGG.csv"),
+    row.names = FALSE
+  )
+  mes_kegg_down_tbl <- mes_kegg_down_tbl %>% arrange(p.adjust) %>% slice_head(n = 10)
+} else {
+  message("No significant KEGG enrichment for DOWN genes in Mes-WT (WT) vs Mes-Mut (KO)")
+}
+
+p_mes_kegg_down <- make_regulation_go_dotplot(
+  go_tbl = mes_kegg_down_tbl,
+  all_cell_types = mes_cell_types,
+  title_text = "Mes-WT (WT) vs Mes-Mut (KO): KEGG (Downregulated)",
+  regulation = "Down"
+)
+
+p_mes_kegg_up <- make_regulation_go_dotplot(
+  go_tbl = mes_kegg_up_tbl,
+  all_cell_types = mes_cell_types,
+  title_text = "Mes-WT (WT) vs Mes-Mut (KO): KEGG (Upregulated)",
+  regulation = "Up"
+)
+
+if (!is.null(p_mes_kegg_down)) {
+  ggsave(
+    filename = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_DOWN_KEGG_dotplot.pdf"),
+    plot = p_mes_kegg_down,
+    width = 10,
+    height = 11,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_mes_kegg_up)) {
+  ggsave(
+    filename = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_KEGG_dotplot.pdf"),
+    plot = p_mes_kegg_up,
+    width = 10,
+    height = 11,
+    limitsize = FALSE
+  )
+}
+
+if (!is.null(p_mes_kegg_down) && !is.null(p_mes_kegg_up)) {
+  grDevices::pdf(
+    file = file.path(mes_outdir, "MesWT_wt_vs_MesMut_ko_UP_DOWN_KEGG_dotplot_combined.pdf"),
+    width = 20,
+    height = 11,
+    onefile = TRUE
+  )
+  grid::grid.newpage()
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(1, 2)))
+  print(p_mes_kegg_down, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
+  print(p_mes_kegg_up, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+  grDevices::dev.off()
+}
+
+message("GO and KEGG analysis for Mes-WT (WT) vs Mes-Mut (KO) completed. Results saved to: ", mes_outdir)
+
+
+#########################################################################################
+### Violin plots: Mes-WT and Mes-Mut cells, WT vs KO genotype, marker genes
+### Purpose: sanity-check that genotype labels are correctly mapped to cell types
+#########################################################################################
+
+# reload the Seurat object if not already in memory
+if (!exists("geo_so")) {
+  geo_so <- readRDS("data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds")
+}
+
+# subset to Mes-WT and Mes-KO (= Mes-Mut) cells only, WT and KO genotypes only
+mes_so <- subset(geo_so,
+                 subset = cell_type %in% c("Mes-WT", "Mes-KO") &
+                          genotype %in% c("wt", "ko"))
+
+# set factor levels for ordered axes
+mes_so$genotype   <- factor(mes_so$genotype,   levels = c("wt", "ko"))
+mes_so$cell_type  <- factor(mes_so$cell_type,  levels = c("Mes-WT", "Mes-KO"))
+
+# combined grouping variable for x-axis: cell_type within genotype
+mes_so$ct_geno <- factor(
+  paste(mes_so$cell_type, mes_so$genotype, sep = " | "),
+  levels = c("Mes-WT | wt", "Mes-WT | ko", "Mes-KO | wt", "Mes-KO | ko")
+)
+
+mes_genes  <- c("EBF2", "ATOH1", "TBX15", "SIX1", "DLX1")
+mes_colors <- c("Mes-WT | wt" = "forestgreen",
+                "Mes-WT | ko" = "#90ee90",
+                "Mes-KO | wt" = "yellowgreen",
+                "Mes-KO | ko" = "#d4f07c")
+
+# one panel per gene, stacked vertically
+vln_mes_list <- lapply(mes_genes, function(g) {
+  VlnPlot(
+    object   = mes_so,
+    features = g,
+    group.by = "ct_geno",
+    pt.size  = 0.3,
+    alpha    = 0.3,
+    cols     = mes_colors
+  ) +
+    ggtitle(g) +
+    theme(
+      plot.title  = element_text(hjust = 0.5, face = "bold"),
+      axis.title.x = element_blank(),
+      legend.position = "none"
+    )
+})
+
+vln_mes_combined <- patchwork::wrap_plots(vln_mes_list, ncol = 1)
+
+vln_outdir <- "results/scRNAseq/7_pseudobulk"
+ggsave(
+  filename  = file.path(vln_outdir, "MesWT_MesMut_WT_vs_KO_vlnplot.pdf"),
+  plot      = vln_mes_combined,
+  width     = 7,
+  height    = 3 * length(mes_genes),
+  limitsize = FALSE
+)
+
+message("Mes-WT / Mes-Mut genotype check violin plots saved.")
 
 
