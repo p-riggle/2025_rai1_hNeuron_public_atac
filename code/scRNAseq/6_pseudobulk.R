@@ -1450,6 +1450,103 @@ message("GO-CC enrichment analysis (WT vs KO) completed. Results saved to: ", go
 
 
 ##################################################################################################################
+### Summary CSV: GO terms across all genotype comparisons (BP + CC)
+##################################################################################################################
+
+collect_go_summary <- function(in_dir, comparison_label, ontology_label) {
+  if (!dir.exists(in_dir)) {
+    return(NULL)
+  }
+
+  go_files <- list.files(
+    path = in_dir,
+    pattern = "_enrichGO_(BP|CC)\\\\.csv$",
+    full.names = TRUE
+  )
+
+  if (length(go_files) == 0) {
+    return(NULL)
+  }
+
+  per_file_tables <- lapply(go_files, function(f) {
+    tbl <- read.csv(f, stringsAsFactors = FALSE)
+    tbl$comparison <- comparison_label
+    tbl$ontology <- ontology_label
+    tbl$regulation <- ifelse(grepl("_UP_", basename(f)), "Up", "Down")
+    tbl$source_file <- basename(f)
+    tbl
+  })
+
+  bind_rows(per_file_tables)
+}
+
+go_summary_het_bp <- collect_go_summary(
+  in_dir = "results/scRNAseq/7_pseudobulk/go_bp_het_vs_wt",
+  comparison_label = "WT_vs_HET",
+  ontology_label = "BP"
+)
+
+go_summary_het_cc <- collect_go_summary(
+  in_dir = "results/scRNAseq/7_pseudobulk/go_cc_het_vs_wt",
+  comparison_label = "WT_vs_HET",
+  ontology_label = "CC"
+)
+
+go_summary_ko_bp <- collect_go_summary(
+  in_dir = "results/scRNAseq/7_pseudobulk/go_bp_wt_vs_ko",
+  comparison_label = "WT_vs_KO",
+  ontology_label = "BP"
+)
+
+go_summary_ko_cc <- collect_go_summary(
+  in_dir = "results/scRNAseq/7_pseudobulk/go_cc_wt_vs_ko",
+  comparison_label = "WT_vs_KO",
+  ontology_label = "CC"
+)
+
+go_summary_all <- bind_rows(
+  go_summary_het_bp,
+  go_summary_het_cc,
+  go_summary_ko_bp,
+  go_summary_ko_cc
+)
+
+if (nrow(go_summary_all) > 0) {
+  go_summary_all <- go_summary_all %>%
+    select(
+      comparison,
+      ontology,
+      regulation,
+      cell_type,
+      ID,
+      Description,
+      GeneRatio,
+      BgRatio,
+      pvalue,
+      p.adjust,
+      qvalue,
+      Count,
+      top_genes,
+      geneID,
+      source_file
+    ) %>%
+    arrange(comparison, ontology, cell_type, regulation, p.adjust)
+
+  write.csv(
+    go_summary_all,
+    file = "results/scRNAseq/7_pseudobulk/GO_terms_summary_WT_HET_and_WT_KO_BP_CC.csv",
+    row.names = FALSE
+  )
+
+  message(
+    "GO summary CSV saved: results/scRNAseq/7_pseudobulk/GO_terms_summary_WT_HET_and_WT_KO_BP_CC.csv"
+  )
+} else {
+  message("No GO summary rows found to write.")
+}
+
+
+##################################################################################################################
 ### KEGG analysis (WT vs KO)
 ##################################################################################################################
 
@@ -1959,6 +2056,155 @@ ggsave(
 
 message("Mes-WT / Mes-Mut pseudobulk line plots saved.")
 
+#########################################################################################
+### Line plots: Neuron pseudobulk expression, WT vs KO genotype
+### Purpose: validate that mitochondrial genes are upregulated in KO neurons
+#########################################################################################
 
+mt_genes <- c("MT-ND6", "MT-ND2", "MT-ND5", "MT-ND1", "MT-ATP6")
+
+# use normalized pseudobulk counts from DESeq2 day60 object
+norm_counts_d60 <- counts(dds_d60, normalized = TRUE)
+meta_d60 <- as.data.frame(colData(dds_d60))
+meta_d60$sample_id <- rownames(meta_d60)
+
+meta_neuron <- meta_d60 %>%
+  filter(cluster_d60 == "Neuron", genotype_d60 %in% c("wt", "ko")) %>%
+  mutate(genotype_d60 = factor(genotype_d60, levels = c("wt", "ko")))
+
+mt_genes_present <- intersect(mt_genes, rownames(norm_counts_d60))
+if (length(mt_genes_present) == 0) {
+  stop("None of the requested MT genes were found in dds_d60 normalized counts.")
+}
+
+expr_neuron <- as.data.frame(t(norm_counts_d60[mt_genes_present, meta_neuron$sample_id, drop = FALSE]))
+expr_neuron$sample_id <- rownames(expr_neuron)
+
+expr_neuron_long <- expr_neuron %>%
+  pivot_longer(cols = all_of(mt_genes_present), names_to = "gene", values_to = "norm_expr") %>%
+  left_join(meta_neuron, by = "sample_id") %>%
+  mutate(gene = factor(gene, levels = mt_genes_present))
+
+neuron_line_colors <- c("wt" = "dodgerblue", "ko" = "firebrick")
+
+p_neuron_mt_line <- ggplot(
+  expr_neuron_long,
+  aes(
+    x = genotype_d60,
+    y = norm_expr,
+    color = genotype_d60,
+    group = interaction(genotype_d60, sample_d60)
+  )
+) +
+  geom_line(aes(group = sample_d60), alpha = 0.35, linewidth = 0.5) +
+  geom_point(alpha = 0.55, size = 1.2) +
+  stat_summary(aes(group = genotype_d60), fun = mean, geom = "line", linewidth = 1.0) +
+  stat_summary(aes(group = genotype_d60), fun = mean, geom = "point", size = 2.0) +
+  facet_wrap(~gene, ncol = 1, scales = "free_y") +
+  scale_color_manual(values = neuron_line_colors) +
+  labs(
+    title = "Neuron pseudobulk mitochondrial gene expression (WT vs KO)",
+    x = "Genotype",
+    y = "Normalized pseudobulk expression",
+    color = "Genotype",
+    caption = "Individual replicates: light lines/points | Mean per genotype: bold line/dark point"
+  ) +
+  theme_classic() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.caption = element_text(size = 8, hjust = 0.5)
+  )
+
+neuron_mt_line_outdir <- "results/scRNAseq/7_pseudobulk/neuron_mt_genes"
+if (!dir.exists(neuron_mt_line_outdir)) {
+  dir.create(neuron_mt_line_outdir, recursive = TRUE)
+}
+
+ggsave(
+  filename = file.path(neuron_mt_line_outdir, "Neuron_WT_vs_KO_MT_genes_lineplot.pdf"),
+  plot = p_neuron_mt_line,
+  width = 5,
+  height = 3 * length(mt_genes_present),
+  limitsize = FALSE
+)
+
+message("Neuron MT gene line plots saved to: ", neuron_mt_line_outdir)
+
+
+#########################################################################################
+### Line plots: NPC-G2/M pseudobulk expression, WT vs HET genotype
+### Purpose: check expression of selected genes in WT and HET NPC-G2/M
+#########################################################################################
+
+npcg2m_genes <- c("GRIN3A", "SLITRK2", "MAGEE1", "ITGA8", "CBLN")
+
+# use normalized pseudobulk counts from DESeq2 day20 object
+norm_counts_d20 <- counts(dds_d20, normalized = TRUE)
+meta_d20 <- as.data.frame(colData(dds_d20))
+meta_d20$sample_id <- rownames(meta_d20)
+
+meta_npcg2m <- meta_d20 %>%
+  filter(cluster_d20 == "NPC-G2/M", genotype_d20 %in% c("wt", "het")) %>%
+  mutate(genotype_d20 = factor(genotype_d20, levels = c("wt", "het")))
+
+npcg2m_genes_present <- intersect(npcg2m_genes, rownames(norm_counts_d20))
+if (length(npcg2m_genes_present) == 0) {
+  stop("None of the requested NPC-G2/M genes were found in dds_d20 normalized counts.")
+}
+
+expr_npcg2m <- as.data.frame(t(norm_counts_d20[npcg2m_genes_present, meta_npcg2m$sample_id, drop = FALSE]))
+expr_npcg2m$sample_id <- rownames(expr_npcg2m)
+
+expr_npcg2m_long <- expr_npcg2m %>%
+  pivot_longer(cols = all_of(npcg2m_genes_present), names_to = "gene", values_to = "norm_expr") %>%
+  left_join(meta_npcg2m, by = "sample_id") %>%
+  mutate(gene = factor(gene, levels = npcg2m_genes_present))
+
+npcg2m_line_colors <- c("wt" = "dodgerblue", "het" = "darkorange2")
+
+p_npcg2m_wt_het_line <- ggplot(
+  expr_npcg2m_long,
+  aes(
+    x = genotype_d20,
+    y = norm_expr,
+    color = genotype_d20,
+    group = interaction(genotype_d20, sample_d20)
+  )
+) +
+  geom_line(aes(group = sample_d20), alpha = 0.35, linewidth = 0.5) +
+  geom_point(alpha = 0.55, size = 1.2) +
+  stat_summary(aes(group = genotype_d20), fun = mean, geom = "line", linewidth = 1.0) +
+  stat_summary(aes(group = genotype_d20), fun = mean, geom = "point", size = 2.0) +
+  facet_wrap(~gene, ncol = 1, scales = "free_y") +
+  scale_color_manual(values = npcg2m_line_colors) +
+  labs(
+    title = "NPC-G2/M pseudobulk gene expression (WT vs HET)",
+    x = "Genotype",
+    y = "Normalized pseudobulk expression",
+    color = "Genotype",
+    caption = "Individual replicates: light lines/points | Mean per genotype: bold line/dark point"
+  ) +
+  theme_classic() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.caption = element_text(size = 8, hjust = 0.5)
+  )
+
+npcg2m_wt_het_line_outdir <- "results/scRNAseq/7_pseudobulk/npcg2m_wt_vs_het_genes"
+if (!dir.exists(npcg2m_wt_het_line_outdir)) {
+  dir.create(npcg2m_wt_het_line_outdir, recursive = TRUE)
+}
+
+ggsave(
+  filename = file.path(npcg2m_wt_het_line_outdir, "NPCG2M_WT_vs_HET_selected_genes_lineplot.pdf"),
+  plot = p_npcg2m_wt_het_line,
+  width = 5,
+  height = 3 * length(npcg2m_genes_present),
+  limitsize = FALSE
+)
+
+message("NPC-G2/M WT vs HET selected-gene line plots saved to: ", npcg2m_wt_het_line_outdir)
 
 
