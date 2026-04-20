@@ -1883,65 +1883,82 @@ message("GO and KEGG analysis for Mes-WT (WT) vs Mes-Mut (KO) completed. Results
 
 
 #########################################################################################
-### Violin plots: Mes-WT and Mes-Mut cells, WT vs KO genotype, marker genes
-### Purpose: sanity-check that genotype labels are correctly mapped to cell types
+### Line plots: Mes-WT and Mes-Mut pseudobulk expression, WT vs KO genotype
+### Purpose: sanity-check that genotype labels are correctly mapped to pseudobulk profiles
 #########################################################################################
 
-# reload the Seurat object if not already in memory
-if (!exists("geo_so")) {
-  geo_so <- readRDS("data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds")
+# read dds r objects
+
+dds_d20 <- readRDS("data/scRNAseq/iwaselab/dds_d20")
+dds_d60 <- readRDS("data/scRNAseq/iwaselab/dds_d60")
+dds_both <- readRDS("data/scRNAseq/iwaselab/dds_both")
+
+mes_genes <- c("WNT3A", "FOXN4", "ID4", "NEUROD1", "EN2")
+
+# use normalized pseudobulk counts from DESeq2 day20 object
+norm_counts_d20 <- counts(dds_d20, normalized = TRUE)
+meta_d20 <- as.data.frame(colData(dds_d20))
+meta_d20$sample_id <- rownames(meta_d20)
+
+meta_mes <- meta_d20 %>%
+  filter(cluster_d20 %in% c("Mes-WT", "Mes-KO"), genotype_d20 %in% c("wt", "ko")) %>%
+  mutate(
+    cluster_d20 = factor(cluster_d20, levels = c("Mes-WT", "Mes-KO")),
+    genotype_d20 = factor(genotype_d20, levels = c("wt", "ko"))
+  )
+
+mes_genes_present <- intersect(mes_genes, rownames(norm_counts_d20))
+if (length(mes_genes_present) == 0) {
+  stop("None of the requested marker genes were found in dds_d20 normalized counts.")
 }
 
-# subset to Mes-WT and Mes-KO (= Mes-Mut) cells only, WT and KO genotypes only
-mes_so <- subset(geo_so,
-                 subset = cell_type %in% c("Mes-WT", "Mes-KO") &
-                          genotype %in% c("wt", "ko"))
+expr_mes <- as.data.frame(t(norm_counts_d20[mes_genes_present, meta_mes$sample_id, drop = FALSE]))
+expr_mes$sample_id <- rownames(expr_mes)
 
-# set factor levels for ordered axes
-mes_so$genotype   <- factor(mes_so$genotype,   levels = c("wt", "ko"))
-mes_so$cell_type  <- factor(mes_so$cell_type,  levels = c("Mes-WT", "Mes-KO"))
+expr_mes_long <- expr_mes %>%
+  pivot_longer(cols = all_of(mes_genes_present), names_to = "gene", values_to = "norm_expr") %>%
+  left_join(meta_mes, by = "sample_id")
 
-# combined grouping variable for x-axis: cell_type within genotype
-mes_so$ct_geno <- factor(
-  paste(mes_so$cell_type, mes_so$genotype, sep = " | "),
-  levels = c("Mes-WT | wt", "Mes-WT | ko", "Mes-KO | wt", "Mes-KO | ko")
-)
+mes_line_colors <- c("wt" = "forestgreen", "ko" = "yellowgreen")
 
-mes_genes  <- c("EBF2", "ATOH1", "TBX15", "SIX1", "DLX1")
-mes_colors <- c("Mes-WT | wt" = "forestgreen",
-                "Mes-WT | ko" = "#90ee90",
-                "Mes-KO | wt" = "yellowgreen",
-                "Mes-KO | ko" = "#d4f07c")
-
-# one panel per gene, stacked vertically
-vln_mes_list <- lapply(mes_genes, function(g) {
-  VlnPlot(
-    object   = mes_so,
-    features = g,
-    group.by = "ct_geno",
-    pt.size  = 0.3,
-    alpha    = 0.3,
-    cols     = mes_colors
+p_mes_line <- ggplot(
+  expr_mes_long,
+  aes(
+    x = cluster_d20,
+    y = norm_expr,
+    color = genotype_d20,
+    group = interaction(genotype_d20, sample_d20)
+  )
+) +
+  geom_line(alpha = 0.35, linewidth = 0.5) +
+  geom_point(alpha = 0.55, size = 1.2) +
+  stat_summary(aes(group = genotype_d20), fun = mean, geom = "line", linewidth = 1.0) +
+  stat_summary(aes(group = genotype_d20), fun = mean, geom = "point", size = 2.0) +
+  facet_wrap(~gene, ncol = 1, scales = "free_y") +
+  scale_color_manual(values = mes_line_colors) +
+  labs(
+    title = "Mes-WT and Mes-Mut pseudobulk marker expression",
+    x = "Cell type",
+    y = "Normalized pseudobulk expression",
+    color = "Genotype"
   ) +
-    ggtitle(g) +
-    theme(
-      plot.title  = element_text(hjust = 0.5, face = "bold"),
-      axis.title.x = element_blank(),
-      legend.position = "none"
-    )
-})
+  theme_classic() +
+  theme(
+    strip.text = element_text(face = "bold"),
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
 
-vln_mes_combined <- patchwork::wrap_plots(vln_mes_list, ncol = 1)
-
-vln_outdir <- "results/scRNAseq/7_pseudobulk"
+line_outdir <- "results/scRNAseq/7_pseudobulk/mes_wt_vs_mes_mut_ko/line_plots"
 ggsave(
-  filename  = file.path(vln_outdir, "MesWT_MesMut_WT_vs_KO_vlnplot.pdf"),
-  plot      = vln_mes_combined,
-  width     = 7,
-  height    = 3 * length(mes_genes),
+  filename = file.path(line_outdir, "MesWT_MesMut_WT_vs_KO_pseudobulk_lineplot.pdf"),
+  plot = p_mes_line,
+  width = 7,
+  height = 3 * length(mes_genes_present),
   limitsize = FALSE
 )
 
-message("Mes-WT / Mes-Mut genotype check violin plots saved.")
+message("Mes-WT / Mes-Mut pseudobulk line plots saved.")
+
+
 
 
