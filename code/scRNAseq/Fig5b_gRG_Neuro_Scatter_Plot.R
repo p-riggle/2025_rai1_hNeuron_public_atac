@@ -38,7 +38,7 @@ neuron_all <- neuron_het %>%
   inner_join(neuron_ko, by = "gene", suffix = c("_het", "_ko"))
 
 # ==================================================
-# Filter DEGs (padj < 0.05 )
+# Filter DEGs (padj < 0.05)
 # ==================================================
 
 astro_deg <- astro_all %>%
@@ -48,42 +48,23 @@ neuron_deg <- neuron_all %>%
   filter(padj_het < 0.05 | padj_ko < 0.05)
 
 # ==================================================
-# Global axis (for uniform comparison)
+# FIXED AXIS LIMITS
 # ==================================================
 
-global_limit <- max(
-  abs(astro_deg$log2FoldChange_het),
-  abs(astro_deg$log2FoldChange_ko),
-  abs(neuron_deg$log2FoldChange_het),
-  abs(neuron_deg$log2FoldChange_ko),
-  na.rm = TRUE
-)
-
-global_limit <- ceiling(global_limit)
-
-# ==================================================
-# Neuron-specific axis (zoomed view)
-# ==================================================
-
-neuron_limit <- max(
-  abs(neuron_deg$log2FoldChange_het),
-  abs(neuron_deg$log2FoldChange_ko),
-  na.rm = TRUE
-)
-
-neuron_limit <- ceiling(neuron_limit)
+fixed_limits <- c(-5, 5)
 
 # ==================================================
 # Scatterplot function 
 # ==================================================
 
-make_hex_scatter <- function(df, title, limit, subtitle = NULL) {
+make_hex_scatter <- function(df, title) {
   
   ggplot(df,
          aes(x = log2FoldChange_het,
              y = log2FoldChange_ko)) +
     
-    stat_binhex(bins = 60) +
+    # FIXED HEX SIZE (KEY CHANGE)
+    stat_binhex(binwidth = c(0.1, 0.1)) +
     
     geom_abline(
       intercept = 0,
@@ -92,83 +73,52 @@ make_hex_scatter <- function(df, title, limit, subtitle = NULL) {
       linetype = "dashed"
     ) +
     
-    
     geom_smooth(
       method = "lm",
       se = FALSE,
       color = "blue",
-      linewidth = 0.8,
-      alpha = 0.6
+      linewidth = 0.8
     ) +
     
     coord_fixed(
-      xlim = c(-limit, limit),
-      ylim = c(-limit, limit)
+      xlim = c(-5, 5),
+      ylim = c(-5, 5),
+      expand = FALSE
     ) +
     
     theme_bw() +
     
-    theme(
-      text = element_text(size = 14, family = "Helvetica")
-    ) +
-    
     labs(
       x = "log2 Fold Change (WT vs HET)",
       y = "log2 Fold Change (WT vs KO)",
-      title = title,
-      subtitle = subtitle
+      title = title
     )
 }
-
 # ==================================================
 # Generate plots
 # ==================================================
 
-astro_scatter <- make_hex_scatter(
-  astro_deg,
-  "gRG",
-  global_limit
-)
-
-neuron_scatter <- make_hex_scatter(
-  neuron_deg,
-  "Neuron",
-  global_limit
-)
-
-neuron_zoom_scatter <- make_hex_scatter(
-  neuron_deg,
-  "Neuron (Zoomed)",
-  neuron_limit,
-  subtitle = "Axis scaled to neuron-specific range"
-)
+astro_scatter <- make_hex_scatter(astro_deg, "gRG")
+neuron_scatter <- make_hex_scatter(neuron_deg, "Neuron")
 
 # ==================================================
 # Display plots
 # ==================================================
 
-grid.arrange(
+combined_plot <- grid.arrange(
   astro_scatter,
   neuron_scatter,
-  neuron_zoom_scatter,
-  ncol = 3
+  ncol = 2
 )
 
 # ==================================================
-# Save plots
+# Save plots 
 # ==================================================
 
-pdf(
-  sprintf("/Users/satabdi/Downloads/%s-log2fc_scatter_Astro_Neuron_zoom.pdf", Sys.Date()),
-  width = 15,
-  height = 5
+ggsave(
+  filename = sprintf("/Users/satabdi/Downloads/%s_log2fc_gRG_neuro_scatterplot.pdf", Sys.Date()),
+  plot = combined_plot,
+  width = 10,   
+  height = 5,
+  dpi = 600
 )
-
-grid.arrange(
-  astro_scatter,
-  neuron_scatter,
-  neuron_zoom_scatter,
-  ncol = 3
-)
-
-dev.off()
