@@ -1,5 +1,5 @@
 # ==================================================
-# 1️⃣ Load Libraries
+# 1. Load Libraries
 # ==================================================
 # Install BiocManager if not installed
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -23,13 +23,13 @@ library(tidyr)
 library(AnnotationDbi)
 
 # ==================================================
-# 2️⃣ Import Cluster Data
+# 2. Import Cluster Data
 # ==================================================
 
 clh <- read.delim("/Users/satabdi/Downloads/mh_het.txt")
 
 # ==================================================
-# 3️⃣ Extract Genes for Each Cluster
+# 3. Extract Genes for Each Cluster
 # ==================================================
 
 clusters <- split(clh$gene, clh$cluster)
@@ -38,7 +38,7 @@ clusters <- split(clh$gene, clh$cluster)
 names(clusters) <- paste0("Cluster", names(clusters))
 
 # ==================================================
-# 4️⃣ Convert Gene Symbols → Entrez IDs
+# 4. Convert Gene Symbols → Entrez IDs
 # ==================================================
 
 clusters_entrez <- lapply(clusters, function(x) {
@@ -55,7 +55,7 @@ clusters_entrez <- lapply(clusters, function(x) {
 })
 
 # ==================================================
-# 5️⃣ Run GO Enrichment (Cellular Component)
+# 5. Run GO Enrichment (Cellular Component)
 # ==================================================
 
 go_cc <- compareCluster(
@@ -73,13 +73,13 @@ go_cc <- setReadable(go_cc,
                      keyType = "ENTREZID")
 
 # ==================================================
-# 6️⃣ Convert Results to Dataframe
+# 6. Convert Results to Dataframe
 # ==================================================
 
 cc_results <- as.data.frame(go_cc)
 
 # ==================================================
-# 7️⃣ Extract Top 4 Significant Genes per Cellular Component
+# 7. Extract Top 4 Significant Genes per Cellular Component
 # ==================================================
 
 top4_genes_cc <- cc_results %>%
@@ -91,7 +91,7 @@ top4_genes_cc <- cc_results %>%
   select(Cluster, Cellular_Component = Description, Gene = geneID, p.adjust)
 
 # ==================================================
-# 8️⃣ Save Results
+# 8. Save Results
 # ==================================================
 
 write.csv(top4_genes_cc,
