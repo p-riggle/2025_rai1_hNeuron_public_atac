@@ -1450,103 +1450,6 @@ message("GO-CC enrichment analysis (WT vs KO) completed. Results saved to: ", go
 
 
 ##################################################################################################################
-### Summary CSV: GO terms across all genotype comparisons (BP + CC)
-##################################################################################################################
-
-collect_go_summary <- function(in_dir, comparison_label, ontology_label) {
-  if (!dir.exists(in_dir)) {
-    return(NULL)
-  }
-
-  go_files <- list.files(
-    path = in_dir,
-    pattern = "_enrichGO_(BP|CC)\\\\.csv$",
-    full.names = TRUE
-  )
-
-  if (length(go_files) == 0) {
-    return(NULL)
-  }
-
-  per_file_tables <- lapply(go_files, function(f) {
-    tbl <- read.csv(f, stringsAsFactors = FALSE)
-    tbl$comparison <- comparison_label
-    tbl$ontology <- ontology_label
-    tbl$regulation <- ifelse(grepl("_UP_", basename(f)), "Up", "Down")
-    tbl$source_file <- basename(f)
-    tbl
-  })
-
-  bind_rows(per_file_tables)
-}
-
-go_summary_het_bp <- collect_go_summary(
-  in_dir = "results/scRNAseq/7_pseudobulk/go_bp_het_vs_wt",
-  comparison_label = "WT_vs_HET",
-  ontology_label = "BP"
-)
-
-go_summary_het_cc <- collect_go_summary(
-  in_dir = "results/scRNAseq/7_pseudobulk/go_cc_het_vs_wt",
-  comparison_label = "WT_vs_HET",
-  ontology_label = "CC"
-)
-
-go_summary_ko_bp <- collect_go_summary(
-  in_dir = "results/scRNAseq/7_pseudobulk/go_bp_wt_vs_ko",
-  comparison_label = "WT_vs_KO",
-  ontology_label = "BP"
-)
-
-go_summary_ko_cc <- collect_go_summary(
-  in_dir = "results/scRNAseq/7_pseudobulk/go_cc_wt_vs_ko",
-  comparison_label = "WT_vs_KO",
-  ontology_label = "CC"
-)
-
-go_summary_all <- bind_rows(
-  go_summary_het_bp,
-  go_summary_het_cc,
-  go_summary_ko_bp,
-  go_summary_ko_cc
-)
-
-if (nrow(go_summary_all) > 0) {
-  go_summary_all <- go_summary_all %>%
-    select(
-      comparison,
-      ontology,
-      regulation,
-      cell_type,
-      ID,
-      Description,
-      GeneRatio,
-      BgRatio,
-      pvalue,
-      p.adjust,
-      qvalue,
-      Count,
-      top_genes,
-      geneID,
-      source_file
-    ) %>%
-    arrange(comparison, ontology, cell_type, regulation, p.adjust)
-
-  write.csv(
-    go_summary_all,
-    file = "results/scRNAseq/7_pseudobulk/GO_terms_summary_WT_HET_and_WT_KO_BP_CC.csv",
-    row.names = FALSE
-  )
-
-  message(
-    "GO summary CSV saved: results/scRNAseq/7_pseudobulk/GO_terms_summary_WT_HET_and_WT_KO_BP_CC.csv"
-  )
-} else {
-  message("No GO summary rows found to write.")
-}
-
-
-##################################################################################################################
 ### KEGG analysis (WT vs KO)
 ##################################################################################################################
 
@@ -1977,6 +1880,89 @@ if (!is.null(p_mes_kegg_down) && !is.null(p_mes_kegg_up)) {
 }
 
 message("GO and KEGG analysis for Mes-WT (WT) vs Mes-Mut (KO) completed. Results saved to: ", mes_outdir)
+
+
+##################################################################################################################
+### Summary CSV of GO/KEGG enrichment across genotype comparisons
+### Includes WT vs HET and WT vs KO analyses for GO-BP, GO-CC, and KEGG
+##################################################################################################################
+
+collect_enrichment_summary <- function(dir_path, comparison_label, category_label) {
+  if (!dir.exists(dir_path)) {
+    return(NULL)
+  }
+
+  csv_files <- list.files(dir_path, pattern = "_enrich.*\\.csv$", full.names = TRUE)
+  if (length(csv_files) == 0) {
+    return(NULL)
+  }
+
+  out_list <- vector("list", length(csv_files))
+
+  for (i in seq_along(csv_files)) {
+    f <- csv_files[i]
+    tbl <- tryCatch(read.csv(f, stringsAsFactors = FALSE), error = function(e) NULL)
+
+    if (is.null(tbl) || nrow(tbl) == 0) {
+      next
+    }
+
+    file_name <- basename(f)
+    regulation <- ifelse(grepl("_UP_", file_name), "Up", ifelse(grepl("_DOWN_", file_name), "Down", NA_character_))
+
+    if (!"cell_type" %in% names(tbl)) {
+      tbl$cell_type <- sub("_(UP|DOWN)_.*$", "", file_name)
+    }
+
+    tbl$comparison <- comparison_label
+    tbl$ontology <- category_label
+    tbl$regulation <- regulation
+    tbl$source_file <- file_name
+
+    keep_cols <- c(
+      "comparison", "ontology", "regulation", "cell_type",
+      "ID", "Description", "GeneRatio", "BgRatio",
+      "pvalue", "p.adjust", "qvalue", "Count",
+      "geneID", "top_genes", "source_file"
+    )
+
+    present_cols <- intersect(keep_cols, names(tbl))
+    out_list[[i]] <- tbl[, present_cols, drop = FALSE]
+  }
+
+  out_list <- out_list[!sapply(out_list, is.null)]
+  if (length(out_list) == 0) {
+    return(NULL)
+  }
+
+  bind_rows(out_list)
+}
+
+summary_parts <- list(
+  collect_enrichment_summary(go_outdir, "WT_vs_HET", "GO_BP"),
+  collect_enrichment_summary(go_cc_outdir, "WT_vs_HET", "GO_CC"),
+  collect_enrichment_summary(kegg_outdir, "WT_vs_HET", "KEGG"),
+  collect_enrichment_summary(go_bp_ko_outdir, "WT_vs_KO", "GO_BP"),
+  collect_enrichment_summary(go_cc_ko_outdir, "WT_vs_KO", "GO_CC"),
+  collect_enrichment_summary(kegg_ko_outdir, "WT_vs_KO", "KEGG"),
+  collect_enrichment_summary(mes_outdir, "WT_vs_KO", "Mes_specific")
+)
+
+summary_parts <- summary_parts[!sapply(summary_parts, is.null)]
+
+if (length(summary_parts) > 0) {
+  go_kegg_summary_all <- bind_rows(summary_parts)
+
+  go_kegg_summary_all <- go_kegg_summary_all %>%
+    arrange(comparison, ontology, regulation, cell_type, p.adjust)
+
+  summary_outfile <- "results/scRNAseq/7_pseudobulk/go_kegg_summary_all_comparisons.csv"
+  write.csv(go_kegg_summary_all, file = summary_outfile, row.names = FALSE)
+
+  message("GO/KEGG summary CSV saved to: ", summary_outfile)
+} else {
+  message("No enrichment CSV files were found to summarize.")
+}
 
 
 #########################################################################################
