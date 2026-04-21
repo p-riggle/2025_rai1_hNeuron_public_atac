@@ -198,7 +198,7 @@ npcg1_norm_expr_long <- norm_counts_d20[npcg1_genes_of_interest, , drop = FALSE]
 	filter(cluster_d20 == "NPC-G1", genotype_d20 %in% genotype_levels) %>%
 	mutate(
 		gene = factor(gene, levels = npcg1_genes_of_interest),
-		genotype = factor(genotype_labels[genotype_d60], levels = c("WT", "HET", "KO"))
+		genotype = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO"))
 	)
 
 missing_npcg1_genes <- setdiff(npcg1_genes_of_interest, unique(as.character(npcg1_norm_expr_long$gene)))
@@ -260,3 +260,116 @@ ggsave(
 
 plot_day20_npcg1_genes_norm_counts
 
+
+###############################################################################################
+
+### COL12A1, COL1A1, COL5A1 across day 20 and day 60 pseudobulk cell states
+
+collagen_genes_of_interest <- c("COL12A1", "COL1A1", "COL5A1", "COL16A1", "COL1A2")
+day20_clusters_of_interest <- c("NPC-G1", "NPC-G2/M", "Mes-WT", "Mes-KO", "IPC")
+day60_clusters_of_interest <- c("Neuron", "gRG")
+celltype_levels <- c(
+	"Day 20 NPC-G1",
+	"Day 20 NPC-G2/M",
+	"Day 20 Mes-WT",
+	"Day 20 Mes-KO",
+	"Day 20 IPC",
+	"Day 60 Neuron",
+	"Day 60 gRG"
+)
+
+collagen_d20_long <- norm_counts_d20[collagen_genes_of_interest, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(cluster_d20 %in% day20_clusters_of_interest, genotype_d20 %in% genotype_levels) %>%
+	mutate(
+		gene = factor(gene, levels = collagen_genes_of_interest),
+		genotype = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO")),
+		celltype_day = factor(paste("Day 20", cluster_d20), levels = celltype_levels)
+	)
+
+collagen_d60_long <- norm_counts_d60[collagen_genes_of_interest, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d60, by = "sample_id") %>%
+	filter(cluster_d60 %in% day60_clusters_of_interest, genotype_d60 %in% genotype_levels) %>%
+	mutate(
+		gene = factor(gene, levels = collagen_genes_of_interest),
+		genotype = factor(genotype_labels[genotype_d60], levels = c("WT", "HET", "KO")),
+		celltype_day = factor(paste("Day 60", cluster_d60), levels = celltype_levels)
+	)
+
+collagen_expr_long <- bind_rows(collagen_d20_long, collagen_d60_long)
+
+missing_collagen_genes <- setdiff(collagen_genes_of_interest, unique(as.character(collagen_expr_long$gene)))
+if (length(missing_collagen_genes) > 0) {
+	stop(sprintf("Missing requested collagen genes in combined day20/day60 normalized counts: %s", paste(missing_collagen_genes, collapse = ", ")))
+}
+
+collagen_bar_df <- collagen_expr_long %>%
+	group_by(gene, celltype_day, genotype) %>%
+	summarise(
+		mean_expression = mean(expression),
+		.groups = "drop"
+	)
+
+plot_collagen_across_day20_day60_norm_counts <- ggplot(
+	collagen_bar_df,
+	aes(x = celltype_day, y = mean_expression, fill = genotype)
+) +
+	geom_col(width = 0.72, position = position_dodge(width = 0.8)) +
+	geom_point(
+		data = collagen_expr_long,
+		aes(x = celltype_day, y = expression, fill = genotype),
+		inherit.aes = FALSE,
+		position = position_jitterdodge(jitter.width = 0.12, dodge.width = 0.8),
+		size = 1.8,
+		shape = 21,
+		stroke = 0.35,
+		color = "black"
+	) +
+	facet_wrap(~ gene, scales = "free_y", nrow = 1) +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "COL12A1, COL1A1, COL5A1, COL16A1, and COL1A2 across day 20 and day 60 cell states",
+		subtitle = "Bars show genotype mean normalized counts; points show replicate pseudobulk samples",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(angle = 45, hjust = 1, face = "bold"),
+		plot.title = element_text(face = "bold")
+	)
+
+ggsave(
+	filename = file.path(output_dir, "day20_day60_collagen_genes_normalized_counts_barplot.pdf"),
+	plot = plot_collagen_across_day20_day60_norm_counts,
+	width = 14,
+	height = 4.5
+)
+
+ggsave(
+	filename = file.path(output_dir, "day20_day60_collagen_genes_normalized_counts_barplot.png"),
+	plot = plot_collagen_across_day20_day60_norm_counts,
+	width = 14,
+	height = 4.5,
+	dpi = 300
+)
+
+plot_collagen_across_day20_day60_norm_counts
