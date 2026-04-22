@@ -1178,19 +1178,18 @@ message("KEGG enrichment analysis (HET vs WT) completed. Results saved to: ", ke
 
 
 ##################################################################################################################
-### GO-BP / GO-CC / KEGG analysis of DEGs of WT vs KO in selected cell types (exclude Mes-WT, IPC; include Mes-Mut)
+### GO-BP / GO-CC / KEGG analysis of DEGs of WT vs KO in selected cell types (exclude Mes-WT, IPC, NPC-G1; include Mes-Mut)
 ##################################################################################################################
 
 # use WT vs KO result tables and keep only requested cell types
 res_list_ko <- list(
   "NPC-G2/M" = rstbl_NPCG2M_wt.vs.ko,
-  "NPC-G1" = rstbl_NPCG1_wt.vs.ko,
   "Mes-Mut" = rstbl_MesKO_wt.vs.ko,
   "Neuron" = rstbl_Neuron_wt.vs.ko,
   "gRG" = rstbl_gRG_wt.vs.ko
 )
 
-all_cell_types_ko <- c("NPC-G2/M", "NPC-G1", "Mes-Mut", "Neuron", "gRG")
+all_cell_types_ko <- c("NPC-G2/M", "Mes-Mut", "Neuron", "gRG")
 res_list_ko <- res_list_ko[all_cell_types_ko]
 
 
@@ -1893,8 +1892,9 @@ message("GO and KEGG analysis for Mes-WT (WT) vs Mes-Mut (KO) completed. Results
 
 
 ##################################################################################################################
-### Summary CSV of GO/KEGG enrichment across genotype comparisons
-### Includes WT vs HET and WT vs KO analyses for GO-BP, GO-CC, and KEGG
+### Summary Excel workbooks for GO/KEGG enrichment
+### 1) WT vs HET across cell types, 2) WT vs KO across cell types, 3) Mes-WT(WT) vs Mes-Mut(KO)
+### Each workbook includes tabs: GO-BP, GO-CC, KEGG
 ##################################################################################################################
 
 collect_enrichment_summary <- function(dir_path, comparison_label, category_label) {
@@ -1945,32 +1945,74 @@ collect_enrichment_summary <- function(dir_path, comparison_label, category_labe
     return(NULL)
   }
 
-  bind_rows(out_list)
+  bind_rows(out_list) %>%
+    arrange(regulation, cell_type, p.adjust)
 }
 
-summary_parts <- list(
-  collect_enrichment_summary(go_outdir, "WT_vs_HET", "GO_BP"),
-  collect_enrichment_summary(go_cc_outdir, "WT_vs_HET", "GO_CC"),
-  collect_enrichment_summary(kegg_outdir, "WT_vs_HET", "KEGG"),
-  collect_enrichment_summary(go_bp_ko_outdir, "WT_vs_KO", "GO_BP"),
-  collect_enrichment_summary(go_cc_ko_outdir, "WT_vs_KO", "GO_CC"),
-  collect_enrichment_summary(kegg_ko_outdir, "WT_vs_KO", "KEGG"),
-  collect_enrichment_summary(mes_outdir, "WT_vs_KO", "Mes_specific")
-)
+write_enrichment_workbook <- function(bp_tbl, cc_tbl, kegg_tbl, out_xlsx) {
+  wb <- openxlsx::createWorkbook()
 
-summary_parts <- summary_parts[!sapply(summary_parts, is.null)]
+  openxlsx::addWorksheet(wb, "GO-BP")
+  if (!is.null(bp_tbl) && nrow(bp_tbl) > 0) {
+    openxlsx::writeData(wb, sheet = "GO-BP", x = bp_tbl)
+  } else {
+    openxlsx::writeData(wb, sheet = "GO-BP", x = data.frame(Message = "No enrichment rows found."))
+  }
 
-if (length(summary_parts) > 0) {
-  go_kegg_summary_all <- bind_rows(summary_parts)
+  openxlsx::addWorksheet(wb, "GO-CC")
+  if (!is.null(cc_tbl) && nrow(cc_tbl) > 0) {
+    openxlsx::writeData(wb, sheet = "GO-CC", x = cc_tbl)
+  } else {
+    openxlsx::writeData(wb, sheet = "GO-CC", x = data.frame(Message = "No enrichment rows found."))
+  }
 
-  go_kegg_summary_all <- go_kegg_summary_all %>%
-    arrange(comparison, ontology, regulation, cell_type, p.adjust)
+  openxlsx::addWorksheet(wb, "KEGG")
+  if (!is.null(kegg_tbl) && nrow(kegg_tbl) > 0) {
+    openxlsx::writeData(wb, sheet = "KEGG", x = kegg_tbl)
+  } else {
+    openxlsx::writeData(wb, sheet = "KEGG", x = data.frame(Message = "No enrichment rows found."))
+  }
 
-  summary_outfile <- "results/scRNAseq/7_pseudobulk/go_kegg_summary_all_comparisons.csv"
-  write.csv(go_kegg_summary_all, file = summary_outfile, row.names = FALSE)
-
-  message("GO/KEGG summary CSV saved to: ", summary_outfile)
-} else {
-  message("No enrichment CSV files were found to summarize.")
+  openxlsx::saveWorkbook(wb, file = out_xlsx, overwrite = TRUE)
 }
+
+subset_summary_by_pattern <- function(tbl, pattern) {
+  if (is.null(tbl) || nrow(tbl) == 0) {
+    return(NULL)
+  }
+  tbl %>% filter(grepl(pattern, source_file))
+}
+
+summary_dir <- "results/scRNAseq/7_pseudobulk"
+if (!dir.exists(summary_dir)) {
+  dir.create(summary_dir, recursive = TRUE)
+}
+
+# 1) WT vs HET across cell types
+wt_het_bp <- collect_enrichment_summary(go_outdir, "WT_vs_HET", "GO_BP")
+wt_het_cc <- collect_enrichment_summary(go_cc_outdir, "WT_vs_HET", "GO_CC")
+wt_het_kegg <- collect_enrichment_summary(kegg_outdir, "WT_vs_HET", "KEGG")
+
+wt_het_xlsx <- file.path(summary_dir, "go_kegg_summary_WT_vs_HET_across_celltypes.xlsx")
+write_enrichment_workbook(wt_het_bp, wt_het_cc, wt_het_kegg, wt_het_xlsx)
+message("Workbook saved: ", wt_het_xlsx)
+
+# 2) WT vs KO across cell types
+wt_ko_bp <- collect_enrichment_summary(go_bp_ko_outdir, "WT_vs_KO", "GO_BP")
+wt_ko_cc <- collect_enrichment_summary(go_cc_ko_outdir, "WT_vs_KO", "GO_CC")
+wt_ko_kegg <- collect_enrichment_summary(kegg_ko_outdir, "WT_vs_KO", "KEGG")
+
+wt_ko_xlsx <- file.path(summary_dir, "go_kegg_summary_WT_vs_KO_across_celltypes.xlsx")
+write_enrichment_workbook(wt_ko_bp, wt_ko_cc, wt_ko_kegg, wt_ko_xlsx)
+message("Workbook saved: ", wt_ko_xlsx)
+
+# 3) Mes-WT(WT) vs Mes-Mut(KO)
+mes_all <- collect_enrichment_summary(mes_outdir, "WT_MesWT_vs_KO_MesKO", "Mes_specific")
+mes_bp <- subset_summary_by_pattern(mes_all, "enrichGO_BP")
+mes_cc <- subset_summary_by_pattern(mes_all, "enrichGO_CC")
+mes_kegg <- subset_summary_by_pattern(mes_all, "enrichKEGG")
+
+mes_xlsx <- file.path(summary_dir, "go_kegg_summary_WT_MesWT_vs_KO_MesKO.xlsx")
+write_enrichment_workbook(mes_bp, mes_cc, mes_kegg, mes_xlsx)
+message("Workbook saved: ", mes_xlsx)
 
