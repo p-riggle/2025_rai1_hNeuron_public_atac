@@ -373,3 +373,84 @@ ggsave(
 )
 
 plot_collagen_across_day20_day60_norm_counts
+
+
+####################################################
+
+### Day 20 NPC-G2/M pseudobulk bar plot for cilia genes
+
+npcg2m_genes_of_interest <- c("CFAP100", "CFAP47", "DNAI1", "DNAH6", "TEKT1")
+
+npcg2m_norm_expr_long <- norm_counts_d20[npcg2m_genes_of_interest, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(cluster_d20 == "NPC-G2/M", genotype_d20 %in% genotype_levels) %>%
+	mutate(
+		gene = factor(gene, levels = npcg2m_genes_of_interest),
+		genotype = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO"))
+	)
+
+missing_npcg2m_genes <- setdiff(npcg2m_genes_of_interest, unique(as.character(npcg2m_norm_expr_long$gene)))
+if (length(missing_npcg2m_genes) > 0) {
+	stop(sprintf("Missing requested genes in day20 NPC-G2/M normalized counts: %s", paste(missing_npcg2m_genes, collapse = ", ")))
+}
+
+npcg2m_norm_bar_df <- npcg2m_norm_expr_long %>%
+	group_by(gene, genotype) %>%
+	summarise(
+		mean_expression = mean(expression),
+		.groups = "drop"
+	)
+
+plot_day20_npcg2m_genes_norm_counts <- ggplot(npcg2m_norm_bar_df, aes(x = genotype, y = mean_expression, fill = genotype)) +
+	geom_col(width = 0.72) +
+	geom_point(
+		data = npcg2m_norm_expr_long,
+		aes(x = genotype, y = expression),
+		inherit.aes = FALSE,
+		position = position_jitter(width = 0.12, height = 0),
+		size = 2.2,
+		shape = 21,
+		stroke = 0.35,
+		fill = "white",
+		color = "black"
+	) +
+	facet_wrap(~ gene, scales = "free_y", nrow = 1) +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "Day 20 NPC-G2/M pseudobulk expression",
+		subtitle = "Bars show genotype mean normalized counts; points show replicate pseudobulk samples",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "none",
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(face = "bold"),
+		plot.title = element_text(face = "bold")
+	)
+
+ggsave(
+	filename = file.path(output_dir, "day20_NPC-G2M_cilia_genes_normalized_counts_barplot.pdf"),
+	plot = plot_day20_npcg2m_genes_norm_counts,
+	width = 11,
+	height = 3.8
+)
+
+ggsave(
+	filename = file.path(output_dir, "day20_NPC-G2M_cilia_genes_normalized_counts_barplot.png"),
+	plot = plot_day20_npcg2m_genes_norm_counts,
+	width = 11,
+	height = 3.8,
+	dpi = 300
+)
+
+plot_day20_npcg2m_genes_norm_counts
