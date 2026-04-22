@@ -232,14 +232,35 @@ violin_plot
 # Save the violin plot
 ggsave("results/scRNAseq/4_celltype/marker_violin_plots.pdf", plot = violin_plot, width = 12, height = 8)   
 
-
-#############################################################
-### Analyze cell type composition between genotypes #########
-#############################################################
+############################################################
+#### Calculate mimimal and maximal number genes detected in each cell (nFeature_RNA) ################ 
 
 # load the R.data
 geo_so = readRDS('data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds')
 head(geo_so@meta.data)
+geo_so
+
+# calculate the number of genes expressed in each cell (nFeature_RNA) with more than 1 read
+
+# 1. Access the raw RNA counts matrix
+# We use the 'RNA' assay and 'counts' layer for the truest representation of reads
+counts_matrix <- Seurat::GetAssayData(geo_so, assay = "RNA", layer = "counts")
+
+# 2. Calculate the number of genes with > 0 reads for each cell
+# rowSums is faster, but since we want genes per cell, we operate on columns
+genes_per_cell <- Matrix::colSums(counts_matrix > 0)
+
+# 3. Get the minimum and maximum
+min_genes <- min(genes_per_cell)
+max_genes <- max(genes_per_cell)
+
+# Display results
+cat("Min genes detected:", min_genes, "\n")
+cat("Max genes detected:", max_genes, "\n")
+
+#############################################################
+### Analyze cell type composition between genotypes #########
+#############################################################
 
 # get cell type proportions for each sample
 celltype_proportions <- prop.table(table(geo_so$orig.ident, geo_so$cell_type), margin = 1)
