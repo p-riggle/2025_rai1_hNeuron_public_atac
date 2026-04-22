@@ -525,7 +525,7 @@ library(org.Hs.eg.db)
 library(tidyverse)
 
 
-# read restbls from the results directory
+# read restbls from the results directoryplot
 # 1. Define the parts that change in the file/variable names
 cell_types <- c(
   "NPCG2M", "MesWT", "MesKO", "NPCG1", 
@@ -701,8 +701,9 @@ make_regulation_go_dotplot <- function(go_tbl, all_cell_types, title_text, regul
     unique()
   go_tbl$term_id <- factor(go_tbl$term_id, levels = term_levels)
 
-  color_low <- if (regulation == "Down") "#08519c" else "#cb181d"
-  color_high <- if (regulation == "Down") "#deebf7" else "#fee5d9"
+
+  color_low <- if (regulation == "Down") "#08519c" else "#d2b005"
+  color_high <- if (regulation == "Down") "#deebf7" else "#fdeebf"
 
   p <- ggplot(go_tbl, aes(x = x_col, y = term_id))
   p <- p + geom_point(aes(size = enrich_ratio, color = adj_p_for_plot), alpha = 0.95)
@@ -1580,6 +1581,15 @@ message("KEGG enrichment analysis (WT vs KO) completed. Results saved to: ", keg
 #### GO and KEGG analysis of DEGs between Mes-WT of WT and Mes-mut of KO ################
 #########################################################################################
 
+library(DESeq2)
+
+
+# read dds r objects
+
+dds_d20 <- readRDS("data/scRNAseq/iwaselab/dds_d20")
+dds_d60 <- readRDS("data/scRNAseq/iwaselab/dds_d60")
+dds_both <- readRDS("data/scRNAseq/iwaselab/dds_both")
+
 # direct contrast: Mes-WT (WT) vs Mes-Mut (KO)
 rstbl_MesWT_wt.vs.MesMut_ko <- results(
   dds_d20,
@@ -1882,83 +1892,85 @@ if (!is.null(p_mes_kegg_down) && !is.null(p_mes_kegg_up)) {
 message("GO and KEGG analysis for Mes-WT (WT) vs Mes-Mut (KO) completed. Results saved to: ", mes_outdir)
 
 
-#########################################################################################
-### Line plots: Mes-WT and Mes-Mut pseudobulk expression, WT vs KO genotype
-### Purpose: sanity-check that genotype labels are correctly mapped to pseudobulk profiles
-#########################################################################################
+##################################################################################################################
+### Summary CSV of GO/KEGG enrichment across genotype comparisons
+### Includes WT vs HET and WT vs KO analyses for GO-BP, GO-CC, and KEGG
+##################################################################################################################
 
-# read dds r objects
+collect_enrichment_summary <- function(dir_path, comparison_label, category_label) {
+  if (!dir.exists(dir_path)) {
+    return(NULL)
+  }
 
-dds_d20 <- readRDS("data/scRNAseq/iwaselab/dds_d20")
-dds_d60 <- readRDS("data/scRNAseq/iwaselab/dds_d60")
-dds_both <- readRDS("data/scRNAseq/iwaselab/dds_both")
+  csv_files <- list.files(dir_path, pattern = "_enrich.*\\.csv$", full.names = TRUE)
+  if (length(csv_files) == 0) {
+    return(NULL)
+  }
 
-mes_genes <- c("WNT3A", "FOXN4", "ID4", "NEUROD1", "EN2")
+  out_list <- vector("list", length(csv_files))
 
-# use normalized pseudobulk counts from DESeq2 day20 object
-norm_counts_d20 <- counts(dds_d20, normalized = TRUE)
-meta_d20 <- as.data.frame(colData(dds_d20))
-meta_d20$sample_id <- rownames(meta_d20)
+  for (i in seq_along(csv_files)) {
+    f <- csv_files[i]
+    tbl <- tryCatch(read.csv(f, stringsAsFactors = FALSE), error = function(e) NULL)
 
-meta_mes <- meta_d20 %>%
-  filter(cluster_d20 %in% c("Mes-WT", "Mes-KO"), genotype_d20 %in% c("wt", "ko")) %>%
-  mutate(
-    cluster_d20 = factor(cluster_d20, levels = c("Mes-WT", "Mes-KO")),
-    genotype_d20 = factor(genotype_d20, levels = c("wt", "ko"))
-  )
+    if (is.null(tbl) || nrow(tbl) == 0) {
+      next
+    }
 
-mes_genes_present <- intersect(mes_genes, rownames(norm_counts_d20))
-if (length(mes_genes_present) == 0) {
-  stop("None of the requested marker genes were found in dds_d20 normalized counts.")
+    file_name <- basename(f)
+    regulation <- ifelse(grepl("_UP_", file_name), "Up", ifelse(grepl("_DOWN_", file_name), "Down", NA_character_))
+
+    if (!"cell_type" %in% names(tbl)) {
+      tbl$cell_type <- sub("_(UP|DOWN)_.*$", "", file_name)
+    }
+
+    tbl$comparison <- comparison_label
+    tbl$ontology <- category_label
+    tbl$regulation <- regulation
+    tbl$source_file <- file_name
+
+    keep_cols <- c(
+      "comparison", "ontology", "regulation", "cell_type",
+      "ID", "Description", "GeneRatio", "BgRatio",
+      "pvalue", "p.adjust", "qvalue", "Count",
+      "geneID", "top_genes", "source_file"
+    )
+
+    present_cols <- intersect(keep_cols, names(tbl))
+    out_list[[i]] <- tbl[, present_cols, drop = FALSE]
+  }
+
+  out_list <- out_list[!sapply(out_list, is.null)]
+  if (length(out_list) == 0) {
+    return(NULL)
+  }
+
+  bind_rows(out_list)
 }
 
-expr_mes <- as.data.frame(t(norm_counts_d20[mes_genes_present, meta_mes$sample_id, drop = FALSE]))
-expr_mes$sample_id <- rownames(expr_mes)
-
-expr_mes_long <- expr_mes %>%
-  pivot_longer(cols = all_of(mes_genes_present), names_to = "gene", values_to = "norm_expr") %>%
-  left_join(meta_mes, by = "sample_id")
-
-mes_line_colors <- c("wt" = "forestgreen", "ko" = "yellowgreen")
-
-p_mes_line <- ggplot(
-  expr_mes_long,
-  aes(
-    x = cluster_d20,
-    y = norm_expr,
-    color = genotype_d20,
-    group = interaction(genotype_d20, sample_d20)
-  )
-) +
-  geom_line(alpha = 0.35, linewidth = 0.5) +
-  geom_point(alpha = 0.55, size = 1.2) +
-  stat_summary(aes(group = genotype_d20), fun = mean, geom = "line", linewidth = 1.0) +
-  stat_summary(aes(group = genotype_d20), fun = mean, geom = "point", size = 2.0) +
-  facet_wrap(~gene, ncol = 1, scales = "free_y") +
-  scale_color_manual(values = mes_line_colors) +
-  labs(
-    title = "Mes-WT and Mes-Mut pseudobulk marker expression",
-    x = "Cell type",
-    y = "Normalized pseudobulk expression",
-    color = "Genotype"
-  ) +
-  theme_classic() +
-  theme(
-    strip.text = element_text(face = "bold"),
-    plot.title = element_text(hjust = 0.5, face = "bold")
-  )
-
-line_outdir <- "results/scRNAseq/7_pseudobulk/mes_wt_vs_mes_mut_ko/line_plots"
-ggsave(
-  filename = file.path(line_outdir, "MesWT_MesMut_WT_vs_KO_pseudobulk_lineplot.pdf"),
-  plot = p_mes_line,
-  width = 7,
-  height = 3 * length(mes_genes_present),
-  limitsize = FALSE
+summary_parts <- list(
+  collect_enrichment_summary(go_outdir, "WT_vs_HET", "GO_BP"),
+  collect_enrichment_summary(go_cc_outdir, "WT_vs_HET", "GO_CC"),
+  collect_enrichment_summary(kegg_outdir, "WT_vs_HET", "KEGG"),
+  collect_enrichment_summary(go_bp_ko_outdir, "WT_vs_KO", "GO_BP"),
+  collect_enrichment_summary(go_cc_ko_outdir, "WT_vs_KO", "GO_CC"),
+  collect_enrichment_summary(kegg_ko_outdir, "WT_vs_KO", "KEGG"),
+  collect_enrichment_summary(mes_outdir, "WT_vs_KO", "Mes_specific")
 )
 
-message("Mes-WT / Mes-Mut pseudobulk line plots saved.")
+summary_parts <- summary_parts[!sapply(summary_parts, is.null)]
 
+if (length(summary_parts) > 0) {
+  go_kegg_summary_all <- bind_rows(summary_parts)
 
+  go_kegg_summary_all <- go_kegg_summary_all %>%
+    arrange(comparison, ontology, regulation, cell_type, p.adjust)
 
+  summary_outfile <- "results/scRNAseq/7_pseudobulk/go_kegg_summary_all_comparisons.csv"
+  write.csv(go_kegg_summary_all, file = summary_outfile, row.names = FALSE)
+
+  message("GO/KEGG summary CSV saved to: ", summary_outfile)
+} else {
+  message("No enrichment CSV files were found to summarize.")
+}
 
