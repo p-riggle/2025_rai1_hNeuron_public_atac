@@ -327,3 +327,370 @@ ggsave(
 )
 
 print("Day 20 presynaptic genes bar plots created successfully!")
+
+#-------------------------------------------------------------------------------
+# Vascular markers: NPC-G2/M and Mes-KO
+#-------------------------------------------------------------------------------
+vascular_genes <- c("PECAM1", "PLVAP", "MMRN2", "ABCG2", "CDH5")
+vascular_expr_long <- norm_counts_d20[vascular_genes, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(cluster_d20 %in% cell_types, genotype_d20 %in% genotype_levels) %>%
+	mutate(
+		gene      = factor(gene, levels = vascular_genes),
+		genotype  = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO")),
+		cell_type = factor(cluster_d20, levels = cell_types)
+	)
+
+missing_vascular_genes <- setdiff(vascular_genes, unique(as.character(vascular_expr_long$gene)))
+if (length(missing_vascular_genes) > 0) {
+	stop(sprintf("Missing vascular genes in day20 normalized counts: %s", paste(missing_vascular_genes, collapse = ", ")))
+}		
+vascular_bar_df <- vascular_expr_long %>%
+	group_by(gene, cell_type, genotype) %>%
+	summarise(mean_expression = mean(expression), .groups = "drop")
+plot_day20_vascular_genes_norm_counts <- ggplot(vascular_bar_df, aes(x = cell_type, y = mean_expression, fill = genotype)) +
+	geom_col(width = 0.75, position = position_dodge(width = 0.8)) +
+	geom_point(
+		data = vascular_expr_long,
+		aes(x = cell_type, y = expression, fill = genotype),
+		inherit.aes = FALSE,
+		position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8),
+		size = 1.8,
+		shape = 21,
+		stroke = 0.35,
+		color = "black"
+	) +
+	facet_wrap(~ gene, nrow = 1, scales = "free_y") +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "Day 20 vascular genes pseudobulk expression (NPC-G2/M and Mes-KO)",
+		subtitle = "Bars show genotype mean normalized counts; points show replicate pseudobulk samples",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(face = "bold"),
+		plot.title = element_text(face = "bold")
+	)
+ggsave(
+	filename = file.path(output_dir, "day20_vascular_genes_npcg2m_mesko_normalized_counts_barplot.pdf"),
+	plot = plot_day20_vascular_genes_norm_counts,
+	width = 13,
+	height = 4
+)	
+
+print("Day 20 vascular genes bar plots created successfully!")
+
+#-------------------------------------------------------------------------------
+# immune signaling: SYK, TRBC1, TRBC2
+
+immune_genes <- c("SYK", "TRBC1", "TRBC2")
+immune_expr_long <- norm_counts_d20[immune_genes, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(cluster_d20 %in% cell_types, genotype_d20 %in% genotype_levels) %>%
+	mutate(
+		gene      = factor(gene, levels = immune_genes),
+		genotype  = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO")),
+		cell_type = factor(cluster_d20, levels = cell_types)
+	)
+missing_immune_genes <- setdiff(immune_genes, unique(as.character(immune_expr_long$gene)))
+if (length(missing_immune_genes) > 0) {
+	stop(sprintf("Missing immune genes in day20 normalized counts: %s", paste(missing_immune_genes, collapse = ", ")))
+}
+immune_bar_df <- immune_expr_long %>%
+	group_by(gene, cell_type, genotype) %>%
+	summarise(mean_expression = mean(expression), .groups = "drop")
+plot_day20_immune_genes_norm_counts <- ggplot(immune_bar_df, aes(x = cell_type, y = mean_expression, fill = genotype)) +
+	geom_col(width = 0.75, position = position_dodge(width = 0.8)) +
+	geom_point(
+		data = immune_expr_long,
+		aes(x = cell_type, y = expression, fill = genotype),
+		inherit.aes = FALSE,
+		position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8),
+		size = 1.8,
+		shape = 21,
+		stroke = 0.35,
+		color = "black"
+	) +	
+	facet_wrap(~ gene, nrow = 1, scales = "free_y") +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "Day 20 immune genes pseudobulk expression (NPC-G2/M and Mes-KO)",
+		subtitle = "Bars show genotype mean normalized counts; points show replicate pseudobulk samples",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(face = "bold"),
+		plot.title = element_text(face = "bold")
+	)
+ggsave(
+	filename = file.path(output_dir, "day20_immune_genes_npcg2m_mesko_normalized_counts_barplot.pdf"),
+	plot = plot_day20_immune_genes_norm_counts,
+	width = 8,
+	height = 4
+)	
+print("Day 20 immune genes bar plots created successfully!")
+
+
+#-------------------------------------------------------------------------------
+# myogenic genes: ACTA1, TTN (Titin), ACTC1
+
+myogenic_genes <- c("ACTA1", "TTN", "ACTC1")
+myogenic_cell_types <- c("NPC-G2/M", "NPC-G1", "Mes-WT", "IPC")
+
+myogenic_expr_long <- norm_counts_d20[myogenic_genes, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(cluster_d20 %in% myogenic_cell_types, genotype_d20 %in% genotype_levels) %>%
+	mutate(
+		gene = factor(gene, levels = myogenic_genes),
+		genotype = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO")),
+		cell_type = factor(cluster_d20, levels = myogenic_cell_types)
+	)
+
+missing_myogenic_genes <- setdiff(myogenic_genes, unique(as.character(myogenic_expr_long$gene)))
+if (length(missing_myogenic_genes) > 0) {
+	stop(sprintf("Missing myogenic genes in day20 normalized counts: %s", paste(missing_myogenic_genes, collapse = ", ")))
+}
+
+myogenic_bar_df <- myogenic_expr_long %>%
+	group_by(gene, cell_type, genotype) %>%
+	summarise(mean_expression = mean(expression), .groups = "drop")
+
+plot_day20_myogenic_genes_norm_counts <- ggplot(myogenic_bar_df, aes(x = cell_type, y = mean_expression, fill = genotype)) +
+	geom_col(width = 0.75, position = position_dodge(width = 0.8)) +
+	geom_point(
+		data = myogenic_expr_long,
+		aes(x = cell_type, y = expression, fill = genotype),
+		inherit.aes = FALSE,
+		position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8),
+		size = 1.8,
+		shape = 21,
+		stroke = 0.35,
+		color = "black"
+	) +
+	facet_wrap(~ gene, nrow = 1, scales = "free_y") +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "Day 20 myogenic genes pseudobulk expression (NPC-G2/M, NPC-G1, Mes-WT, IPC)",
+		subtitle = "Bars show genotype mean normalized counts; points show replicate pseudobulk samples",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(face = "bold", angle = 45, hjust = 1),
+		plot.title = element_text(face = "bold")
+	)
+
+ggsave(
+	filename = file.path(output_dir, "day20_myogenic_genes_npcg2m_npcg1_meswt_ipc_normalized_counts_barplot.pdf"),
+	plot = plot_day20_myogenic_genes_norm_counts,
+	width = 11,
+	height = 4
+)
+
+ggsave(
+	filename = file.path(output_dir, "day20_myogenic_genes_npcg2m_npcg1_meswt_ipc_normalized_counts_barplot.png"),
+	plot = plot_day20_myogenic_genes_norm_counts,
+	width = 11,
+	height = 4,
+	dpi = 300
+)
+
+print("Day 20 myogenic genes bar plots created successfully!")
+
+
+#-------------------------------------------------------------------------------
+# het-immune genes:  CD8A, BST2
+
+het_immune_genes <- c("CD8A", "BST2")
+het_immune_cell_types <- c("NPC-G2/M", "NPC-G1", "Mes-WT", "IPC")
+
+het_immune_expr_long <- norm_counts_d20[het_immune_genes, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(cluster_d20 %in% het_immune_cell_types, genotype_d20 %in% genotype_levels) %>%
+	mutate(
+		gene = factor(gene, levels = het_immune_genes),
+		genotype = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO")),
+		cell_type = factor(cluster_d20, levels = het_immune_cell_types)
+	)
+
+missing_het_immune_genes <- setdiff(het_immune_genes, unique(as.character(het_immune_expr_long$gene)))
+if (length(missing_het_immune_genes) > 0) {
+	stop(sprintf("Missing het-immune genes in day20 normalized counts: %s", paste(missing_het_immune_genes, collapse = ", ")))
+}
+
+het_immune_bar_df <- het_immune_expr_long %>%
+	group_by(gene, cell_type, genotype) %>%
+	summarise(mean_expression = mean(expression), .groups = "drop")
+
+plot_day20_het_immune_genes_norm_counts <- ggplot(het_immune_bar_df, aes(x = cell_type, y = mean_expression, fill = genotype)) +
+	geom_col(width = 0.75, position = position_dodge(width = 0.8)) +
+	geom_point(
+		data = het_immune_expr_long,
+		aes(x = cell_type, y = expression, fill = genotype),
+		inherit.aes = FALSE,
+		position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8),
+		size = 1.8,
+		shape = 21,
+		stroke = 0.35,
+		color = "black"
+	) +
+	facet_wrap(~ gene, nrow = 1, scales = "free_y") +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "Day 20 het-immune genes pseudobulk expression (NPC-G2/M, NPC-G1, Mes-WT, IPC)",
+		subtitle = "Bars show genotype mean normalized counts; points show replicate pseudobulk samples",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(face = "bold", angle = 45, hjust = 1),
+		plot.title = element_text(face = "bold")
+	)
+
+ggsave(
+	filename = file.path(output_dir, "day20_het_immune_genes_npcg2m_npcg1_meswt_ipc_normalized_counts_barplot.pdf"),
+	plot = plot_day20_het_immune_genes_norm_counts,
+	width = 9,
+	height = 4
+)
+
+ggsave(
+	filename = file.path(output_dir, "day20_het_immune_genes_npcg2m_npcg1_meswt_ipc_normalized_counts_barplot.png"),
+	plot = plot_day20_het_immune_genes_norm_counts,
+	width = 9,
+	height = 4,
+	dpi = 300
+)
+
+print("Day 20 het-immune genes bar plots created successfully!")
+
+#-------------------------------------------------------------------------------
+# non-neuronal epithelial genes: CLDN1, CLDN4, CFTR, CLIC5
+
+epithelial_genes <- c("CLDN1", "CLDN4", "CFTR", "CLIC5")
+epithelial_cell_types <- c("NPC-G2/M", "NPC-G1", "Mes-WT", "IPC")
+
+epithelial_expr_long <- norm_counts_d20[epithelial_genes, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(cluster_d20 %in% epithelial_cell_types, genotype_d20 %in% genotype_levels) %>%
+	mutate(
+		gene = factor(gene, levels = epithelial_genes),
+		genotype = factor(genotype_labels[genotype_d20], levels = c("WT", "HET", "KO")),
+		cell_type = factor(cluster_d20, levels = epithelial_cell_types)
+	)
+
+missing_epithelial_genes <- setdiff(epithelial_genes, unique(as.character(epithelial_expr_long$gene)))
+if (length(missing_epithelial_genes) > 0) {
+	stop(sprintf("Missing non-neuronal epithelial genes in day20 normalized counts: %s", paste(missing_epithelial_genes, collapse = ", ")))
+}
+
+epithelial_bar_df <- epithelial_expr_long %>%
+	group_by(gene, cell_type, genotype) %>%
+	summarise(mean_expression = mean(expression), .groups = "drop")
+
+plot_day20_epithelial_genes_norm_counts <- ggplot(epithelial_bar_df, aes(x = cell_type, y = mean_expression, fill = genotype)) +
+	geom_col(width = 0.75, position = position_dodge(width = 0.8)) +
+	geom_point(
+		data = epithelial_expr_long,
+		aes(x = cell_type, y = expression, fill = genotype),
+		inherit.aes = FALSE,
+		position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.8),
+		size = 1.8,
+		shape = 21,
+		stroke = 0.35,
+		color = "black"
+	) +
+	facet_wrap(~ gene, nrow = 1, scales = "free_y") +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "Day 20 non-neuronal epithelial genes pseudobulk expression (NPC-G2/M, NPC-G1, Mes-WT, IPC)",
+		subtitle = "Bars show genotype mean normalized counts; points show replicate pseudobulk samples",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(face = "bold", angle = 45, hjust = 1),
+		plot.title = element_text(face = "bold")
+	)
+
+ggsave(
+	filename = file.path(output_dir, "day20_non_neuronal_epithelial_genes_npcg2m_npcg1_meswt_ipc_normalized_counts_barplot.pdf"),
+	plot = plot_day20_epithelial_genes_norm_counts,
+	width = 12,
+	height = 4
+)
+
+ggsave(
+	filename = file.path(output_dir, "day20_non_neuronal_epithelial_genes_npcg2m_npcg1_meswt_ipc_normalized_counts_barplot.png"),
+	plot = plot_day20_epithelial_genes_norm_counts,
+	width = 12,
+	height = 4,
+	dpi = 300
+)
+
+print("Day 20 non-neuronal epithelial genes bar plots created successfully!")
+
+
+
