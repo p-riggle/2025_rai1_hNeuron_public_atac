@@ -7,6 +7,14 @@ library(BPCells)
 library(tidyverse)
 library(monocle3)
 
+preview_plot <- function(plot_obj) {
+  if (interactive() && identical(Sys.getenv("MONOCLE_PREVIEW_PLOTS"), "1")) {
+    print(plot_obj)
+  }
+
+  invisible(plot_obj)
+}
+
 ##### section 1 #####
 
 # load seurat object
@@ -47,7 +55,7 @@ reducedDims(cds)[["UMAP"]] <- seurat_umap
 # but it's good to confirm. Your Seurat clusters are now in the cds colData.
 # For example, you can now color your Monocle plot by your Seurat clusters.
 
-plot_cells(cds, color_cells_by = "cell_type")
+preview_plot(plot_cells(cds, color_cells_by = "cell_type"))
 
 
 # 3. (Important) Manually add the cluster/partition data
@@ -87,11 +95,11 @@ cds10 <- preprocess_cds(cds, num_dim = 10)
 cds10 <- reduce_dimension(cds10, reduction_method = "UMAP")
 
 # visualize the variance explained by each principal component
-plot_pc_variance_explained(cds2)
-plot_pc_variance_explained(cds3)
-plot_pc_variance_explained(cds4)
-plot_pc_variance_explained(cds5)
-plot_pc_variance_explained(cds10)
+preview_plot(plot_pc_variance_explained(cds2))
+preview_plot(plot_pc_variance_explained(cds3))
+preview_plot(plot_pc_variance_explained(cds4))
+preview_plot(plot_pc_variance_explained(cds5))
+preview_plot(plot_pc_variance_explained(cds10))
 
 ## save the variance plots aligned 3 plots in one row in one pdf
 library(patchwork)
@@ -162,7 +170,7 @@ ggsave(
 )
 
 # save each plot as separate png files using loop
-for (i in 1:length(umap_list)) {
+for (i in seq_along(umap_list)) {
   ggsave(
     filename = paste0("results/scRNAseq/6_monocle3/umap", i, ".png"),
     plot = umap_list[[i]],
@@ -199,7 +207,7 @@ ggsave(
 )
 
 # save each plot as separate png files using loop
-for (i in 1:length(umap_list)) {
+for (i in seq_along(umap_list)) {
   ggsave(
     filename = paste0("results/scRNAseq/6_monocle3/umap", i, ".png"),
     plot = umap_list[[i]],
@@ -224,7 +232,7 @@ cluster4 <- cluster4 + ggtitle("4 PCs")
 cluster5 <- cluster5 + ggtitle("5 PCs")
 cluster10 <- cluster10 + ggtitle("10 PCs")
 
-cluster4
+preview_plot(cluster4)
 
 combined_cluster <- cluster4 + cluster5 + cluster10 + plot_layout(ncol = 3)
 ggsave(
@@ -236,7 +244,7 @@ ggsave(
 
 # save each plot as separate png files using loop
 cluster_list <- list(cluster4, cluster5, cluster10)
-for (i in 1:length(cluster_list)) {
+for (i in seq_along(cluster_list)) {
   ggsave(
     filename = paste0("results/scRNAseq/6_monocle3/cluster_plot", i, ".png"),
     plot = cluster_list[[i]],
@@ -348,11 +356,9 @@ cds5_tjt <- plot_cells(cds5,
   scale_color_manual(values = my_cell_colors) +
   theme(legend.position = "right")
 
-cds4_tjt
-cds5_tjt
-cds10_tjt 
-
-dev.off()
+preview_plot(cds4_tjt)
+preview_plot(cds5_tjt)
+preview_plot(cds10_tjt)
 
 # save the trajectory plots as png files: use loop
 trajectory_list <- list(cds4_tjt, cds5_tjt, cds10_tjt)
@@ -377,7 +383,7 @@ ggsave(filename = 'results/scRNAseq/6_monocle3/trajectory_combined.png',
        plot = combined_trajectory, 
        width = 30, height = 8, units = 'in')
 
-combined_trajectory
+preview_plot(combined_trajectory)
 
 
 # Turn the genotypes in all three cds (4,5,10) to an ordered factor
@@ -567,7 +573,7 @@ ggsave(
   height = 8,
   units = "in"
 )
-combined_pseudotime
+preview_plot(combined_pseudotime)
 
 # Create pseudotime plots with genotype faceting for all three cds objects using loop
 pseudotime_genotype_plots <- list()
@@ -715,7 +721,7 @@ ggsave(
   height = 8,
   units = "in"
 )
-combined_stacked_bar
+preview_plot(combined_stacked_bar)
 
 # in the above plots, x-axis is the bined pseudotime, and each stack is genotype. Now I am making stack plots where x-axis is genotype, and each stack is binned pseudotime. 
 
@@ -810,7 +816,7 @@ ggsave(
   height = 8,
   units = "in"
 )
-combined_stacked_bar_genotype_x
+preview_plot(combined_stacked_bar_genotype_x)
 
 ###### section 6 #########
 
@@ -942,55 +948,64 @@ big_violin_plot <- ggplot(cds5_df, aes(x = interaction(genotype, cell_type), y =
 ggsave("results/scRNAseq/6_monocle3/violin/big_pseudotime_violin_plot.pdf", 
        plot = big_violin_plot, width = 20, height = 5)
 
+
+###################################################################
+
 # Track the expression of neuroprogenitor marker genes (e.g. PAX6, SOX2) and neuronal marker genes (e.g. MAP2, NEUN) along pseudotime in day20 cell types (NPC-G2/M, NPC-G1, gRG, IPC, Neuron).
 # We do this for each genotype separately.
 
-marker_genes_requested <- c("PAX6", "SOX2", "MAP2", "NEUN")
-marker_groups <- c(
-  "PAX6" = "Neuroprogenitor",
-  "SOX2" = "Neuroprogenitor",
-  "MAP2" = "Neuronal",
-  "NEUN" = "Neuronal"
+# set working directory
+setwd("/nfs/turbo/umms-siwase/SHIGEKI2/rai1_hesc")
+
+# load seurat
+library(Seurat)
+library(BPCells)
+library(tidyverse)
+library(monocle3)
+
+# Define this once at the top of your script
+my_cell_colors <- c(
+  "NPC-G2/M" = "hotpink",
+  "Mes-WT" = "forestgreen",
+  "Mes-KO"  = "yellowgreen",
+  "NPC-G1" = "purple",
+  "IPC"        = "gold"
 )
-target_cell_types <- c("NPC-G2/M", "NPC-G1", "gRG", "IPC", "Neuron")
+
+# Load the saved cds objects with pseudotime
+cds5 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds5_pseudotime")
+
+marker_genes_requested <- c("PAX6", "SOX2", "MAP2", "NEUN")
+target_cell_types <- c("NPC-G2/M", "NPC-G1", "Mes-WT", "Mes-KO", "IPC")
 gene_aliases <- c("NEUN" = "RBFOX3")
+marker_output_dir <- "results/scRNAseq/6_monocle3/marker_expression_pseudotime"
 
-# Subset to requested cell types and retain pseudotime/genotype metadata
-cds5_sub <- cds5[, colData(cds5)$cell_type %in% target_cell_types]
-cell_md <- as.data.frame(colData(cds5_sub))
-cell_md$cell_id <- rownames(cell_md)
-cell_md$pseudotime <- pseudotime(cds5_sub)
+dir.create(marker_output_dir, recursive = TRUE, showWarnings = FALSE)
 
-cell_md <- cell_md %>%
-  filter(
-    genotype %in% c("wt", "het", "ko"),
-    !is.na(pseudotime),
-    is.finite(pseudotime)
-  ) %>%
-  mutate(
-    genotype = factor(genotype, levels = c("wt", "het", "ko")),
-    cell_type = factor(cell_type, levels = target_cell_types)
-  )
+marker_cells <- colData(cds5)$cell_type %in% target_cell_types &
+  colData(cds5)$genotype %in% c("wt", "het", "ko") &
+  !is.na(pseudotime(cds5)) &
+  is.finite(pseudotime(cds5))
 
-if (nrow(cell_md) == 0) {
-  stop("No valid cells found for requested cell types with finite pseudotime values.")
+if (!any(marker_cells)) {
+  stop("No valid cells found for marker pseudotime plots in the requested day20 cell types.")
 }
 
-# Resolve requested symbols to available matrix rows (NEUN -> RBFOX3 fallback)
-available_genes <- rownames(cds5_sub)
 gene_map <- tibble(requested_gene = marker_genes_requested) %>%
   mutate(
     matrix_gene = case_when(
-      requested_gene %in% available_genes ~ requested_gene,
-      requested_gene %in% names(gene_aliases) & gene_aliases[requested_gene] %in% available_genes ~ gene_aliases[requested_gene],
+      requested_gene %in% rowData(cds5)$gene_short_name ~ requested_gene,
+      requested_gene %in% rownames(cds5) ~ requested_gene,
+      requested_gene %in% names(gene_aliases) & gene_aliases[requested_gene] %in% rowData(cds5)$gene_short_name ~ unname(gene_aliases[requested_gene]),
+      requested_gene %in% names(gene_aliases) & gene_aliases[requested_gene] %in% rownames(cds5) ~ unname(gene_aliases[requested_gene]),
       TRUE ~ NA_character_
-    ),
-    marker_group = marker_groups[requested_gene]
+    )
   )
 
 missing_marker_genes <- gene_map %>%
   filter(is.na(matrix_gene)) %>%
   pull(requested_gene)
+
 if (length(missing_marker_genes) > 0) {
   warning(
     sprintf(
@@ -1002,50 +1017,56 @@ if (length(missing_marker_genes) > 0) {
 
 gene_map <- gene_map %>% filter(!is.na(matrix_gene))
 if (nrow(gene_map) == 0) {
-  stop("None of the requested marker genes were found in cds5 expression matrix.")
+  stop("None of the requested marker genes were found in cds5.")
 }
 
-expr_long <- map_dfr(seq_len(nrow(gene_map)), function(i) {
-  req_gene <- gene_map$requested_gene[i]
-  mat_gene <- gene_map$matrix_gene[i]
-  grp <- gene_map$marker_group[i]
+gene_rows <- vapply(seq_len(nrow(gene_map)), function(i) {
+  short_name_matches <- which(rowData(cds5)$gene_short_name == gene_map$matrix_gene[i])
+  if (length(short_name_matches) > 0) {
+    return(rownames(cds5)[short_name_matches[1]])
+  }
 
-  expr_vals <- counts(cds5_sub)[mat_gene, cell_md$cell_id]
+  row_name_matches <- which(rownames(cds5) == gene_map$matrix_gene[i])
+  if (length(row_name_matches) > 0) {
+    return(rownames(cds5)[row_name_matches[1]])
+  }
 
-  tibble(
-    cell_id = cell_md$cell_id,
-    pseudotime = cell_md$pseudotime,
-    genotype = cell_md$genotype,
-    cell_type = cell_md$cell_type,
-    gene = req_gene,
-    matrix_gene = mat_gene,
-    marker_group = grp,
-    expression = as.numeric(expr_vals),
-    log1p_expression = log1p(as.numeric(expr_vals))
-  )
-}) %>%
-  mutate(
-    gene = factor(gene, levels = marker_genes_requested),
-    marker_group = factor(marker_group, levels = c("Neuroprogenitor", "Neuronal"))
-  )
+  NA_character_
+}, character(1))
 
-output_dir_markers <- "results/scRNAseq/6_monocle3/marker_expression_pseudotime"
-dir.create(output_dir_markers, recursive = TRUE, showWarnings = FALSE)
+gene_map$gene_row <- gene_rows
+gene_map <- gene_map %>% filter(!is.na(gene_row))
+if (nrow(gene_map) == 0) {
+  stop("Unable to resolve requested marker genes to rows in cds5.")
+}
 
-plot_marker_trends <- ggplot(
-  expr_long,
-  aes(x = pseudotime, y = log1p_expression, color = cell_type)
+marker_cds <- cds5[gene_map$gene_row, colnames(cds5)[marker_cells]]
+rowData(marker_cds)$gene_short_name <- gene_map$requested_gene[
+  match(rownames(marker_cds), gene_map$gene_row)
+]
+
+colData(marker_cds)$genotype <- factor(
+  as.character(colData(marker_cds)$genotype),
+  levels = c("wt", "het", "ko"),
+  labels = c("WT", "Het", "KO")
+)
+
+if (all(is.na(colData(marker_cds)$genotype))) {
+  stop("No cells with WT/Het/KO genotype labels were found after filtering.")
+}
+
+combined_marker_plot <- plot_genes_in_pseudotime(
+  marker_cds,
+  color_cells_by = "cell_type",
+  min_expr = 0.5
 ) +
-  geom_point(alpha = 0.2, size = 0.35) +
-  geom_smooth(method = "loess", se = FALSE, span = 0.7, linewidth = 0.8) +
-  facet_grid(gene ~ genotype, scales = "free_y") +
   scale_color_manual(values = my_cell_colors, drop = FALSE) +
+  facet_grid(gene_short_name ~ genotype, scales = "free_y") +
   labs(
-    title = "Marker expression trajectories along pseudotime",
-    subtitle = "Day20 cell types: NPC-G2/M, NPC-G1, gRG, IPC, Neuron (stratified by genotype)",
-    x = "Pseudotime",
-    y = "log1p(normalized counts)",
-    color = "Cell type"
+    title = "Marker expression along pseudotime",
+    subtitle = paste("Day20 cell types:", paste(target_cell_types, collapse = ", ")),
+    x = "pseudotime",
+    y = "expression"
   ) +
   theme_classic(base_size = 11) +
   theme(
@@ -1056,18 +1077,19 @@ plot_marker_trends <- ggplot(
   )
 
 ggsave(
-  filename = file.path(output_dir_markers, "cds5_marker_expression_pseudotime_by_genotype.pdf"),
-  plot = plot_marker_trends,
-  width = 14,
-  height = 10
+  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_WT_Het_KO_by_gene.pdf"),
+  plot = combined_marker_plot,
+  width = 18,
+  height = 12
 )
 
 ggsave(
-  filename = file.path(output_dir_markers, "cds5_marker_expression_pseudotime_by_genotype.png"),
-  plot = plot_marker_trends,
-  width = 14,
-  height = 10,
+  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_WT_Het_KO_by_gene.png"),
+  plot = combined_marker_plot,
+  width = 18,
+  height = 12,
   dpi = 300
 )
 
-plot_marker_trends
+preview_plot(combined_marker_plot)
+  
