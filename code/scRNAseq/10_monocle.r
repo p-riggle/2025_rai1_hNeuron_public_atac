@@ -942,3 +942,132 @@ big_violin_plot <- ggplot(cds5_df, aes(x = interaction(genotype, cell_type), y =
 ggsave("results/scRNAseq/6_monocle3/violin/big_pseudotime_violin_plot.pdf", 
        plot = big_violin_plot, width = 20, height = 5)
 
+# Track the expression of neuroprogenitor marker genes (e.g. PAX6, SOX2) and neuronal marker genes (e.g. MAP2, NEUN) along pseudotime in day20 cell types (NPC-G2/M, NPC-G1, gRG, IPC, Neuron).
+# We do this for each genotype separately.
+
+marker_genes_requested <- c("PAX6", "SOX2", "MAP2", "NEUN")
+marker_groups <- c(
+  "PAX6" = "Neuroprogenitor",
+  "SOX2" = "Neuroprogenitor",
+  "MAP2" = "Neuronal",
+  "NEUN" = "Neuronal"
+)
+target_cell_types <- c("NPC-G2/M", "NPC-G1", "gRG", "IPC", "Neuron")
+gene_aliases <- c("NEUN" = "RBFOX3")
+
+# Subset to requested cell types and retain pseudotime/genotype metadata
+cds5_sub <- cds5[, colData(cds5)$cell_type %in% target_cell_types]
+cell_md <- as.data.frame(colData(cds5_sub))
+cell_md$cell_id <- rownames(cell_md)
+cell_md$pseudotime <- pseudotime(cds5_sub)
+
+cell_md <- cell_md %>%
+  filter(
+    genotype %in% c("wt", "het", "ko"),
+    !is.na(pseudotime),
+    is.finite(pseudotime)
+  ) %>%
+  mutate(
+    genotype = factor(genotype, levels = c("wt", "het", "ko")),
+    cell_type = factor(cell_type, levels = target_cell_types)
+  )
+
+if (nrow(cell_md) == 0) {
+  stop("No valid cells found for requested cell types with finite pseudotime values.")
+}
+
+# Resolve requested symbols to available matrix rows (NEUN -> RBFOX3 fallback)
+available_genes <- rownames(cds5_sub)
+gene_map <- tibble(requested_gene = marker_genes_requested) %>%
+  mutate(
+    matrix_gene = case_when(
+      requested_gene %in% available_genes ~ requested_gene,
+      requested_gene %in% names(gene_aliases) & gene_aliases[requested_gene] %in% available_genes ~ gene_aliases[requested_gene],
+      TRUE ~ NA_character_
+    ),
+    marker_group = marker_groups[requested_gene]
+  )
+
+missing_marker_genes <- gene_map %>%
+  filter(is.na(matrix_gene)) %>%
+  pull(requested_gene)
+if (length(missing_marker_genes) > 0) {
+  warning(
+    sprintf(
+      "Requested marker genes not found (after alias lookup): %s",
+      paste(missing_marker_genes, collapse = ", ")
+    )
+  )
+}
+
+gene_map <- gene_map %>% filter(!is.na(matrix_gene))
+if (nrow(gene_map) == 0) {
+  stop("None of the requested marker genes were found in cds5 expression matrix.")
+}
+
+expr_long <- map_dfr(seq_len(nrow(gene_map)), function(i) {
+  req_gene <- gene_map$requested_gene[i]
+  mat_gene <- gene_map$matrix_gene[i]
+  grp <- gene_map$marker_group[i]
+
+  expr_vals <- counts(cds5_sub)[mat_gene, cell_md$cell_id]
+
+  tibble(
+    cell_id = cell_md$cell_id,
+    pseudotime = cell_md$pseudotime,
+    genotype = cell_md$genotype,
+    cell_type = cell_md$cell_type,
+    gene = req_gene,
+    matrix_gene = mat_gene,
+    marker_group = grp,
+    expression = as.numeric(expr_vals),
+    log1p_expression = log1p(as.numeric(expr_vals))
+  )
+}) %>%
+  mutate(
+    gene = factor(gene, levels = marker_genes_requested),
+    marker_group = factor(marker_group, levels = c("Neuroprogenitor", "Neuronal"))
+  )
+
+output_dir_markers <- "results/scRNAseq/6_monocle3/marker_expression_pseudotime"
+dir.create(output_dir_markers, recursive = TRUE, showWarnings = FALSE)
+
+plot_marker_trends <- ggplot(
+  expr_long,
+  aes(x = pseudotime, y = log1p_expression, color = cell_type)
+) +
+  geom_point(alpha = 0.2, size = 0.35) +
+  geom_smooth(method = "loess", se = FALSE, span = 0.7, linewidth = 0.8) +
+  facet_grid(gene ~ genotype, scales = "free_y") +
+  scale_color_manual(values = my_cell_colors, drop = FALSE) +
+  labs(
+    title = "Marker expression trajectories along pseudotime",
+    subtitle = "Day20 cell types: NPC-G2/M, NPC-G1, gRG, IPC, Neuron (stratified by genotype)",
+    x = "Pseudotime",
+    y = "log1p(normalized counts)",
+    color = "Cell type"
+  ) +
+  theme_classic(base_size = 11) +
+  theme(
+    strip.background = element_blank(),
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold")
+  )
+
+ggsave(
+  filename = file.path(output_dir_markers, "cds5_marker_expression_pseudotime_by_genotype.pdf"),
+  plot = plot_marker_trends,
+  width = 14,
+  height = 10
+)
+
+ggsave(
+  filename = file.path(output_dir_markers, "cds5_marker_expression_pseudotime_by_genotype.png"),
+  plot = plot_marker_trends,
+  width = 14,
+  height = 10,
+  dpi = 300
+)
+
+plot_marker_trends
