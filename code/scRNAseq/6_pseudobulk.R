@@ -374,6 +374,7 @@ for (comp in comparisons) {
 
 
 # save the restables of each cluster as excel spreadsheet with up- and down-regulated genes in separate tabs
+# install.packages("openxlsx")
 library(openxlsx)
 
 # Create a new workbook
@@ -1897,6 +1898,8 @@ message("GO and KEGG analysis for Mes-WT (WT) vs Mes-Mut (KO) completed. Results
 ### Each workbook includes tabs: GO-BP, GO-CC, KEGG
 ##################################################################################################################
 
+library("openxlsx")
+
 collect_enrichment_summary <- function(dir_path, comparison_label, category_label) {
   if (!dir.exists(dir_path)) {
     return(NULL)
@@ -2015,4 +2018,5 @@ mes_kegg <- subset_summary_by_pattern(mes_all, "enrichKEGG")
 mes_xlsx <- file.path(summary_dir, "go_kegg_summary_WT_MesWT_vs_KO_MesKO.xlsx")
 write_enrichment_workbook(mes_bp, mes_cc, mes_kegg, mes_xlsx)
 message("Workbook saved: ", mes_xlsx)
+
 
