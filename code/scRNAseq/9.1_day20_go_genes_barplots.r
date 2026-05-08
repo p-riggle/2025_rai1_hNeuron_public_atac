@@ -692,5 +692,127 @@ ggsave(
 
 print("Day 20 non-neuronal epithelial genes bar plots created successfully!")
 
+#-------------------------------------------------------------------------------
+# immune genes in both day20 and day60 cell types: SYK, TRBC1, TRBC2, CD8A, BST2
+
+immune_genes <- c("CD8A", "BST2", "SYK", "TRBC1", "TRBC2")
+
+immune_cell_types <- c("NPC-G2/M", "NPC-G1", "Mes-WT", "Mes-KO", "IPC", "Neuron", "gRG")
+
+# Load Day 60 data for Neuron and gRG cell types
+dds_d60 <- readRDS("data/scRNAseq/iwaselab/dds_d60")
+norm_counts_d60 <- counts(dds_d60, normalized = TRUE)
+coldata_d60 <- as.data.frame(colData(dds_d60)) %>%
+	rownames_to_column("sample_id")
+
+immune_expr_d20 <- norm_counts_d20[immune_genes, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d20, by = "sample_id") %>%
+	filter(
+		cluster_d20 %in% c("NPC-G2/M", "NPC-G1", "Mes-WT", "Mes-KO", "IPC"),
+		genotype_d20 %in% genotype_levels
+	) %>%
+	transmute(
+		gene,
+		sample_id,
+		expression,
+		cell_type = cluster_d20,
+		genotype_code = genotype_d20
+	)
+
+immune_expr_d60 <- norm_counts_d60[immune_genes, , drop = FALSE] %>%
+	as.data.frame() %>%
+	rownames_to_column("gene") %>%
+	pivot_longer(
+		cols = -gene,
+		names_to = "sample_id",
+		values_to = "expression"
+	) %>%
+	left_join(coldata_d60, by = "sample_id") %>%
+	filter(
+		cluster_d60 %in% c("Neuron", "gRG"),
+		genotype_d60 %in% genotype_levels
+	) %>%
+	transmute(
+		gene,
+		sample_id,
+		expression,
+		cell_type = cluster_d60,
+		genotype_code = genotype_d60
+	)
+
+immune_expr_long <- bind_rows(immune_expr_d20, immune_expr_d60) %>%
+	mutate(
+		gene = factor(gene, levels = immune_genes),
+		genotype = factor(genotype_labels[genotype_code], levels = c("WT", "HET", "KO")),
+		cell_type = factor(cell_type, levels = immune_cell_types)
+	)
+
+missing_immune_genes <- setdiff(immune_genes, unique(as.character(immune_expr_long$gene)))
+if (length(missing_immune_genes) > 0) {
+	stop(sprintf("Missing immune genes in combined day20/day60 normalized counts: %s", paste(missing_immune_genes, collapse = ", ")))
+}
+
+immune_bar_df <- immune_expr_long %>%
+	group_by(gene, cell_type, genotype) %>%
+	summarise(mean_expression = mean(expression), .groups = "drop")
+
+plot_immune_genes_all_celltypes_norm_counts <- ggplot(
+	immune_bar_df,
+	aes(x = cell_type, y = mean_expression, fill = genotype)
+) +
+	geom_col(width = 0.75, position = position_dodge(width = 0.8)) +
+	geom_point(
+		data = immune_expr_long,
+		aes(x = cell_type, y = expression, fill = genotype),
+		inherit.aes = FALSE,
+		position = position_jitterdodge(jitter.width = 0.18, dodge.width = 0.8),
+		size = 1.8,
+		shape = 21,
+		stroke = 0.35,
+		color = "black"
+	) +
+	facet_wrap(~ gene, nrow = 1, scales = "free_y") +
+	scale_fill_manual(values = genotype_colors, drop = FALSE) +
+	labs(
+		title = "Immune genes pseudobulk expression across all requested cell types",
+		subtitle = "Cell type order: NPC-G2/M, NPC-G1, Mes-WT, Mes-KO, IPC, Neuron, gRG",
+		x = NULL,
+		y = "Normalized counts"
+	) +
+	theme_classic(base_size = 11) +
+	theme(
+		legend.position = "top",
+		legend.title = element_blank(),
+		strip.background = element_blank(),
+		strip.text = element_text(face = "bold"),
+		axis.text.x = element_text(face = "bold", angle = 45, hjust = 1),
+		plot.title = element_text(face = "bold")
+	)
+
+ggsave(
+	filename = file.path(output_dir, "immune_genes_all_cell_types_wt_het_ko_normalized_counts_barplot.pdf"),
+	plot = plot_immune_genes_all_celltypes_norm_counts,
+	width = 17,
+	height = 4.8
+)
+
+ggsave(
+	filename = file.path(output_dir, "immune_genes_all_cell_types_wt_het_ko_normalized_counts_barplot.png"),
+	plot = plot_immune_genes_all_celltypes_norm_counts,
+	width = 17,
+	height = 4.8,
+	dpi = 300
+)
+
+print("Immune gene bar plots across all requested cell types created successfully!")
+
+
 
 
