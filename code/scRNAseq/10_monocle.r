@@ -1031,28 +1031,6 @@ if (all(is.na(colData(marker_cds)$genotype))) {
   stop("No cells with WT/Het/KO genotype labels were found after filtering.")
 }
 
-combined_marker_plot <- plot_genes_in_pseudotime(
-  marker_cds,
-  color_cells_by = "cell_type",
-  min_expr = 0.5
-) +
-  scale_color_manual(values = my_cell_colors, drop = FALSE) +
-  facet_grid(gene_short_name ~ genotype) +
-  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
-  labs(
-    title = "Marker expression along pseudotime",
-    subtitle = "All day20 cell types",
-    x = "pseudotime",
-    y = "expression"
-  ) +
-  theme_classic(base_size = 11) +
-  theme(
-    strip.background = element_blank(),
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom",
-    plot.title = element_text(face = "bold")
-  )
-
 # Rasterize only point layers to reduce vector PDF size while keeping text/axes crisp
 rasterize_point_layers <- function(plot_obj, dpi = 300) {
   point_layer_idx <- which(vapply(
@@ -1069,6 +1047,86 @@ rasterize_point_layers <- function(plot_obj, dpi = 300) {
 
   plot_obj
 }
+
+# Build pseudotime plots with genotype-specific smooth lines in each facet.
+build_pseudotime_plot_with_facet_smooth <- function(
+  cds_obj,
+  facet_formula,
+  plot_title,
+  plot_subtitle,
+  min_expr = 0.5,
+  x_limits = NULL
+) {
+  expr_df <- as.data.frame(as.matrix(SingleCellExperiment::counts(cds_obj)))
+  expr_df$gene_id <- rownames(expr_df)
+
+  expr_long <- expr_df %>%
+    pivot_longer(-gene_id, names_to = "cell_id", values_to = "expression")
+
+  gene_meta <- tibble(
+    gene_id = rownames(rowData(cds_obj)),
+    gene_short_name = as.character(rowData(cds_obj)$gene_short_name)
+  )
+
+  cell_meta <- as.data.frame(colData(cds_obj)) %>%
+    rownames_to_column("cell_id") %>%
+    mutate(pseudotime = as.numeric(pseudotime(cds_obj)))
+
+  plot_df <- expr_long %>%
+    left_join(gene_meta, by = "gene_id") %>%
+    left_join(cell_meta, by = "cell_id") %>%
+    filter(
+      is.finite(pseudotime),
+      !is.na(genotype),
+      !is.na(cell_type),
+      expression >= min_expr
+    )
+
+  if (nrow(plot_df) == 0) {
+    stop("No cells with expression >= min_expr were found for plotting.")
+  }
+
+  p <- ggplot(plot_df, aes(x = pseudotime, y = expression, color = cell_type)) +
+    geom_point(size = 0.55, alpha = 0.9) +
+    geom_smooth(
+      aes(group = 1),
+      method = "gam",
+      formula = y ~ s(x, bs = "cs"),
+      se = FALSE,
+      color = "black",
+      linewidth = 0.6
+    ) +
+    scale_color_manual(values = my_cell_colors, drop = FALSE) +
+    facet_grid(facet_formula) +
+    scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
+    labs(
+      title = plot_title,
+      subtitle = plot_subtitle,
+      x = "pseudotime",
+      y = "expression"
+    ) +
+    theme_classic(base_size = 11) +
+    theme(
+      strip.background = element_blank(),
+      strip.text = element_text(face = "bold"),
+      legend.position = "bottom",
+      plot.title = element_text(face = "bold")
+    )
+
+  if (!is.null(x_limits)) {
+    p <- p + coord_cartesian(xlim = x_limits)
+  }
+
+  p
+}
+
+combined_marker_plot <- build_pseudotime_plot_with_facet_smooth(
+  cds_obj = marker_cds,
+  facet_formula = gene_short_name ~ genotype,
+  plot_title = "Marker expression along pseudotime",
+  plot_subtitle = "All day20 cell types",
+  min_expr = 0.5
+)
 
 combined_marker_plot <- rasterize_point_layers(combined_marker_plot, dpi = 300)
 
@@ -1133,30 +1191,14 @@ colData(postsynaptic_cds)$genotype <- factor(
   labels = c("WT", "Het", "KO")
 )
 
-combined_postsynaptic_plot <- plot_genes_in_pseudotime(
-  postsynaptic_cds,
-  color_cells_by = "cell_type",
-  min_expr = 0.5
-) +
-  scale_color_manual(values = my_cell_colors, drop = FALSE) +
-  facet_grid(gene_short_name ~ genotype) +
-  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
-  labs(
-    title = "Post-synaptic gene expression along pseudotime",
-    subtitle = "All day20 cell types",
-    x = "pseudotime",
-    y = "expression"
-  ) +
-  theme_classic(base_size = 11) +
-  theme(
-    strip.background = element_blank(),
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom",
-    plot.title = element_text(face = "bold")
-  )
-
-combined_postsynaptic_plot <- combined_postsynaptic_plot +
-  coord_cartesian(xlim = c(0, 55))
+combined_postsynaptic_plot <- build_pseudotime_plot_with_facet_smooth(
+  cds_obj = postsynaptic_cds,
+  facet_formula = gene_short_name ~ genotype,
+  plot_title = "Post-synaptic gene expression along pseudotime",
+  plot_subtitle = "All day20 cell types",
+  min_expr = 0.5,
+  x_limits = c(0, 55)
+)
 
 combined_postsynaptic_plot <- rasterize_point_layers(combined_postsynaptic_plot, dpi = 300)
 
@@ -1197,29 +1239,14 @@ colData(vascular_cds)$genotype <- factor(
   levels = c("wt", "het", "ko"),
   labels = c("WT", "Het", "KO")
 )
-combined_vascular_plot <- plot_genes_in_pseudotime(
-  vascular_cds,
-  color_cells_by = "cell_type",
-  min_expr = 0.5
-) +
-  scale_color_manual(values = my_cell_colors, drop = FALSE) +
-  facet_grid(gene_short_name ~ genotype) +
-  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
-  labs(
-    title = "Vascular gene expression along pseudotime",
-    subtitle = "All day20 cell types",
-    x = "pseudotime",
-    y = "expression"
-  ) +
-  theme_classic(base_size = 11) +
-  theme(
-    strip.background = element_blank(),
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom",
-    plot.title = element_text(face = "bold")
-  )
-combined_vascular_plot <- combined_vascular_plot +
-  coord_cartesian(xlim = c(0, 55))
+combined_vascular_plot <- build_pseudotime_plot_with_facet_smooth(
+  cds_obj = vascular_cds,
+  facet_formula = gene_short_name ~ genotype,
+  plot_title = "Vascular gene expression along pseudotime",
+  plot_subtitle = "All day20 cell types",
+  min_expr = 0.5,
+  x_limits = c(0, 55)
+)
 combined_vascular_plot <- rasterize_point_layers(combined_vascular_plot, dpi = 300)
 ggsave(
   filename = file.path(marker_output_dir, "cds5_vascular_expression_pseudotime_WT_Het_KO_by_gene.pdf"),
@@ -1257,29 +1284,14 @@ colData(high_expressers_cds)$genotype <- factor(
   levels = c("wt", "het", "ko"),
   labels = c("WT", "Het", "KO")
 )
-combined_high_expressers_plot <- plot_genes_in_pseudotime(
-  high_expressers_cds,
-  color_cells_by = "cell_type",
-  min_expr = 0.5
-) +
-  scale_color_manual(values = my_cell_colors, drop = FALSE) +
-  facet_grid(gene_short_name ~ genotype) +
-  scale_y_log10(expand = expansion(mult = c(0, 0.05))) +
-  labs(
-    title = "High expresser gene expression along pseudotime",
-    subtitle = "All day20 cell types",
-    x = "pseudotime",
-    y = "expression"
-  ) +
-  theme_classic(base_size = 11) +
-  theme(
-    strip.background = element_blank(),
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom",
-    plot.title = element_text(face = "bold")
-  )
-combined_high_expressers_plot <- combined_high_expressers_plot +
-  coord_cartesian(xlim = c(0, 55))
+combined_high_expressers_plot <- build_pseudotime_plot_with_facet_smooth(
+  cds_obj = high_expressers_cds,
+  facet_formula = gene_short_name ~ genotype,
+  plot_title = "High expresser gene expression along pseudotime",
+  plot_subtitle = "All day20 cell types",
+  min_expr = 0.5,
+  x_limits = c(0, 55)
+)
 combined_high_expressers_plot <- rasterize_point_layers(combined_high_expressers_plot, dpi = 300)
 ggsave(
   filename = file.path(marker_output_dir, "cds5_high_expressers_expression_pseudotime_WT_Het_KO_by_gene.pdf"),
@@ -1292,5 +1304,59 @@ ggsave(
   plot = combined_high_expressers_plot,
   width = 18,
   height = 12,
+  dpi = 300
+)
+
+# Alternate layout: genotype in rows (vertical), genes in columns (horizontal)
+# to compare each gene across WT/Het/KO more directly.
+marker_plot_by_genotype_rows <- build_pseudotime_plot_with_facet_smooth(
+  cds_obj = marker_cds,
+  facet_formula = genotype ~ gene_short_name,
+  plot_title = "Marker expression along pseudotime",
+  plot_subtitle = "Genotype rows x marker gene columns (day20)",
+  min_expr = 0.5,
+  x_limits = c(0, 55)
+)
+
+marker_plot_by_genotype_rows <- rasterize_point_layers(marker_plot_by_genotype_rows, dpi = 300)
+
+ggsave(
+  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_genotype_rows_gene_columns.pdf"),
+  plot = marker_plot_by_genotype_rows,
+  width = 20,
+  height = 10
+)
+
+ggsave(
+  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_genotype_rows_gene_columns.png"),
+  plot = marker_plot_by_genotype_rows,
+  width = 20,
+  height = 10,
+  dpi = 300
+)
+
+high_expressers_plot_by_genotype_rows <- build_pseudotime_plot_with_facet_smooth(
+  cds_obj = high_expressers_cds,
+  facet_formula = genotype ~ gene_short_name,
+  plot_title = "High expresser gene expression along pseudotime",
+  plot_subtitle = "Genotype rows x high expresser gene columns (day20)",
+  min_expr = 0.5,
+  x_limits = c(0, 55)
+)
+
+high_expressers_plot_by_genotype_rows <- rasterize_point_layers(high_expressers_plot_by_genotype_rows, dpi = 300)
+
+ggsave(
+  filename = file.path(marker_output_dir, "cds5_high_expressers_expression_pseudotime_genotype_rows_gene_columns.pdf"),
+  plot = high_expressers_plot_by_genotype_rows,
+  width = 24,
+  height = 10
+)
+
+ggsave(
+  filename = file.path(marker_output_dir, "cds5_high_expressers_expression_pseudotime_genotype_rows_gene_columns.png"),
+  plot = high_expressers_plot_by_genotype_rows,
+  width = 24,
+  height = 10,
   dpi = 300
 )
