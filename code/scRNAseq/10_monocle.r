@@ -951,7 +951,7 @@ ggsave("results/scRNAseq/6_monocle3/violin/big_pseudotime_violin_plot.pdf",
 
 ###################################################################
 
-# Track the expression of neuroprogenitor marker genes (e.g. PAX6, SOX2) and neuronal marker genes (e.g. MAP2, NEUN) along pseudotime in day20 cell types (NPC-G2/M, NPC-G1, gRG, IPC, Neuron).
+# Track the expression of neuroprogenitor marker genes (e.g. PAX6, SOX2) and neuronal marker genes (e.g. MAP2, RBFOX3) along pseudotime in day20 cell types (NPC-G2/M, NPC-G1, gRG, IPC, Neuron).
 # We do this for each genotype separately.
 
 # set working directory
@@ -966,81 +966,56 @@ library(monocle3)
 # Define this once at the top of your script
 my_cell_colors <- c(
   "NPC-G2/M" = "hotpink",
+  "Neuron" = "dodgerblue",
   "Mes-WT" = "forestgreen",
   "Mes-KO"  = "yellowgreen",
   "NPC-G1" = "purple",
+  "gRG" = "orangered",
   "IPC"        = "gold"
 )
 
 # Load the saved cds objects with pseudotime
 cds5 <- load_monocle_objects(directory_path = "data/scRNAseq/iwaselab/rdata/monocle3_cds5_pseudotime")
 
-marker_genes_requested <- c("PAX6", "SOX2", "MAP2", "NEUN")
-target_cell_types <- c("NPC-G2/M", "NPC-G1", "Mes-WT", "Mes-KO", "IPC")
-gene_aliases <- c("NEUN" = "RBFOX3")
+# print the list of metadata columns in cds5
+print("Metadata columns in cds5:")
+print(colnames(colData(cds5)))
+
+# check what values are in the day column
+print(unique(colData(cds5)$day))
+# [1] day20 day60
+# Levels: day20 day60
+
+# subset to day20 before marker analysis
+day20_cells <- as.character(colData(cds5)$day) == "day20"
+if (!any(day20_cells)) {
+  stop("No day20 cells found in cds5.")
+}
+cds5_day20 <- cds5[, day20_cells]
+
+# set marker genes 
+marker_genes_requested <- c("PAX6", "SOX2", "MAP2", "RBFOX3")
 marker_output_dir <- "results/scRNAseq/6_monocle3/marker_expression_pseudotime"
 
 dir.create(marker_output_dir, recursive = TRUE, showWarnings = FALSE)
 
-marker_cells <- colData(cds5)$cell_type %in% target_cell_types &
-  colData(cds5)$genotype %in% c("wt", "het", "ko") &
-  !is.na(pseudotime(cds5)) &
-  is.finite(pseudotime(cds5))
+marker_cells <- colData(cds5_day20)$genotype %in% c("wt", "het", "ko") &
+  !is.na(pseudotime(cds5_day20)) &
+  is.finite(pseudotime(cds5_day20))
 
 if (!any(marker_cells)) {
-  stop("No valid cells found for marker pseudotime plots in the requested day20 cell types.")
+  stop("No valid cells found for marker pseudotime plots in day20.")
 }
 
 gene_map <- tibble(requested_gene = marker_genes_requested) %>%
   mutate(
-    matrix_gene = case_when(
-      requested_gene %in% rowData(cds5)$gene_short_name ~ requested_gene,
-      requested_gene %in% rownames(cds5) ~ requested_gene,
-      requested_gene %in% names(gene_aliases) & gene_aliases[requested_gene] %in% rowData(cds5)$gene_short_name ~ unname(gene_aliases[requested_gene]),
-      requested_gene %in% names(gene_aliases) & gene_aliases[requested_gene] %in% rownames(cds5) ~ unname(gene_aliases[requested_gene]),
-      TRUE ~ NA_character_
+    gene_row = dplyr::coalesce(
+      rownames(cds5_day20)[match(requested_gene, rowData(cds5_day20)$gene_short_name)],
+      rownames(cds5_day20)[match(requested_gene, rownames(cds5_day20))]
     )
   )
 
-missing_marker_genes <- gene_map %>%
-  filter(is.na(matrix_gene)) %>%
-  pull(requested_gene)
-
-if (length(missing_marker_genes) > 0) {
-  warning(
-    sprintf(
-      "Requested marker genes not found (after alias lookup): %s",
-      paste(missing_marker_genes, collapse = ", ")
-    )
-  )
-}
-
-gene_map <- gene_map %>% filter(!is.na(matrix_gene))
-if (nrow(gene_map) == 0) {
-  stop("None of the requested marker genes were found in cds5.")
-}
-
-gene_rows <- vapply(seq_len(nrow(gene_map)), function(i) {
-  short_name_matches <- which(rowData(cds5)$gene_short_name == gene_map$matrix_gene[i])
-  if (length(short_name_matches) > 0) {
-    return(rownames(cds5)[short_name_matches[1]])
-  }
-
-  row_name_matches <- which(rownames(cds5) == gene_map$matrix_gene[i])
-  if (length(row_name_matches) > 0) {
-    return(rownames(cds5)[row_name_matches[1]])
-  }
-
-  NA_character_
-}, character(1))
-
-gene_map$gene_row <- gene_rows
-gene_map <- gene_map %>% filter(!is.na(gene_row))
-if (nrow(gene_map) == 0) {
-  stop("Unable to resolve requested marker genes to rows in cds5.")
-}
-
-marker_cds <- cds5[gene_map$gene_row, colnames(cds5)[marker_cells]]
+marker_cds <- cds5_day20[gene_map$gene_row, colnames(cds5_day20)[marker_cells]]
 rowData(marker_cds)$gene_short_name <- gene_map$requested_gene[
   match(rownames(marker_cds), gene_map$gene_row)
 ]
@@ -1061,10 +1036,11 @@ combined_marker_plot <- plot_genes_in_pseudotime(
   min_expr = 0.5
 ) +
   scale_color_manual(values = my_cell_colors, drop = FALSE) +
-  facet_grid(gene_short_name ~ genotype, scales = "free_y") +
+  facet_grid(gene_short_name ~ genotype) +
+  scale_y_continuous(limits = c(0, NA), expand = expansion(mult = c(0, 0.05))) +
   labs(
     title = "Marker expression along pseudotime",
-    subtitle = paste("Day20 cell types:", paste(target_cell_types, collapse = ", ")),
+    subtitle = "All day20 cell types",
     x = "pseudotime",
     y = "expression"
   ) +
