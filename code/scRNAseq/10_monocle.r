@@ -163,12 +163,6 @@ for (i in seq_along(cds_objects)) {
 }
 
 combined_umap <- umap_list[[1]] + umap_list[[2]] + umap_list[[3]] + umap_list[[4]] + umap_list[[5]] + plot_layout(ncol = 3)
-ggsave(
-  filename = "results/scRNAseq/6_monocle3/umap_combined.png",
-  plot = combined_umap,
-  width = 18,
-  height = 8
-)
 
 # save each plot as separate png files using loop
 for (i in seq_along(umap_list)) {
@@ -1122,47 +1116,34 @@ build_pseudotime_plot_with_facet_smooth <- function(
 
 combined_marker_plot <- build_pseudotime_plot_with_facet_smooth(
   cds_obj = marker_cds,
-  facet_formula = gene_short_name ~ genotype,
+  facet_formula = genotype ~ gene_short_name,
   plot_title = "Marker expression along pseudotime",
-  plot_subtitle = "All day20 cell types",
+  plot_subtitle = "Genotype rows x marker gene columns (day20)",
   min_expr = 0.5
 )
 
 combined_marker_plot <- rasterize_point_layers(combined_marker_plot, dpi = 300)
 
 ggsave(
-  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_WT_Het_KO_by_gene.pdf"),
+  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_genotype_rows_gene_columns.pdf"),
   plot = combined_marker_plot,
-  width = 18,
-  height = 12
+  width = 20,
+  height = 10
 )
 
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_WT_Het_KO_by_gene.png"),
-  plot = combined_marker_plot,
-  width = 18,
-  height = 12,
-  dpi = 300
-)
 
 # make additional plot with X-axis range 0-55
 combined_marker_plot_zoom <- combined_marker_plot +
   coord_cartesian(xlim = c(0, 55))
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_WT_Het_KO_by_gene_zoom.png"),
-  plot = combined_marker_plot_zoom,
-  width = 18,
-  height = 12,
-  dpi = 300
-)
+
 
 # save the zoomed plot with rasterized points as pdf to reduce file size
 combined_marker_plot_zoom <- rasterize_point_layers(combined_marker_plot_zoom, dpi = 300)
 ggsave(
-  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_WT_Het_KO_by_gene_zoom.pdf"),
+  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_genotype_rows_gene_columns_zoom.pdf"),
   plot = combined_marker_plot_zoom,
-  width = 18,
-  height = 12
+  width = 20,
+  height = 10
 )
 
 # Now plot post-synaptic genes (ERBB4 and GRIK1) along pseudotime in day20 cells for each genotype separately.
@@ -1193,9 +1174,9 @@ colData(postsynaptic_cds)$genotype <- factor(
 
 combined_postsynaptic_plot <- build_pseudotime_plot_with_facet_smooth(
   cds_obj = postsynaptic_cds,
-  facet_formula = gene_short_name ~ genotype,
+  facet_formula = genotype ~ gene_short_name,
   plot_title = "Post-synaptic gene expression along pseudotime",
-  plot_subtitle = "All day20 cell types",
+  plot_subtitle = "Genotype rows x post-synaptic gene columns (day20)",
   min_expr = 0.5,
   x_limits = c(0, 55)
 )
@@ -1203,19 +1184,12 @@ combined_postsynaptic_plot <- build_pseudotime_plot_with_facet_smooth(
 combined_postsynaptic_plot <- rasterize_point_layers(combined_postsynaptic_plot, dpi = 300)
 
 ggsave(
-  filename = file.path(marker_output_dir, "cds5_postsynaptic_expression_pseudotime_WT_Het_KO_by_gene.pdf"),
+  filename = file.path(marker_output_dir, "cds5_postsynaptic_expression_pseudotime_genotype_rows_gene_columns.pdf"),
   plot = combined_postsynaptic_plot,
-  width = 18,
+  width = 7,
   height = 6
 )
 
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_postsynaptic_expression_pseudotime_WT_Het_KO_by_gene.png"),
-  plot = combined_postsynaptic_plot,
-  width = 18,
-  height = 6,
-  dpi = 300
-)
 
 # same plots for vascular markers (PECAM1 and PLVAP)
 vascular_genes_requested <- c("PECAM1", "PLVAP")
@@ -1241,26 +1215,20 @@ colData(vascular_cds)$genotype <- factor(
 )
 combined_vascular_plot <- build_pseudotime_plot_with_facet_smooth(
   cds_obj = vascular_cds,
-  facet_formula = gene_short_name ~ genotype,
+  facet_formula = genotype ~ gene_short_name,
   plot_title = "Vascular gene expression along pseudotime",
-  plot_subtitle = "All day20 cell types",
+  plot_subtitle = "Genotype rows x vascular gene columns (day20)",
   min_expr = 0.5,
   x_limits = c(0, 55)
 )
 combined_vascular_plot <- rasterize_point_layers(combined_vascular_plot, dpi = 300)
 ggsave(
-  filename = file.path(marker_output_dir, "cds5_vascular_expression_pseudotime_WT_Het_KO_by_gene.pdf"),
+  filename = file.path(marker_output_dir, "cds5_vascular_expression_pseudotime_genotype_rows_gene_columns.pdf"),
   plot = combined_vascular_plot,
-  width = 18,
+  width = 7,
   height = 6
 )
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_vascular_expression_pseudotime_WT_Het_KO_by_gene.png"),
-  plot = combined_vascular_plot,
-  width = 18,
-  height = 6,
-  dpi = 300
-)
+
 
 # make similar plots for high expressers ITGA1, ITGA3, ITGA5, TRBC2, ACTC1
 high_expressers_requested <- c("ITGA1", "ITGA3", "ITGA5", "TRBC2", "ACTC1")
@@ -1283,59 +1251,7 @@ colData(high_expressers_cds)$genotype <- factor(
   as.character(colData(high_expressers_cds)$genotype),
   levels = c("wt", "het", "ko"),
   labels = c("WT", "Het", "KO")
-)
 combined_high_expressers_plot <- build_pseudotime_plot_with_facet_smooth(
-  cds_obj = high_expressers_cds,
-  facet_formula = gene_short_name ~ genotype,
-  plot_title = "High expresser gene expression along pseudotime",
-  plot_subtitle = "All day20 cell types",
-  min_expr = 0.5,
-  x_limits = c(0, 55)
-)
-combined_high_expressers_plot <- rasterize_point_layers(combined_high_expressers_plot, dpi = 300)
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_high_expressers_expression_pseudotime_WT_Het_KO_by_gene.pdf"),
-  plot = combined_high_expressers_plot,
-  width = 18,
-  height = 12
-)
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_high_expressers_expression_pseudotime_WT_Het_KO_by_gene.png"),
-  plot = combined_high_expressers_plot,
-  width = 18,
-  height = 12,
-  dpi = 300
-)
-
-# Alternate layout: genotype in rows (vertical), genes in columns (horizontal)
-# to compare each gene across WT/Het/KO more directly.
-marker_plot_by_genotype_rows <- build_pseudotime_plot_with_facet_smooth(
-  cds_obj = marker_cds,
-  facet_formula = genotype ~ gene_short_name,
-  plot_title = "Marker expression along pseudotime",
-  plot_subtitle = "Genotype rows x marker gene columns (day20)",
-  min_expr = 0.5,
-  x_limits = c(0, 55)
-)
-
-marker_plot_by_genotype_rows <- rasterize_point_layers(marker_plot_by_genotype_rows, dpi = 300)
-
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_genotype_rows_gene_columns.pdf"),
-  plot = marker_plot_by_genotype_rows,
-  width = 20,
-  height = 10
-)
-
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_marker_expression_pseudotime_genotype_rows_gene_columns.png"),
-  plot = marker_plot_by_genotype_rows,
-  width = 20,
-  height = 10,
-  dpi = 300
-)
-
-high_expressers_plot_by_genotype_rows <- build_pseudotime_plot_with_facet_smooth(
   cds_obj = high_expressers_cds,
   facet_formula = genotype ~ gene_short_name,
   plot_title = "High expresser gene expression along pseudotime",
@@ -1343,20 +1259,11 @@ high_expressers_plot_by_genotype_rows <- build_pseudotime_plot_with_facet_smooth
   min_expr = 0.5,
   x_limits = c(0, 55)
 )
-
-high_expressers_plot_by_genotype_rows <- rasterize_point_layers(high_expressers_plot_by_genotype_rows, dpi = 300)
-
+combined_high_expressers_plot <- rasterize_point_layers(combined_high_expressers_plot, dpi = 300)
 ggsave(
   filename = file.path(marker_output_dir, "cds5_high_expressers_expression_pseudotime_genotype_rows_gene_columns.pdf"),
-  plot = high_expressers_plot_by_genotype_rows,
+  plot = combined_high_expressers_plot,
   width = 24,
   height = 10
 )
 
-ggsave(
-  filename = file.path(marker_output_dir, "cds5_high_expressers_expression_pseudotime_genotype_rows_gene_columns.png"),
-  plot = high_expressers_plot_by_genotype_rows,
-  width = 24,
-  height = 10,
-  dpi = 300
-)
