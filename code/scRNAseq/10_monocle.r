@@ -1250,7 +1250,7 @@ rowData(high_expressers_cds)$gene_short_name <- high_expressers_gene_map$request
 colData(high_expressers_cds)$genotype <- factor(
   as.character(colData(high_expressers_cds)$genotype),
   levels = c("wt", "het", "ko"),
-  labels = c("WT", "Het", "KO")
+  labels = c("WT", "Het", "KO"))
 combined_high_expressers_plot <- build_pseudotime_plot_with_facet_smooth(
   cds_obj = high_expressers_cds,
   facet_formula = genotype ~ gene_short_name,
@@ -1266,4 +1266,41 @@ ggsave(
   width = 24,
   height = 10
 )
+
+# plot for cilia genes CFAP100 and CFAP47
+cilia_genes_requested <- c("CFAP100", "CFAP47")
+cilia_gene_map <- tibble(requested_gene = cilia_genes_requested) %>%
+  mutate(
+    gene_row = dplyr::coalesce(
+      rownames(cds5_day20)[match(requested_gene, rowData(cds5_day20)$gene_short_name)],
+      rownames(cds5_day20)[match(requested_gene, rownames(cds5_day20))]
+    )
+  )
+cilia_cds <- cds5_day20[
+  cilia_gene_map$gene_row,
+  colnames(cds5_day20)[marker_cells]
+]
+rowData(cilia_cds)$gene_short_name <- cilia_gene_map$requested_gene[
+  match(rownames(cilia_cds), cilia_gene_map$gene_row) ]
+colData(cilia_cds)$genotype <- factor(
+  as.character(colData(cilia_cds)$genotype),
+  levels = c("wt", "het", "ko"),
+  labels = c("WT", "Het", "KO")
+)
+combined_cilia_plot <- build_pseudotime_plot_with_facet_smooth(
+  cds_obj = cilia_cds,
+  facet_formula = genotype ~ gene_short_name,
+  plot_title = "Cilia gene expression along pseudotime",
+  plot_subtitle = "Genotype rows x cilia gene columns (day20)",
+  min_expr = 0.5,
+  x_limits = c(0, 55)
+)
+combined_cilia_plot <- rasterize_point_layers(combined_cilia_plot, dpi = 300)
+ggsave(
+  filename = file.path(marker_output_dir, "cds5_cilia_expression_pseudotime_genotype_rows_gene_columns.pdf"),
+  plot = combined_cilia_plot,
+  width = 7,
+  height = 6
+)
+
 
