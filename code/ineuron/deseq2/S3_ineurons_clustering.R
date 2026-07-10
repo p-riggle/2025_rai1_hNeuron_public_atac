@@ -5,7 +5,7 @@
 # import tpm file
 
 # Read the data
-tpm <- read.delim("/Users/satabdi/Downloads/rscripts/ineurons_gene_expected_count.annot (1).txt", header = TRUE, sep = "\t")
+tpm <- read.delim("/Users/satabdi/Downloads/gene_TPM.annot.txt", header = TRUE, sep = "\t")
 head(tpm)
 
 # Clean column names
@@ -22,22 +22,22 @@ colnames(tpm)
 #Remove extra or duplicated Columns
 tpm <- tpm[, -c(24, 27)]
 colnames(tpm)
-           
+
 # Renaming the column Names
- new_colnames <- c(
- "wt_d0_s1", "wt_d0_s2", "wt_d0_s3", "wt_d0_s4", "wt_d3_s1", "wt_d3_s2", 
- "wt_d3_s3", "wt_d3_s4", "wt_d7_s1", "wt_d7_s2", "wt_d7_s3", "wt_d7_s4", 
-"het_d0_s1", "het_d0_s2", "het_d0_s3", "het_d0_s4", "het_d3_s1", "het_d3_s2", 
- "het_d3_s3", "het_d3_s4" , "het_d7_s1", "het_d7_s2", "het_d7_s3", "het_d7_s4",
- "ko_d0_s1", "ko_d0_s2", "ko_d0_s3", "ko_d0_s4", "ko_d3_s1", "ko_d3_s2", 
-"ko_d3_s3", "ko_d3_s4" , "ko_d7_s1", "ko_d7_s2", "ko_d7_s3", "ko_d7_s4"
-  )
-           
-           
+new_colnames <- c(
+  "wt_d0_s1", "wt_d0_s2", "wt_d0_s3", "wt_d0_s4", "wt_d3_s1", "wt_d3_s2", 
+  "wt_d3_s3", "wt_d3_s4", "wt_d7_s1", "wt_d7_s2", "wt_d7_s3", "wt_d7_s4", 
+  "het_d0_s1", "het_d0_s2", "het_d0_s3", "het_d0_s4", "het_d3_s1", "het_d3_s2", 
+  "het_d3_s3", "het_d3_s4" , "het_d7_s1", "het_d7_s2", "het_d7_s3", "het_d7_s4",
+  "ko_d0_s1", "ko_d0_s2", "ko_d0_s3", "ko_d0_s4", "ko_d3_s1", "ko_d3_s2", 
+  "ko_d3_s3", "ko_d3_s4" , "ko_d7_s1", "ko_d7_s2", "ko_d7_s3", "ko_d7_s4"
+)
+
+
 # Rename the columns
 colnames(tpm)[5:40] <- new_colnames
-
-#calcurate tpm average between replicates
+head(tpm)
+#calculate tpm average between replicates
 
 tpm$het_0 <- rowMeans(tpm[17:20])
 tpm$het_3 <- rowMeans(tpm[21:24])
@@ -57,18 +57,25 @@ colnames(tpm)
 tpm[, c(5:40)] <- NULL
 
 # reorder column
-tpm <- tpm[, c(3,11:13,5:7,8:10)]
+tpm <- tpm[, c(1,11:13,5:7,8:10)]
 head(tpm)
 
+# write the tpm into an excel spreadsheet for record
+install.packages("openxlsx")
+library(openxlsx)
+write.xlsx(tpm, file = "/Users/satabdi/Downloads/tpm_avg.xlsx", rowNames = FALSE)
+# also write as txt file
+write.table(tpm, file = "/Users/satabdi/Downloads/tpm_avg.txt", sep = "\t", row.names = FALSE, quote = FALSE)
+
 # import restables
-rstbl_d0_het <- read.table("/Users/satabdi/Downloads/rscripts/Results/rstbl_d0_wt.vs.het.txt", header = TRUE)
-rstbl_d3_het <- read.table("/Users/satabdi/Downloads/rscripts/Results/rstbl_d3_wt.vs.het.txt", header = TRUE)
-rstbl_d7_het <- read.table("/Users/satabdi/Downloads/rscripts/Results/rstbl_d7_wt.vs.het.txt", header = TRUE)
+rstbl_d0_het <- read.table("/Users/satabdi/Downloads/rstbl_d0_wt.vs.het.txt", header = TRUE)
+rstbl_d3_het <- read.table("/Users/satabdi/Downloads/rstbl_d3_wt.vs.het.txt", header = TRUE)
+rstbl_d7_het <- read.table("/Users/satabdi/Downloads/rstbl_d7_wt.vs.het.txt", header = TRUE)
 
 
-rstbl_d0_ko <- read.table("/Users/satabdi/Downloads/rscripts/Results/rstbl_d0_wt.vs.ko.txt", header = TRUE)
-rstbl_d3_ko <- read.table("/Users/satabdi/Downloads/rscripts/Results/rstbl_d3_wt.vs.ko.txt", header = TRUE)
-rstbl_d7_ko <- read.table("/Users/satabdi/Downloads/rscripts/Results/rstbl_d7_wt.vs.ko.txt", header = TRUE)
+rstbl_d0_ko <- read.table("/Users/satabdi/Downloads/rstbl_d0_wt.vs.ko.txt", header = TRUE)
+rstbl_d3_ko <- read.table("/Users/satabdi/Downloads/rstbl_d3_wt.vs.ko.txt", header = TRUE)
+rstbl_d7_ko <- read.table("/Users/satabdi/Downloads/rstbl_d7_wt.vs.ko.txt", header = TRUE)
 
 
 #combine the 6 restables
@@ -76,29 +83,23 @@ rstbls <- cbind.data.frame(list(rstbl_d0_het, rstbl_d0_ko, rstbl_d3_het, rstbl_d
 
 head(rstbls)
 colnames(rstbls)
-# remove non needed columns
-rstbls[, c(4, 10, 16, 22, 28, 34)] <- NULL
+# remove non needed columns 
+
+rstbls <- rstbls[, -c(4, 7, 11, 14, 18, 21, 25, 28, 32, 35, 39)]
 colnames(rstbls) <- c("bmean_d0_het", "log2fc_d0_het", "lfcse_d0_het", "pvalue_d0_het", "padj_d0_het", 
                       "bmean_d0_ko", "log2fc_d0_ko", "lfcse_d0_ko", "pvalue_d0_ko", "padj_d0_ko",
                       "bmean_d3_het", "log2fc_d3_het", "lfcse_d3_het", "pvalue_d3_het", "padj_d3_het",
                       "bmean_d3_ko", "log2fc_d3_ko", "lfcse_d3_ko", "pvalue_d3_ko", "padj_d3_ko",
                       "bmean_d7_het", "log2fc_d7_het", "lfcse_d7_het", "pvalue_d7_het", "padj_d7_het", 
-                      "bmean_d7_ko", "log2fc_d7_ko", "lfcse_d7_ko", "pvalue_d7_ko", "padj_d7_ko")
-                      
-# ("entrezid") I have excluded as it was not present in rstbls dataframe , but there in original code
+                      "bmean_d7_ko", "log2fc_d7_ko", "lfcse_d7_ko", "pvalue_d7_ko", "padj_d7_ko","entrezid")
 
-#Merged an extra column of Gene_id from tpm
-rstbls$Gene_id <- tpm$Gene_id
-
+head(rstbls)
 colnames(rstbls)
 
-# Drop columns with NA names
-rstbls <- rstbls[, !is.na(names(rstbls))]
+# write the combined restable for record as excel and txt
+write.xlsx(rstbls, file = "/Users/satabdi/Downloads/combined_restables.xlsx", rowNames = TRUE)
+write.table(rstbls, file = "/Users/satabdi/Downloads/combined_restables.txt", sep = "\t", row.names = TRUE, quote = FALSE)  
 
-# Bring "Gene_id" to the First Column
-rstbls <- rstbls[, c("Gene_id", setdiff(names(rstbls), "Gene_id"))]
-
-colnames(rstbls)
 
 #Select all DEGs
 degs <- subset(rstbls, padj_d0_het < 0.05 | padj_d3_het < 0.05 | padj_d7_het < 0.05 | padj_d0_ko < 0.05 | padj_d3_ko < 0.05 | padj_d7_ko < 0.05 )
@@ -114,23 +115,20 @@ nrow(degs)
 prcnt_degs2 <- nrow(degs)/nrow(rstbls)*100
 prcnt_degs2
 
-# Subset tpm to keep only the rows with symbols in degs
-deg_tpm <- tpm[tpm$Gene_id %in% degs$Gene_id, ]
-
-#Remove Duplicate Gene IDs (If Duplicate Genes Are Not Needed).
-#If you don't need to keep duplicate gene IDs, you can filter them out before assigning row names:
-#This code removes rows with duplicate Gene_id values and sets unique gene IDs as row names.
-deg_tpm <- deg_tpm[!duplicated(deg_tpm$Gene_id), ]
-row.names(deg_tpm) <- deg_tpm$Gene_id
-deg_tpm$Gene_id <- NULL
-
+# Subset tpm to keep only the rows with gene_id in degs
+deg_tpm <- tpm[tpm$gene_id %in% rownames(degs), ]
+row.names(deg_tpm) <- make.unique(deg_tpm$gene_id)
+deg_tpm$gene_id <- NULL
 nrow(deg_tpm)
 head(deg_tpm)
+colnames((deg_tpm))
+
 
 #reorder columns by genotype -> days
 deg_tpm <- deg_tpm[, c(1, 4, 7, 2, 5, 8, 3, 6, 9)]
 colnames(deg_tpm)
 colnames(deg_tpm) <- c("WT_d0", "HET_d0", "KO_d0", "WT_d3", "HET_d3", "KO_d3", "WT_d7", "HET_d7", "KO_d7")
+
 # convert dataframe into matrix
 deg_tpm <- as.matrix(deg_tpm)
 
@@ -187,8 +185,8 @@ hclust1.7 <- cutree(hr, h=1.7)
 hclust1.8 <- cutree(hr, h=1.8)
 
 # dinamic tree cutting ####
-#install.packages('dendextend')
-#nstall.packages("dynamicTreeCut")
+install.packages('dendextend')
+install.packages("dynamicTreeCut")
 library('dynamicTreeCut')
 
 library('dendextend')
@@ -206,7 +204,7 @@ head(kclusters)
 
 
 # plot tree again andadd the cluster vectors 
-pdf(sprintf("/Users/satabdi/Downloads/rscripts/Results/%s_tree_deg.pdf", Sys.Date()), width = 10, height = 10)
+pdf(sprintf("/Users/satabdi/Downloads/%s_tree_deg.pdf", Sys.Date()), width = 10, height = 10)
 
 plot(tree_deg,
      leaflab = "none",
@@ -227,24 +225,24 @@ dev.off()
 # Employ tava method to plot median and all genes of each cluster ####
 # cut tree and assign cluster# to genes
 library(tidyverse)
-
+library(dplyr)
 head(hclust1.6)
 
 hclust1.6 <- cutree(hr, h = 1.6) %>% 
   # turn the named vector into a tibble
   enframe() %>% 
   # rename some of the columns
-  rename(gene = name, cluster = value)
+  dplyr::rename(gene = name, cluster = value)
 hclust1.7 <- cutree(hr, h = 1.7) %>% 
   # turn the named vector into a tibble
   enframe() %>% 
   # rename some of the columns
-  rename(gene = name, cluster = value)
+  dplyr::rename(gene = name, cluster = value)
 hclust1.8 <- cutree(hr, h = 1.8) %>% 
   # turn the named vector into a tibble
   enframe() %>% 
   # rename some of the columns
-  rename(gene = name, cluster = value)
+  dplyr::rename(gene = name, cluster = value)
 kclust7 <- kclust7$cluster %>%
   # turn the named vector into a tibble
   enframe() 
@@ -306,8 +304,8 @@ head(cmk7)
 cmk7$cluster
 
 # write cluster dataframe for pathway analysis
-write.table(cm1.8, file = "/Users/satabdi/Downloads/rscripts/Results/cluster_clh.txt", sep = "\t")
-write.table(cmk7, file = "/Users/satabdi/Downloads/rscripts/Results/cluster_clk.txt", sep = "\t")
+write.table(cm1.8, file = "/Users/satabdi/Downloads/cluster_clh.txt", sep = "\t")
+write.table(cmk7, file = "/Users/satabdi/Downloads/cluster_clk.txt", sep = "\t")
 
 # Plot gene expression of each cluster ####
 library("colorspace")
@@ -344,7 +342,7 @@ lpk7
 
 # make cluster line plots
 library(gridExtra)
-pdf(sprintf("/Users/satabdi/Downloads/rscripts/Results/cluster_%s_cluster_lineplot.pdf", Sys.Date()), width = 12, height = 9)
+pdf(sprintf("/Users/satabdi/Downloads/cluster_%s_cluster_lineplot.pdf", Sys.Date()), width = 12, height = 9)
 grid.arrange(
   arrangeGrob(lp1.6, ncol = 1, top = "Hiearchical: 1.6"), 
   arrangeGrob(lp1.7, ncol = 1, top = "Hiearchical:1.7"),
@@ -354,7 +352,7 @@ grid.arrange(
 )
 dev.off()
 
-pdf(sprintf("/Users/satabdi/Downloads/rscripts/Results/cluster_%s_lineplot2.pdf", Sys.Date()), width = 12, height = 9)
+pdf(sprintf("/Users/satabdi/Downloads/cluster_%s_lineplot2.pdf", Sys.Date()), width = 12, height = 9)
 grid.arrange(
   arrangeGrob(lp1.8, ncol = 1, top = "Hiearchical:1.8"), 
   arrangeGrob(lpk7, ncol = 1, top = "K-means: 7"),
@@ -367,7 +365,7 @@ table(c1.8$cluster)
 table(k7$cluster)
 
 # define color for heatmap
-#install.packages("colorspace")
+install.packages("colorspace")
 library("colorspace")
 hcl_palettes(plot = TRUE)
 br <- diverging_hcl(10, palette = "Blue-Red3") 
@@ -376,7 +374,10 @@ br <- diverging_hcl(10, palette = "Blue-Red3")
 # try ComplexHeatmap 
 # ref: https://www.datanovia.com/en/lessons/heatmap-in-r-static-and-interactive-visualization/
 
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
 
+BiocManager::install("ComplexHeatmap")
 library(ComplexHeatmap)
 
 df <- scale(deg_z)
@@ -400,7 +401,7 @@ colnames(df) = rep(c("WT", "HET", "KO"), 3)
 # Check the data frame
 print(df)
 
-pdf(sprintf("/Users/satabdi/Downloads/rscripts/Results/cluster_%s_degheatmap_hc.pdf", Sys.Date()), width = 9, height = 10)
+pdf(sprintf("/Users/satabdi/Downloads/cluster_%s_degheatmap_hc.pdf", Sys.Date()), width = 9, height = 10)
 
 hm1 <- Heatmap(df, name = "Z score (Hiearchical)", 
                row_names_gp = gpar(fontsize = 6.5),
@@ -420,7 +421,7 @@ dev.off()
 # split by k-mean clustering
 library("cluster")
 
-pdf(sprintf("/Users/satabdi/Downloads/rscripts/Results/%s_degheatmap_km.pdf", Sys.Date()), width = 9, height = 10)
+pdf(sprintf("/Users/satabdi/Downloads/%s_degheatmap_km.pdf", Sys.Date()), width = 9, height = 10)
 
 hm2 <- Heatmap(df, name = "Z score (K-means)", 
                row_names_gp = gpar(fontsize = 6.5),
