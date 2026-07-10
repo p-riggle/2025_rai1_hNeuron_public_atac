@@ -1,51 +1,37 @@
 #Q: How many genes go up or down at d0, d3 and d7? ####
-# this script generates PCA plot and bar plot of DEgene numbers. 
+# this script generates PCA plot and bar plot of DEgene numbers foe ineuron RNA-seq Data set 
 
 ## Load DEseq2 ####
-#BiocManager::install("DESeq2")
-#install.packages("BiocManager")
-#install.packages("dplyr")
+installed.packages("DESeq2")
+install.packages("BiocManager")
+install.packages("dplyr")
 
 
-#BiocManager::install("DESeq2")
+BiocManager::install("DESeq2")
 library(DESeq2)
 
 #Load forestmngr to do rounding of numbers
 library(dplyr)
 
 #import gene count file
-count <- read.delim("/Users/satabdi/Downloads/rscripts/ineurons_gene_expected_count.annot (1).txt")
+count <- read.delim("/Users/satabdi/Downloads/gene_expected_count.annot.txt")
 colnames(count) <- gsub(".expected_count","",colnames(count))
 colnames(count)
 
-#set the Geneid as rownames
+
+#set the geneid as rownames
 rownames(count) <- count$gene_id
 count$gene_id <- NULL
+head(count)
 
-
-# Keep Only Numeric Columns Before Rounding. Instead of manually dropping each column, select only numeric ones:
+# Keep Only Numeric Columns Before Rounding.
 count <- count[, sapply(count, is.numeric)]
 count <- round(count)
 
 #This ensures that round() is applied only to numeric data. Check Data Types Before Proceeding.
-#To confirm which columns are non-numeric:
+
 str(count)
-
-# Remove ".expected_count" from the column names
-colnames(count) <- gsub(".expected_count", "", colnames(count))
-
-# Set the gene_id as rownames
-rownames(count) <- count$gene_id
-count$gene_id <- NULL
-  
-# Subset only the numeric columns (from column 1 onwards, based on your data structure)
-numeric_columns <- count[, 1:ncol(count)]
-
-# Round the numeric values
- numeric_columns <- round(numeric_columns)
- 
-# Replace the original numeric columns with the rounded values
-count[, 1:ncol(count)] <- numeric_columns
+View(count)
 
 
 # Check the updated data
@@ -118,9 +104,10 @@ pca2 <- ggplot(PCA_data, aes(x = PC1, y = PC2, shape = genotype, color = day)) +
 
 pca2
 
-ggsave(filename = "/Users/satabdi/Downloads/rscripts/Results/pca2.pdf", plot = pca2, width = 6, height = 4.5, units = "in")
+ggsave(filename = "/Users/satabdi/Downloads/pca2.pdf", plot = pca2, width = 6, height = 4.5, units = "in")
 
 #Identifying Bic-induced genes in DMSO ####
+
 rstbl_d0_wt.vs.het <- results(dds_run, contrast = c("conditions", "Rai1.het_d0", "Rai1.wt_d0"), alpha = 0.05)
 rstbl_d0_wt.vs.ko <- results(dds_run, contrast = c("conditions", "Rai1.ko_d0", "Rai1.wt_d0"), alpha = 0.05)
 rstbl_d3_wt.vs.het <- results(dds_run, contrast = c("conditions", "Rai1.het_d3", "Rai1.wt_d3"), alpha = 0.05)
@@ -136,7 +123,7 @@ summary(rstbl_d7_wt.vs.het)
 summary(rstbl_d7_wt.vs.ko)
 
 
-#Add gene symbol and entrezID and print result tables
+#Add ENSEMBL and entrezID and print result tables
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
@@ -152,10 +139,9 @@ columns(org.Hs.eg.db)
 ## Write restables for Bic-regulated genes
 
 add_symbol <- function(restable, filename) {
-  restable$entrezid <- mapIds(org.Hs.eg.db, keys=row.names(restable), column="ENTREZID", keytype="SYMBOL", multiVals="first")
+  restable$entrezid <- mapIds(org.Hs.eg.db, keys=row.names(restable), column="ENTREZID", keytype="ENSEMBL", multiVals="first")
   write.table(restable, file = filename, sep = "\t")
 }
-
 restable_list <- list(rstbl_d0_wt.vs.het, rstbl_d0_wt.vs.ko, rstbl_d3_wt.vs.het, rstbl_d3_wt.vs.ko, rstbl_d7_wt.vs.het, rstbl_d7_wt.vs.ko)
 
 restable_names <- c("rstbl_d0_wt.vs.het", "rstbl_d0_wt.vs.ko", "rstbl_d3_wt.vs.het", "rstbl_d3_wt.vs.ko", "rstbl_d7_wt.vs.het", "rstbl_d7_wt.vs.ko")
@@ -163,31 +149,22 @@ restable_names <- c("rstbl_d0_wt.vs.het", "rstbl_d0_wt.vs.ko", "rstbl_d3_wt.vs.h
 #Verify that restable_list is populated:
 length(restable_list)
 
-#3. Modify the add_symbol function:
-add_symbol <- function(restable, filename) {
-  # Check that SYMBOL column exists
-  if ("SYMBOL" %in% colnames(restable)) {
-    restable$entrezid <- mapIds(org.Hs.eg.db, keys = restable$SYMBOL, column = "ENTREZID", keytype = "SYMBOL", multiVals = "first")
-  } else {
-    warning("SYMBOL column not found in the data frame")
-  }
-  write.table(restable, file = filename, sep = "\t", row.names = FALSE)
-}
-
+library(AnnotationDbi)
+library(org.Hs.eg.db)
 #Run the loop:
 for (i in 1:length(restable_list)) {
   restable <- restable_list[[i]]
-  filename <- paste0("/Users/satabdi/Downloads/rscripts/Results/", restable_names[i], ".txt")
+  filename <- paste0("/Users/satabdi/Downloads/", restable_names[i], ".txt")
   add_symbol(restable, filename)
 }
 
 # read the restable
-rstbl_d0_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d0_wt.vs.het.txt")
-rstbl_d0_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d0_wt.vs.ko.txt")
-rstbl_d3_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d3_wt.vs.het.txt")
-rstbl_d3_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d3_wt.vs.ko.txt")
-rstbl_d7_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d7_wt.vs.het.txt")
-rstbl_d7_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d7_wt.vs.ko.txt")
+rstbl_d0_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d0_wt.vs.het.txt")
+rstbl_d0_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d0_wt.vs.ko.txt")
+rstbl_d3_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d3_wt.vs.het.txt")
+rstbl_d3_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d3_wt.vs.ko.txt")
+rstbl_d7_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d7_wt.vs.het.txt")
+rstbl_d7_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d7_wt.vs.ko.txt")
 
 
 head(rstbl_d0_wt.vs.het)
@@ -224,7 +201,7 @@ gene_n <- c(nrow(up_d0_wt.vs.het), nrow(up_d0_wt.vs.ko),
             nrow(down_d0_wt.vs.het), nrow(down_d0_wt.vs.ko),
             nrow(down_d3_wt.vs.het), nrow(down_d3_wt.vs.ko),
             nrow(down_d7_wt.vs.het), nrow(down_d7_wt.vs.ko))
-            
+
 
 degene_n <- data.frame(row.names = condition, direction = direction, genotype = genotype, day = time, gene_n = gene_n)
 degene_n
@@ -241,19 +218,8 @@ bar1 <- ggplot(degene_n, aes(x = day, y = gene_n, fill = direction)) +
 
 bar1
 
-ggsave(filename = "/Users/satabdi/Downloads/rscripts/Results/degene_n_bar.pdf", plot = bar1, width = 6, height = 4, units = "in")
+ggsave(filename = "/Users/satabdi/Downloads/degene_n_bar.pdf", plot = bar1, width = 6, height = 4, units = "in")
 
 #################################################
 ##################################################
-
-##load gplot and make the heatmap
-install.packages("gplots")
-library(gplots)
-heatmap.2(FC_all_Bic_genes_HM_DMX, Rowv=TRUE, scale="none", trace="none", col=my_palette, xlab="none", 
-          ylab="phylum", margins=c(10,5), key.ylab = NA, keysize = 0.5, density.info = "none", cexRow = 0.2)
-
-heatmap.2(FC_all_Bic_genes_HM_DMX, col=my_palette, xlab="none", 
-          keysize = 0.5, density.info = "none", cexRow = 0.2)
-
-
 
