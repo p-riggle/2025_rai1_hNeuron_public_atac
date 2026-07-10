@@ -1,5 +1,9 @@
 # ==================================================
-# 0️⃣ Load Libraries
+#  GO Cellular Component enrichment 
+# ==================================================
+
+# ==================================================
+#  Load Libraries
 # ==================================================
 
 library(clusterProfiler)
@@ -12,28 +16,34 @@ library(tidyr)
 library(stringr)
 
 # ==================================================
-# 1️⃣ Read Data
+# Read Data
 # ==================================================
 
 clh_raw <- read.delim("/Users/satabdi/Downloads/cluster_clh.txt")
 clk_raw <- read.delim("/Users/satabdi/Downloads/cluster_clk.txt")
 
+# check
+head(clh_raw$gene)
+
 # ==================================================
-# 2️⃣ Split Clusters
+#  Split Clusters
 # ==================================================
 
 cl_list <- clh_raw %>%
   group_split(cluster) %>%
-  setNames(paste0("Cluster", unique(clh_raw$cluster))) %>%
-  lapply(function(df) df$gene)
+  setNames(paste0("Cluster", sort(unique(clh_raw$cluster)))) %>%
+  lapply(function(df) unique(df$gene))
 
 clk_list <- clk_raw %>%
   group_split(cluster) %>%
-  setNames(paste0("Cluster", unique(clk_raw$cluster))) %>%
-  lapply(function(df) df$gene)
+  setNames(paste0("Cluster", sort(unique(clk_raw$cluster)))) %>%
+  lapply(function(df) unique(df$gene))
+
+# confirm before mapping
+str(cl_list)
 
 # ==================================================
-# 3️⃣ Map SYMBOL → ENTREZ
+# Map ENSEMBL ID to ENTREZ ID
 # ==================================================
 
 map_genes_to_entrez <- function(gene_list) {
@@ -43,7 +53,7 @@ map_genes_to_entrez <- function(gene_list) {
     org.Hs.eg.db,
     keys = gene_list,
     column = "ENTREZID",
-    keytype = "SYMBOL",
+    keytype = "ENSEMBL",
     multiVals = "first"
   )
   
@@ -55,12 +65,8 @@ map_genes_to_entrez <- function(gene_list) {
 cl_list  <- lapply(cl_list, map_genes_to_entrez)
 clk_list <- lapply(clk_list, map_genes_to_entrez)
 
-# Remove clusters with very few genes
-cl_list  <- cl_list[sapply(cl_list, length) > 5]
-clk_list <- clk_list[sapply(clk_list, length) > 5]
-
 # ==================================================
-# 4️⃣ GO Cellular Component Enrichment
+#  GO Cellular Component Enrichment
 # ==================================================
 
 clhgo_cc <- compareCluster(
@@ -75,8 +81,6 @@ clhgo_cc <- compareCluster(
   minGSSize     = 5
 )
 
-clhgo_cc <- setReadable(clhgo_cc, OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
-
 clkgo_cc <- compareCluster(
   geneCluster   = clk_list,
   fun           = enrichGO,
@@ -89,90 +93,139 @@ clkgo_cc <- compareCluster(
   minGSSize     = 5
 )
 
-clkgo_cc <- setReadable(clkgo_cc, OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
+# Keep ENTREZ-based data frames for joining/ranking
+clh_cc_df_entrez <- as.data.frame(clhgo_cc) %>% filter(!is.na(p.adjust))
+clk_cc_df_entrez <- as.data.frame(clkgo_cc) %>% filter(!is.na(p.adjust))
 
 # ==================================================
-# 5️⃣ Convert Results to Data Frame
+# Load DEG results table for per-gene ranking
 # ==================================================
 
-clh_cc_df <- as.data.frame(clhgo_cc) %>%
-  filter(!is.na(p.adjust))
+degs_table <- read.delim("/Users/satabdi/Downloads/combined_restables.txt", row.names = 1)
+degs_table$ensembl_id <- rownames(degs_table)
 
-clk_cc_df <- as.data.frame(clkgo_cc) %>%
-  filter(!is.na(p.adjust))
+# identify all padj columns 
+padj_cols <- grep("^padj_", colnames(degs_table), value = TRUE)
+
+# ==================================================
+# Convert a vector of Entrez IDs to Ensembl IDs
+# ==================================================
+
+entrez_to_ensembl <- function(entrez_ids) {
+  mapIds(org.Hs.eg.db, keys = entrez_ids, column = "ENSEMBL",
+         keytype = "ENTREZID", multiVals = "first")
+}
+
+# ==================================================
+# Convert a vector of Ensembl IDs to gene symbols
+# ==================================================
+
+ensembl_to_symbol <- function(ensembl_ids) {
+  mapIds(org.Hs.eg.db, keys = ensembl_ids, column = "SYMBOL",
+         keytype = "ENSEMBL", multiVals = "first")
+}
 
 
 # ==================================================
-# 6️⃣ Get Top 4 Cellular Components per Cluster
+# Get Top 4 Cellular Components per Cluster (p.adjust < 0.05)
 # ==================================================
+
 get_top4_CC <- function(df) {
   df %>%
+    dplyr::filter(p.adjust < 0.05) %>%              
     dplyr::group_by(Cluster) %>%
     dplyr::arrange(p.adjust, .by_group = TRUE) %>%
     dplyr::slice_head(n = 4) %>%
     dplyr::ungroup() %>%
-    dplyr::select(Cluster,
-                  Description,
-                  p.adjust,
-                  GeneRatio,
-                  BgRatio,
-                  Count)
+    dplyr::select(Cluster, Description, p.adjust, GeneRatio, BgRatio, Count)
 }
 
-clh_top4_CC <- get_top4_CC(clh_cc_df)
-clk_top4_CC <- get_top4_CC(clk_cc_df)
+clh_top4_CC <- get_top4_CC(clh_cc_df_entrez)
+clk_top4_CC <- get_top4_CC(clk_cc_df_entrez)
 
 # ==================================================
-# 7️⃣ Get Top 4 Genes per Top 4 CC per Cluster
+# Get Top 4 Genes per Top 4 CC per Cluster (p.adjust < 0.05)
 # ==================================================
 
-get_top4_genes_per_CC <- function(df) {
-  
+get_top4_genes_per_CC_ranked <- function(df, degs_table, padj_cols) {
   df %>%
-    
+    dplyr::filter(p.adjust < 0.05) %>%             
     dplyr::group_by(Cluster) %>%
     dplyr::arrange(p.adjust, .by_group = TRUE) %>%
     dplyr::slice_head(n = 4) %>%
-    
-    
-    tidyr::separate_rows(geneID, sep = "/") %>%
-    
-    
-    dplyr::group_by(Cluster, Description) %>%
-    dplyr::slice_head(n = 4) %>%
-    
     dplyr::ungroup() %>%
-    
-    
-    dplyr::select(Cluster,
-                  Description,
-                  geneID,
-                  p.adjust)
+    tidyr::separate_rows(geneID, sep = "/") %>%
+    dplyr::rename(entrez_id = geneID) %>%
+    dplyr::mutate(ensembl_id = entrez_to_ensembl(entrez_id)) %>%
+    dplyr::left_join(
+      degs_table %>% dplyr::select(ensembl_id, dplyr::all_of(padj_cols)),
+      by = "ensembl_id"
+    ) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(min_padj = suppressWarnings(min(dplyr::c_across(dplyr::all_of(padj_cols)), na.rm = TRUE))) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by(Cluster, Description) %>%
+    dplyr::arrange(min_padj, .by_group = TRUE) %>%
+    dplyr::slice_head(n = 4) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(symbol = ensembl_to_symbol(ensembl_id)) %>%
+    dplyr::select(Cluster, Description, ensembl_id, symbol, min_padj, p.adjust)
 }
 
-
-clh_top4_genes <- get_top4_genes_per_CC(clh_cc_df)
-clk_top4_genes <- get_top4_genes_per_CC(clk_cc_df)
+clh_top4_genes <- get_top4_genes_per_CC_ranked(clh_cc_df_entrez, degs_table, padj_cols)
+clk_top4_genes <- get_top4_genes_per_CC_ranked(clk_cc_df_entrez, degs_table, padj_cols)
 # ==================================================
-# 8️⃣ Dotplots
+# Attach gene symbols to the CC summary tables 
+# ==================================================
+
+add_symbol_list <- function(cc_df, full_entrez_df) {
+  cc_df %>%
+    dplyr::left_join(
+      full_entrez_df %>%
+        dplyr::select(Cluster, Description, geneID) %>%
+        dplyr::rowwise() %>%
+        dplyr::mutate(
+          symbol_list = paste(
+            ensembl_to_symbol(entrez_to_ensembl(str_split(geneID, "/")[[1]])),
+            collapse = "/"
+          )
+        ) %>%
+        dplyr::ungroup() %>%
+        dplyr::select(Cluster, Description, symbol_list),
+      by = c("Cluster", "Description")
+    )
+}
+
+clh_top4_CC <- add_symbol_list(clh_top4_CC, clh_cc_df_entrez)
+clk_top4_CC <- add_symbol_list(clk_top4_CC, clk_cc_df_entrez)
+
+# ==================================================
+# Convert to symbol-readable versions for the dotplots
+# ==================================================
+
+clhgo_cc_readable <- setReadable(clhgo_cc, OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
+clkgo_cc_readable <- setReadable(clkgo_cc, OrgDb = org.Hs.eg.db, keyType = "ENTREZID")
+
+# ==================================================
+# Dotplots
 # ==================================================
 
 dpgo_cc1 <- dotplot(
-  clhgo_cc,
+  clhgo_cc_readable,
   showCategory = 10,
   font.size = 12,
-  title = "Hierarchical Clustering – GO Cellular Component"
+  title = "Hierarchical Clustering \u2013 GO Cellular Component"
 )
 
 dpgo_cc2 <- dotplot(
-  clkgo_cc,
+  clkgo_cc_readable,
   showCategory = 10,
   font.size = 12,
-  title = "K-means Clustering – GO Cellular Component"
+  title = "K-means Clustering \u2013 GO Cellular Component"
 )
 
 # ==================================================
-# 9️⃣ Save Figure
+#  Save Figure
 # ==================================================
 
 pdf(sprintf(
@@ -184,7 +237,7 @@ grid.arrange(dpgo_cc1, dpgo_cc2, ncol = 2)
 dev.off()
 
 # ==================================================
-# 🔟 Save Results Tables
+# Save Results Tables (Ensembl ID retained + symbol attached)
 # ==================================================
 
 write.csv(clh_top4_CC,
