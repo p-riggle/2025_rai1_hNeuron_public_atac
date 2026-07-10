@@ -3,7 +3,7 @@
 # Q: Are differentiation marker genes expressed in an expected ways?
 
 # Read the data
-tpm <- read.delim("/Users/satabdi/Downloads/rscripts/ineurons_gene_expected_count.annot (1).txt", header = TRUE, sep = "\t")
+tpm <- read.delim("/Users/satabdi/Downloads/gene_TPM.annot.txt", header = TRUE, sep = "\t")
 head(tpm)
 
 # Clean column names
@@ -18,9 +18,10 @@ tpm <- tpm[c(1:4,5,16,27,35,9:12,22:25,36:39,13:17,26:30,40,6:8,18:21,31:34)]
 colnames(tpm)
 
 
-
 #Remove extra or duplicated Columns
 tpm <- tpm[, -c(24, 27)]
+colnames(tpm)
+head(tpm)
 colnames(tpm)
 
 # Renaming the column Names
@@ -38,7 +39,11 @@ new_colnames <- c(
 colnames(tpm)[5:40] <- new_colnames
 
 # Load necessary libraries
-#install.packages("tidyverse")
+library(dplyr)  # for data manipulation
+library(tidyr)  # for data reshaping
+library(ggplot2)  # for plotting
+
+install.packages("tidyverse")
 library(tidyverse)
 
 # Make function for line plotting
@@ -62,7 +67,12 @@ plot_gene_expression <- function(gene_name) {
   
   # Define color scheme
   library(colorspace)
-  my_colors <- sequential_hcl(3, palette = "TealGrn") 
+  # Custom colors
+  my_colors <- c(
+    "wt"  = "#7b7b7b",  # gray (WT)
+    "het" = "#f1d174",  # yellow (HET)
+    "ko"  = "#bd6565"   # red (KO)
+  )
   
   # Calculate mean and standard error for each genotype and day
   gene_summary <- gene_data_long %>%
@@ -103,7 +113,12 @@ plot_gene_expression_nolegend <- function(gene_name) {
   
   # Define color scheme
   library(colorspace)
-  my_colors <- sequential_hcl(3, palette = "TealGrn") 
+  # Custom colors
+  my_colors <- c(
+    "wt"  = "#7b7b7b",  # gray (WT)
+    "het" = "#f1d174",  # yellow (HET)
+    "ko"  = "#bd6565"   # red (KO)
+  )
   
   # Calculate mean and standard error for each genotype and day
   gene_summary <- gene_data_long %>%
@@ -128,31 +143,31 @@ plot_gene_expression_nolegend <- function(gene_name) {
 
 
 # Make lineplots
-#install.packages("ggpubr")
+install.packages("ggpubr")
 library("ggpubr")
 
-#install.packages("colorspace")
+install.packages("colorspace")
 library(colorspace)
 
 
 # RAI1
 rai1 <- plot_gene_expression("RAI1") 
 rai1
-pdf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/lineplot_rai1.pdf", width = 4.6, height = 4)
+pdf("/Users/satabdi/Downloads/lineplot_rai1.pdf", width = 4.6, height = 4)
 print(rai1)
 dev.off()
 
 #BDNF
 bdnf <- plot_gene_expression("BDNF") 
 bdnf
-pdf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/lineplot_bdnf.pdf", width = 4.6, height = 4)
+pdf("/Users/satabdi/Downloads/lineplot_bdnf.pdf", width = 4.6, height = 4)
 print(bdnf)
 dev.off()
 
 #TH
 th <- plot_gene_expression_nolegend("TH") 
 th
-pdf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/lineplot_TH.pdf", width = 4.6, height = 4)
+pdf("/Users/satabdi/Downloads/lineplot_TH.pdf", width = 4.6, height = 4)
 print(th)
 dev.off()
 
@@ -162,7 +177,7 @@ nanog <- plot_gene_expression("NANOG")
 
 lp_stemcell <- ggarrange(pou5f1, nanog, lable = c("A", "B"), ncol = 2, nrow = 1)
 lp_stemcell 
-pdf(sprintf("r/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/lineplot_stemcells.pdf", Sys.Date()), width = 9, height = 4)
+pdf(sprintf("/Users/satabdi/Downloads/lineplot_stemcells.pdf", Sys.Date()), width = 9, height = 4)
 print(lp_stemcell)
 dev.off()
 
@@ -185,7 +200,7 @@ cux1 <- plot_gene_expression_nolegend("CUX1") #BRN2
 # arrage the neuronal markers into one figure
 library(gridExtra)
 
-pdf(sprintf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/%s_lp_neuron.pdf", Sys.Date()), width = 12, height = 9)
+pdf(sprintf("/Users/satabdi/Downloads/%s_lp_neuron.pdf", Sys.Date()), width = 12, height = 9)
 grid.arrange(
   arrangeGrob(pax6, otx1, emx1, foxg1, ncol = 4, top = "Neural Progenitor"), 
   arrangeGrob(eomes, tbr1, bcl11b, ncol = 4, top = "Deeper Layer Neurons"),
@@ -215,7 +230,7 @@ gpr34 <- plot_gene_expression_nolegend("GPR34")
 # arrange the plots using grid.arrange
 library(gridExtra)
 library(ggplot2)
-pdf(sprintf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/%s_lp_glia.pdf", Sys.Date()), width = 12, height = 9)
+pdf(sprintf("/Users/satabdi/Downloads/%s_lp_glia.pdf", Sys.Date()), width = 12, height = 9)
 grid.arrange(
   arrangeGrob(gfap, aldh1l1, s100b, sox9, ncol = 4, top = "Astrocyte"), 
   arrangeGrob(olig2, mbp, sox10, ncol = 4, top = "Oligodendrocyte"),
@@ -235,7 +250,7 @@ npas2 <- plot_gene_expression_nolegend("NPAS2")
 reverba <- plot_gene_expression_nolegend("NR1D1")
 reverbb <- plot_gene_expression_nolegend("NR1D2")
 
-pdf(sprintf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/%s_lp_clockgenes.pdf", Sys.Date()), width = 12, height = 9)
+pdf(sprintf("/Users/satabdi/Downloads/%s_lp_clockgenes.pdf", Sys.Date()), width = 12, height = 9)
 grid.arrange(
   arrangeGrob(clock, bmal1, ncol = 4, top = "Core Clock Genes"), 
   arrangeGrob(per1, per2, cry1, cry2, ncol = 4),
@@ -243,6 +258,22 @@ grid.arrange(
   heights = c(1, 1, 1)
 )
 dev.off()
+
+hes1 <- plot_gene_expression_nolegend("HES1")
+eomes <- plot_gene_expression_nolegend("EOMES")
+neurog2 <- plot_gene_expression_nolegend("NEUROG2")
+
+pdf(sprintf("/Users/satabdi/Downloads/%s_lp_neurogenesis_genes.pdf", Sys.Date()),
+    width = 9, height = 4)
+
+grid.arrange(
+  hes1, eomes, neurog2,
+  ncol = 3,
+  top = "Neural Progenitor and Neurogenesis Genes"
+)
+
+dev.off()
+
 
 # cilia markers
 arl13b <- plot_gene_expression("ARL13B")
@@ -253,11 +284,56 @@ adcy3
 
 # make combined plot for cilia marker
 
-pdf(sprintf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/%s_lp_ciliagenes.pdf", Sys.Date()), width = 8, height = 4)
+pdf(sprintf("/Users/satabdi/Downloads/%s_lp_ciliagenes.pdf", Sys.Date()), width = 8, height = 4)
 grid.arrange(
   arrangeGrob(arl13b, adcy3, ncol = 2, top = "Cilia markers")
 )
 dev.off()
 
+library(gridExtra)
+
+#Human Specific Genes
+genes_of_interest <- unique(c(
+  "SRGAP2C","SRGAP2B","GADD45G","ARHGAP11B","TMEM14B","CROCCP2","TRNP1",
+  "TBC1D3E","PPP1R17","ZEB2","FOXP2",
+  "POTEI","POTEF","FLRT1",
+  "NOTCH2NLA","NOTCH2NLB","NOTCH2NLC",
+  "PDGFD","SYNGAP1","FLRT3","FZD8",
+  "SRGAP2P1","SRGAP2L","SRGAP2P2",
+  "POTE2B","POTE2A","POTEACTIN","A26C1B",
+  "HARE5","N2N","NOTCH2NL","ETM6","NIID","OPDM3",
+  "CROCCL1","HAR5",
+  "CLOCK","BMAL1","PER1","PER2","CRY1","CRY2",
+  "NPAS2","NR1D1","NR1D2"
+))
+
+# Generate plots
+gene_plots <- lapply(genes_of_interest, function(gene) {
+  tryCatch(
+    plot_gene_expression_nolegend(gene),
+    error = function(e) {
+      message("Skipping ", gene, ": ", e$message)
+      NULL
+    }
+  )
+})
 
 
+names(gene_plots) <- genes_of_interest
+
+# Remove failed plots
+gene_plots <- gene_plots[!sapply(gene_plots, is.null)]
+
+pdf("/Users/satabdi/Downloads/Human_Specific_and_Clock_Genes.pdf", width = 14, height = 10)
+
+for(i in seq(1, length(gene_plots), by = 4)) {
+  
+  current_plots <- gene_plots[i:min(i + 3, length(gene_plots))]
+  
+  do.call(
+    grid.arrange,
+    c(current_plots, ncol = 2)
+  )
+}
+
+dev.off()
