@@ -1,43 +1,47 @@
 # ==========================================================
-# 1️⃣ Load libraries
+# Load libraries
 # ==========================================================
-
+install.packages(c("dplyr", "tidyr", "ggplot2"))
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-
 # ==========================================================
-# 2️⃣ Gene list
+# Gene list
 # ==========================================================
-
 genes_of_interest <- c(
   "SRGAP2C","SRGAP2P1","SRGAP2B","SRGAP2L","SYNGAP1","SRGAP2P2","PPP1R17",
   "POTEI","POTE2beta","POTEF","A26C1B","POTEACTIN","POTE2alpha","HARE5",
   "ZEB2","PDGFD","NOTCH2NLA","N2N","NOTCH2NL","NOTCH2NLB","NOTCH2NLC",
-  "ETM6","NIID","OPDM3","ARHGAP11B","TBC1D3E","TMEM14B","CROCCP2","CROCCL1"
+  "ETM6","NIID","OPDM3","ARHGAP11B","TBC1D3E","TMEM14B","CROCCP2","CROCCL1",
+  "HAR5","FZD8","FOXP2","FZD8","GADD45G","FLRT1","FLRT3","TRNP1"
 )
-
 # ==========================================================
-# 3️⃣ Load datasets
+# Load datasets
 # ==========================================================
 
 astro_het  <- read.csv("/Users/satabdi/Downloads/rstbl_Astro_wt.vs.het.csv")
 astro_ko   <- read.csv("/Users/satabdi/Downloads/rstbl_Astro_wt.vs.ko.csv")
 
+
 ipc_het    <- read.csv("/Users/satabdi/Downloads/rstbl_IPC_wt.vs.het.csv")
 ipc_ko     <- read.csv("/Users/satabdi/Downloads/rstbl_IPC_wt.vs.ko.csv")
+
 
 mesko_het  <- read.csv("/Users/satabdi/Downloads/rstbl_MesKO_wt.vs.het.csv")
 mesko_ko   <- read.csv("/Users/satabdi/Downloads/rstbl_MesKO_wt.vs.ko.csv")
 
+
 meswt_het  <- read.csv("/Users/satabdi/Downloads/rstbl_MesWT_wt.vs.het.csv")
 meswt_ko   <- read.csv("/Users/satabdi/Downloads/rstbl_MesWT_wt.vs.ko.csv")
+
 
 neuron_het <- read.csv("/Users/satabdi/Downloads/rstbl_Neuron_wt.vs.het.csv")
 neuron_ko  <- read.csv("/Users/satabdi/Downloads/rstbl_Neuron_wt.vs.ko.csv")
 
+
 npcg1_het  <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG1_wt.vs.het.csv")
 npcg1_ko   <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG1_wt.vs.ko.csv")
+
 
 npcg2m_het <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.het.csv")
 npcg2m_ko  <- read.csv("/Users/satabdi/Downloads/rstbl_NPCG2M_wt.vs.ko.csv")
@@ -60,7 +64,7 @@ extract_data <- function(df, celltype, comparison){
 }
 
 # ==========================================================
-# 5️⃣ Combine all datasets
+# Combine all datasets
 # ==========================================================
 
 combined <- bind_rows(
@@ -91,7 +95,7 @@ combined <- combined %>%
   mutate(Group = paste(CellType, Comparison, sep = "_"))
 
 # ==========================================================
-# 6️⃣ Fix padj and create significance score
+# Fix padj and create significance score
 # ==========================================================
 
 dot_data <- combined %>%
@@ -102,7 +106,7 @@ dot_data <- combined %>%
   )
 
 # ==========================================================
-# 7️⃣ Order groups 
+# Order groups 
 # ==========================================================
 
 desired_order <- c(
@@ -115,11 +119,12 @@ desired_order <- c(
   "Astro_WT_vs_HET","Astro_WT_vs_KO"
 )
 
-dot_data$Group <- factor(dot_data$Group, levels = desired_order)
-dot_data$gene  <- factor(dot_data$gene, levels = genes_of_interest)
+genes_of_interest <- unique(genes_of_interest)
+
+dot_data$gene <- factor(dot_data$gene, levels = genes_of_interest)
 
 # ==========================================================
-# 8️⃣ Generate Dot Plot
+# Generate Dot Plot
 # ==========================================================
 
 dot_plot <- ggplot(dot_data,
@@ -130,7 +135,7 @@ dot_plot <- ggplot(dot_data,
                  size = neglog10_padj),
              shape = 21,
              color = "black",
-             stroke = 0.6) +   # slightly thicker border
+             stroke = 0.6) +   
   
   scale_fill_gradient2(
     low = "blue",
@@ -162,9 +167,8 @@ dot_plot <- ggplot(dot_data,
 
 dot_plot
 
-
 # ==========================================================
-# 9️⃣ Save Dot Plot
+# Save Dot Plot
 # ==========================================================
 
 ggsave("/Users/satabdi/Downloads/human_specific_gene_dotplot.pdf",
