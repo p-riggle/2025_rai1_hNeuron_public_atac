@@ -2,19 +2,17 @@
 # this script generates PCA plot and bar plot of DEgene numbers foe ineuron RNA-seq Data set 
 
 ## Load DEseq2 ####
-installed.packages("DESeq2")
-install.packages("BiocManager")
-install.packages("dplyr")
+# installed.packages("DESeq2")
+# install.packages("BiocManager")
+# install.packages("dplyr")
 
-
-BiocManager::install("DESeq2")
 library(DESeq2)
 
 #Load forestmngr to do rounding of numbers
 library(dplyr)
 
 #import gene count file
-count <- read.delim("/Users/satabdi/Downloads/gene_expected_count.annot.txt")
+count <- read.delim("data/ineuron/gene_expected_count.annot.txt")
 colnames(count) <- gsub(".expected_count","",colnames(count))
 colnames(count)
 
@@ -104,7 +102,7 @@ pca2 <- ggplot(PCA_data, aes(x = PC1, y = PC2, shape = genotype, color = day)) +
 
 pca2
 
-ggsave(filename = "/Users/satabdi/Downloads/pca2.pdf", plot = pca2, width = 6, height = 4.5, units = "in")
+ggsave(filename = "results/ineuron/deseq2/pca2.pdf", plot = pca2, width = 6, height = 4.5, units = "in")
 
 #Identifying Bic-induced genes in DMSO ####
 
@@ -154,17 +152,19 @@ library(org.Hs.eg.db)
 #Run the loop:
 for (i in 1:length(restable_list)) {
   restable <- restable_list[[i]]
-  filename <- paste0("/Users/satabdi/Downloads/", restable_names[i], ".txt")
+  filename <- paste0("results/ineuron/deseq2/", restable_names[i], ".txt")
   add_symbol(restable, filename)
 }
 
+
+
 # read the restable
-rstbl_d0_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d0_wt.vs.het.txt")
-rstbl_d0_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d0_wt.vs.ko.txt")
-rstbl_d3_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d3_wt.vs.het.txt")
-rstbl_d3_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d3_wt.vs.ko.txt")
-rstbl_d7_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d7_wt.vs.het.txt")
-rstbl_d7_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d7_wt.vs.ko.txt")
+rstbl_d0_wt.vs.het <- read.delim("results/ineuron/deseq2/rstbl_d0_wt.vs.het.txt")
+rstbl_d0_wt.vs.ko <- read.delim("results/ineuron/deseq2/rstbl_d0_wt.vs.ko.txt")
+rstbl_d3_wt.vs.het <- read.delim("results/ineuron/deseq2/rstbl_d3_wt.vs.het.txt")
+rstbl_d3_wt.vs.ko <- read.delim("results/ineuron/deseq2/rstbl_d3_wt.vs.ko.txt")
+rstbl_d7_wt.vs.het <- read.delim("results/ineuron/deseq2/rstbl_d7_wt.vs.het.txt")
+rstbl_d7_wt.vs.ko <- read.delim("results/ineuron/deseq2/rstbl_d7_wt.vs.ko.txt")
 
 
 head(rstbl_d0_wt.vs.het)
@@ -218,8 +218,23 @@ bar1 <- ggplot(degene_n, aes(x = day, y = gene_n, fill = direction)) +
 
 bar1
 
-ggsave(filename = "/Users/satabdi/Downloads/degene_n_bar.pdf", plot = bar1, width = 6, height = 4, units = "in")
+ggsave(filename = "results/ineuron/deseq2/degene_n_bar.pdf", plot = bar1, width = 6, height = 4, units = "in")
 
-#################################################
-##################################################
+# save the deg list as a excel file with each tab wt.vs.het and wt.vs.ko for each day
+library(openxlsx)
+wb <- createWorkbook()
+addWorksheet(wb, "d0_wt.vs.het")
+writeData(wb, "d0_wt.vs.het", rstbl_d0_wt.vs.het)
+addWorksheet(wb, "d0_wt.vs.ko")
+writeData(wb, "d0_wt.vs.ko", rstbl_d0_wt.vs.ko)
+addWorksheet(wb, "d3_wt.vs.het")
+writeData(wb, "d3_wt.vs.het", rstbl_d3_wt.vs.het)
+addWorksheet(wb, "d3_wt.vs.ko")
+writeData(wb, "d3_wt.vs.ko", rstbl_d3_wt.vs.ko)
+addWorksheet(wb, "d7_wt.vs.het")
+writeData(wb, "d7_wt.vs.het", rstbl_d7_wt.vs.het)
+addWorksheet(wb, "d7_wt.vs.ko")
+writeData(wb, "d7_wt.vs.ko", rstbl_d7_wt.vs.ko)
+saveWorkbook(wb, "results/ineuron/deseq2/degene_list.xlsx", overwrite = TRUE)
+
 
