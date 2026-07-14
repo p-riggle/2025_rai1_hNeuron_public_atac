@@ -221,6 +221,7 @@ bar1
 ggsave(filename = "results/ineuron/deseq2/degene_n_bar.pdf", plot = bar1, width = 6, height = 4, units = "in")
 
 # save the deg list as a excel file with each tab wt.vs.het and wt.vs.ko for each day
+# install.packages("openxlsx")
 library(openxlsx)
 wb <- createWorkbook()
 addWorksheet(wb, "d0_wt.vs.het")
