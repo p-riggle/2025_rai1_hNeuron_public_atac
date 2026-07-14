@@ -3,16 +3,20 @@
 # 2. Scatter
 
 # read restable
-d0_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d0_wt.vs.het.txt")
-d0_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d0_wt.vs.ko.txt")
-d3_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d3_wt.vs.het.txt")
-d3_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d3_wt.vs.ko.txt")
-d7_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d7_wt.vs.het.txt")
-d7_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rscripts/Results/rstbl_d7_wt.vs.ko.txt")
+d0_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d0_wt.vs.het.txt")
+d0_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d0_wt.vs.ko.txt")
+d3_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d3_wt.vs.het.txt")
+d3_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d3_wt.vs.ko.txt")
+d7_wt.vs.het <- read.delim("/Users/satabdi/Downloads/rstbl_d7_wt.vs.het.txt")
+d7_wt.vs.ko <- read.delim("/Users/satabdi/Downloads/rstbl_d7_wt.vs.ko.txt")
 
 
 # # 1. Venn
-install.packages("VennDiagram")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("biomaRt")
+install.packages("BioVenn")
 library(BioVenn)
 
 list_z <- NULL
@@ -33,7 +37,7 @@ d0.het.vs.ko <- draw.venn(d0_het_degenes, d0_ko_degenes, list_z,
                           y_c = "yellow", ytitle = "RAI1-KO", yt_f = "Helvetica", 
                           nrtype = "abs", nr_f = "Helvetica", 
                           output = "pdf", 
-                          filename = sprintf("/Users/satabdi/Downloads/rscripts/Results/%s-d0_het.vs.ko-biovenn.pdf", Sys.Date()))
+                          filename = sprintf("/Users/satabdi/Downloads/%s-d0_het.vs.ko-biovenn.pdf", Sys.Date()))
 
 d3.het.vs.ko <- draw.venn(d3_het_degenes, d3_ko_degenes, list_z, 
                            title = "DEG Overlap: Day 3", t_f = "Helvetica", 
@@ -42,7 +46,7 @@ d3.het.vs.ko <- draw.venn(d3_het_degenes, d3_ko_degenes, list_z,
                            y_c = "yellow", ytitle = "RAI1-KO", yt_f = "Helvetica", 
                            nrtype = "abs", nr_f = "Helvetica", 
                            output = "pdf", 
-                           filename = sprintf("/Users/satabdi/Downloads/rscripts/Results/%s-d3_het.vs.ko-biovenn.pdf", Sys.Date()))
+                           filename = sprintf("/Users/satabdi/Downloads/%s-d3_het.vs.ko-biovenn.pdf", Sys.Date()))
 
 d7.het.vs.ko <- draw.venn(d7_het_degenes, d7_ko_degenes, list_z, 
                            title = "DEG Overlap: Day 7", t_f = "Helvetica", 
@@ -51,31 +55,8 @@ d7.het.vs.ko <- draw.venn(d7_het_degenes, d7_ko_degenes, list_z,
                            y_c = "yellow", ytitle = "RAI1-KO", yt_f = "Helvetica", 
                            nrtype = "abs", nr_f = "Helvetica", 
                            output = "pdf", 
-                           filename = sprintf("/Users/satabdi/Downloads/rscripts/Results/%s-d7_het.vs.ko-biovenn.pdf", Sys.Date()))
+                           filename = sprintf("/Users/satabdi/Downloads/%s-d7_het.vs.ko-biovenn.pdf", Sys.Date()))
 
-#Not able to run this code
-'''
-# combine the three Venn diagrams into one pdf file --> gave up on this, because it is not possible to combine pdf files with Rv
-testvenn <- draw.venn(d0_het_degenes, d0_ko_degenes, list_z, 
-                      title = "DEG Overlap: Day 0", t_f = "Helvetica", 
-                      subtitle = NULL, 
-                      x_c = "#000096", xtitle = "RAI1-HET", xt_f = "Helvetica", 
-                      y_c = "yellow", ytitle = "RAI1-KO", yt_f = "Helvetica", 
-                      nrtype = "abs", nr_f = "Helvetica", 
-                      output = "svg", 
-                      filename = sprintf("/Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/%s-d0_het.vs.ko-biovenn.svg", Sys.Date()))
-
-# install.packages("grImport2")
-install.packages("rsvg", dependencies = TRUE)
-library("rsvg")
-library(grImport2)
-library(gridExtra)
-library(ggplot2)
-
-testv1 <- rsvg_svg("Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/2025-03-04-d0_het.vs.ko-biovenn.svg")
-testv <- readPicture("Users/satabdimohanty/Desktop/U-M/Iwase Lab/Project/ineurons_RNA_seq/Results/2025-03-04-d0_het.vs.ko-biovenn.svg.xml")
-
-'''
 
 
 # chi square test: practice
@@ -85,16 +66,22 @@ chisq.test(data_frame$treatment, data_frame$improvement, correct = FALSE)
 
 # chi square test: real data
 # create a data frame with the DEG counts for each time point
-genes <- rownames(d0_wt.vs.het)
-d0_het <- d0_wt.vs.het$padj < 0.05
-d0_ko <- d0_wt.vs.ko$padj < 0.05
-d3_het <- d3_wt.vs.het$padj < 0.05
-d3_ko <- d3_wt.vs.ko$padj < 0.05
-d7_het <- d7_wt.vs.het$padj < 0.05
-d7_ko <- d7_wt.vs.ko$padj < 0.05
+get_padj <- function(df) {
+  df[[grep("_padj$", colnames(df), value = TRUE)]]
+}
 
+genes <- rownames(d0_wt.vs.het)
+d0_het <- get_padj(d0_wt.vs.het) < 0.05
+d0_ko  <- get_padj(d0_wt.vs.ko)  < 0.05
+d3_het <- get_padj(d3_wt.vs.het) < 0.05
+d3_ko  <- get_padj(d3_wt.vs.ko)  < 0.05
+d7_het <- get_padj(d7_wt.vs.het) < 0.05
+d7_ko  <- get_padj(d7_wt.vs.ko)  < 0.05
 
 df.chi <- data.frame(genes, d0_het, d0_ko, d3_het, d3_ko, d7_het, d7_ko)
+
+
+
 head(df.chi)
 # remove NA values
 df.chi <- df.chi[complete.cases(df.chi), ]
@@ -103,7 +90,7 @@ d3chi <- chisq.test(df.chi$d3_het, df.chi$d3_ko, correct = FALSE)
 d7chi <- chisq.test(df.chi$d7_het, df.chi$d7_ko, correct = FALSE)
 
 library(ggplot2)
-#install.packages("ggstance")
+install.packages("ggstance")
 library(ggstance)
 
 # create the data frame
@@ -121,7 +108,7 @@ library(gridExtra)
 chi.table <- gridExtra::tableGrob(df.chi, rows = NULL, theme = ttheme_default(base_size = 12))
 print(chi.table)
 
-pdf(sprintf("/Users/satabdi/Downloads/rscripts/Results/%s-chisq.pdf", Sys.Date()), width = 8, height = 6)
+pdf(sprintf("/Users/satabdi/Downloads/%s-chisq.pdf", Sys.Date()), width = 8, height = 6)
 grid.arrange(chi.table, ncol = 1)
 dev.off()
 
@@ -151,6 +138,7 @@ d3deg <- subset(all_rstbl, d3_wt.vs.het_padj < 0.05 | d3_wt.vs.ko_padj < 0.05)
 d7deg <- subset(all_rstbl, d7_wt.vs.het_padj < 0.05 | d7_wt.vs.ko_padj < 0.05)
 
 library(ggplot2)
+install.packages("hexbin")
 library(hexbin)
 
 d0_scatter <- ggplot(d0deg, aes(x = d0_wt.vs.het_log2FoldChange, y = d0_wt.vs.ko_log2FoldChange)) + 
@@ -198,6 +186,6 @@ d7_scatter
 
 # arrange the four plots in one pdf file
 library(gridExtra)
-pdf(sprintf("/Users/satabdi/Downloads/rscripts/Results/%s-log2fc_scatter.pdf", Sys.Date()), width = 10, height = 8)
+pdf(sprintf("/Users/satabdi/Downloads/%s-log2fc_scatter.pdf", Sys.Date()), width = 10, height = 8)
 grid.arrange(d0_scatter, d3_scatter, d7_scatter, ncol = 2)
 dev.off()

@@ -1,47 +1,47 @@
-"Cluster","Description","geneID","p.adjust"
-"Cluster1","I band","FHL5",0.00899927549138697
-"Cluster1","I band","CASQ2",0.00899927549138697
-"Cluster1","I band","JPH2",0.00899927549138697
-"Cluster1","I band","ACTC1",0.00899927549138697
-"Cluster1","contractile muscle fiber","ABCC9",0.00335735561459835
-"Cluster1","contractile muscle fiber","FHL5",0.00335735561459835
-"Cluster1","contractile muscle fiber","CASQ2",0.00335735561459835
-"Cluster1","contractile muscle fiber","KCNJ8",0.00335735561459835
-"Cluster1","myofibril","ABCC9",0.00335735561459835
-"Cluster1","myofibril","FHL5",0.00335735561459835
-"Cluster1","myofibril","CASQ2",0.00335735561459835
-"Cluster1","myofibril","KCNJ8",0.00335735561459835
-"Cluster1","sarcomere","ABCC9",0.00899927549138697
-"Cluster1","sarcomere","FHL5",0.00899927549138697
-"Cluster1","sarcomere","CASQ2",0.00899927549138697
-"Cluster1","sarcomere","JPH2",0.00899927549138697
-"Cluster2","endoplasmic reticulum lumen","COL1A1",0.00154014347994121
-"Cluster2","endoplasmic reticulum lumen","SPP1",0.00154014347994121
-"Cluster2","endoplasmic reticulum lumen","IGFBP3",0.00154014347994121
-"Cluster2","endoplasmic reticulum lumen","GPX8",0.00154014347994121
-"Cluster3","chloride channel complex","GABRA3",0.0011090634879712
-"Cluster3","chloride channel complex","GABRA1",0.0011090634879712
-"Cluster3","chloride channel complex","SLC17A6",0.0011090634879712
-"Cluster3","chloride channel complex","GABRE",0.0011090634879712
-"Cluster3","postsynaptic membrane","GABRA3",0.000465360720863478
-"Cluster3","postsynaptic membrane","GABRA1",0.000465360720863478
-"Cluster3","postsynaptic membrane","GABRE",0.000465360720863478
-"Cluster3","postsynaptic membrane","PLPPR4",0.000465360720863478
-"Cluster3","presynaptic membrane","CNR1",3.98121273444439e-05
-"Cluster3","presynaptic membrane","UNC13C",3.98121273444439e-05
-"Cluster3","presynaptic membrane","PPFIA2",3.98121273444439e-05
-"Cluster3","presynaptic membrane","GLRA3",3.98121273444439e-05
-"Cluster3","synaptic membrane","GABRA3",1.97690151365148e-06
-"Cluster3","synaptic membrane","GABRA1",1.97690151365148e-06
-"Cluster3","synaptic membrane","GABRE",1.97690151365148e-06
-"Cluster3","synaptic membrane","PLPPR4",1.97690151365148e-06
-"Cluster4","chromosome passenger complex","BIRC5",0.0162018956238578
-"Cluster4","chromosome passenger complex","AURKB",0.0162018956238578
-"Cluster4","condensed chromosome, centromeric region","BIRC5",0.0162018956238578
-"Cluster4","condensed chromosome, centromeric region","CENPA",0.0162018956238578
-"Cluster4","condensed chromosome, centromeric region","KIF2C",0.0162018956238578
-"Cluster4","condensed chromosome, centromeric region","SPC24",0.0162018956238578
-"Cluster4","late endosome lumen","PGA4",0.0162018956238578
-"Cluster4","late endosome lumen","PGA5",0.0162018956238578
-"Cluster4","multivesicular body lumen","PGA4",0.0162018956238578
-"Cluster4","multivesicular body lumen","PGA5",0.0162018956238578
+"Cluster","Description","ensembl_id","symbol","min_padj","p.adjust"
+"Cluster1","contractile muscle fiber","ENSG00000196296","ATP2A1",1.35830257154921e-41,8.18679534515054e-05
+"Cluster1","contractile muscle fiber","ENSG00000196218","RYR1",3.54568067369189e-28,8.18679534515054e-05
+"Cluster1","contractile muscle fiber","ENSG00000248746","ACTN3",5.00394823967942e-21,8.18679534515054e-05
+"Cluster1","contractile muscle fiber","ENSG00000069431","ABCC9",6.70411140227401e-20,8.18679534515054e-05
+"Cluster1","monoatomic ion channel complex","ENSG00000113448","PDE4D",3.71008164146085e-42,0.000809536531304375
+"Cluster1","monoatomic ion channel complex","ENSG00000196296","ATP2A1",1.35830257154921e-41,0.000809536531304375
+"Cluster1","monoatomic ion channel complex","ENSG00000138435","CHRNA1",1.91808354861918e-28,0.000809536531304375
+"Cluster1","monoatomic ion channel complex","ENSG00000196218","RYR1",3.54568067369189e-28,0.000809536531304375
+"Cluster1","myofibril","ENSG00000196296","ATP2A1",1.35830257154921e-41,8.18679534515054e-05
+"Cluster1","myofibril","ENSG00000196218","RYR1",3.54568067369189e-28,8.18679534515054e-05
+"Cluster1","myofibril","ENSG00000248746","ACTN3",5.00394823967942e-21,8.18679534515054e-05
+"Cluster1","myofibril","ENSG00000069431","ABCC9",6.70411140227401e-20,8.18679534515054e-05
+"Cluster1","sarcomere","ENSG00000196296","ATP2A1",1.35830257154921e-41,0.000201814685745173
+"Cluster1","sarcomere","ENSG00000196218","RYR1",3.54568067369189e-28,0.000201814685745173
+"Cluster1","sarcomere","ENSG00000248746","ACTN3",5.00394823967942e-21,0.000201814685745173
+"Cluster1","sarcomere","ENSG00000069431","ABCC9",6.70411140227401e-20,0.000201814685745173
+"Cluster2","chloride channel complex","ENSG00000011677","GABRA3",8.3856013000372e-19,0.00518317101475924
+"Cluster2","chloride channel complex","ENSG00000091664","SLC17A6",3.24886501920103e-17,0.00518317101475924
+"Cluster2","chloride channel complex","ENSG00000146276","GABRR1",1.30049401931657e-10,0.00518317101475924
+"Cluster2","chloride channel complex","ENSG00000145451","GLRA3",1.56715841774469e-09,0.00518317101475924
+"Cluster2","postsynaptic membrane","ENSG00000198739","LRRTM3",1.82536116454623e-53,0.000121385471875979
+"Cluster2","postsynaptic membrane","ENSG00000082556","OPRK1",1.26795399170396e-50,0.000121385471875979
+"Cluster2","postsynaptic membrane","ENSG00000198934","MAGEE1",6.75693223819185e-45,0.000121385471875979
+"Cluster2","postsynaptic membrane","ENSG00000187323","DCC",3.53098563541399e-32,0.000121385471875979
+"Cluster2","presynaptic membrane","ENSG00000082556","OPRK1",1.26795399170396e-50,3.35400287668661e-06
+"Cluster2","presynaptic membrane","ENSG00000137766","UNC13C",4.03672596921415e-31,3.35400287668661e-06
+"Cluster2","presynaptic membrane","ENSG00000183775","KCTD16",1.11812841538232e-26,3.35400287668661e-06
+"Cluster2","presynaptic membrane","ENSG00000139220","PPFIA2",1.26089062344111e-22,3.35400287668661e-06
+"Cluster2","synaptic membrane","ENSG00000198739","LRRTM3",1.82536116454623e-53,4.95379656078675e-07
+"Cluster2","synaptic membrane","ENSG00000082556","OPRK1",1.26795399170396e-50,4.95379656078675e-07
+"Cluster2","synaptic membrane","ENSG00000198934","MAGEE1",6.75693223819185e-45,4.95379656078675e-07
+"Cluster2","synaptic membrane","ENSG00000154654","NCAM2",1.35830257154921e-41,4.95379656078675e-07
+"Cluster3","chromosome passenger complex","ENSG00000089685","BIRC5",9.50074552062404e-22,0.00538890871435995
+"Cluster3","chromosome passenger complex","ENSG00000178999","AURKB",4.12488886824e-18,0.00538890871435995
+"Cluster3","condensed chromosome, centromeric region","ENSG00000089685","BIRC5",9.50074552062404e-22,0.00254449514534244
+"Cluster3","condensed chromosome, centromeric region","ENSG00000161888","SPC24",3.08485757859834e-21,0.00254449514534244
+"Cluster3","condensed chromosome, centromeric region","ENSG00000117399","CDC20",2.25472560819173e-18,0.00254449514534244
+"Cluster3","condensed chromosome, centromeric region","ENSG00000178999","AURKB",4.12488886824e-18,0.00254449514534244
+"Cluster3","kinetochore","ENSG00000089685","BIRC5",9.50074552062404e-22,0.00254449514534244
+"Cluster3","kinetochore","ENSG00000161888","SPC24",3.08485757859834e-21,0.00254449514534244
+"Cluster3","kinetochore","ENSG00000117399","CDC20",2.25472560819173e-18,0.00254449514534244
+"Cluster3","kinetochore","ENSG00000178999","AURKB",4.12488886824e-18,0.00254449514534244
+"Cluster3","spindle","ENSG00000198624","CCDC69",1.40996694791961e-25,0.00365376633921567
+"Cluster3","spindle","ENSG00000089685","BIRC5",9.50074552062404e-22,0.00365376633921567
+"Cluster3","spindle","ENSG00000117399","CDC20",2.25472560819173e-18,0.00365376633921567
+"Cluster3","spindle","ENSG00000112984","KIF20A",2.88916258042677e-18,0.00365376633921567
