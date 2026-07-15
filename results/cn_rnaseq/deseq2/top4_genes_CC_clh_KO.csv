@@ -1,0 +1,64 @@
+Cluster,Cellular_Component,Gene,p.adjust
+Cluster1,elastic fiber,MFAP4,0.000134417
+Cluster1,elastic fiber,TGFBI,0.000134417
+Cluster1,elastic fiber,BGN,0.000134417
+Cluster1,elastic fiber,DCN,0.000134417
+Cluster1,interstitial matrix,COL3A1,0.000655632
+Cluster1,interstitial matrix,MFAP4,0.000655632
+Cluster1,interstitial matrix,TGFBI,0.000655632
+Cluster1,interstitial matrix,BGN,0.000655632
+Cluster1,non-collagenous component of interstitial matrix,MFAP4,0.000216461
+Cluster1,non-collagenous component of interstitial matrix,TGFBI,0.000216461
+Cluster1,non-collagenous component of interstitial matrix,BGN,0.000216461
+Cluster1,non-collagenous component of interstitial matrix,DCN,0.000216461
+Cluster1,solid phase of interstitial matrix,COL3A1,0.000134417
+Cluster1,solid phase of interstitial matrix,MFAP4,0.000134417
+Cluster1,solid phase of interstitial matrix,TGFBI,0.000134417
+Cluster1,solid phase of interstitial matrix,BGN,0.000134417
+Cluster3,axon terminus,GRIK3,0.000763732
+Cluster3,axon terminus,SCGN,0.000763732
+Cluster3,axon terminus,GHRH,0.000763732
+Cluster3,axon terminus,CALB2,0.000763732
+Cluster3,neuron projection terminus,GRIK3,0.000914979
+Cluster3,neuron projection terminus,SCGN,0.000914979
+Cluster3,neuron projection terminus,GHRH,0.000914979
+Cluster3,neuron projection terminus,CALB2,0.000914979
+Cluster3,neuronal cell body,GRIK3,0.000129342
+Cluster3,neuronal cell body,PDYN,0.000129342
+Cluster3,neuronal cell body,CARTPT,0.000129342
+Cluster3,neuronal cell body,SCN1A,0.000129342
+Cluster3,synaptic membrane,LRFN2,0.000914979
+Cluster3,synaptic membrane,GRIK3,0.000914979
+Cluster3,synaptic membrane,ICAM5,0.000914979
+Cluster3,synaptic membrane,GABRA5,0.000914979
+Cluster4,collagenous component of interstitial matrix,COL5A1,0.00024736
+Cluster4,collagenous component of interstitial matrix,COL12A1,0.00024736
+Cluster4,collagenous component of interstitial matrix,COL1A1,0.00024736
+Cluster4,endoplasmic reticulum lumen,COL5A1,0.000179818
+Cluster4,endoplasmic reticulum lumen,TNC,0.000179818
+Cluster4,endoplasmic reticulum lumen,COL12A1,0.000179818
+Cluster4,endoplasmic reticulum lumen,ADAMTSL1,0.000179818
+Cluster4,interstitial matrix,COL5A1,0.000135722
+Cluster4,interstitial matrix,TNC,0.000135722
+Cluster4,interstitial matrix,COL12A1,0.000135722
+Cluster4,interstitial matrix,COL1A1,0.000135722
+Cluster4,solid phase of interstitial matrix,COL5A1,0.00024736
+Cluster4,solid phase of interstitial matrix,COL12A1,0.00024736
+Cluster4,solid phase of interstitial matrix,COL1A1,0.00024736
+Cluster4,solid phase of interstitial matrix,MFAP5,0.00024736
+Cluster5,9+2 motile cilium,CFAP95,2.7001834807944e-53
+Cluster5,9+2 motile cilium,MYCBPAP,2.7001834807944e-53
+Cluster5,9+2 motile cilium,CFAP57,2.7001834807944e-53
+Cluster5,9+2 motile cilium,AK8,2.7001834807944e-53
+Cluster5,axoneme,CFAP95,7.32865963686086e-61
+Cluster5,axoneme,ERICH3,7.32865963686086e-61
+Cluster5,axoneme,MYCBPAP,7.32865963686086e-61
+Cluster5,axoneme,CFAP57,7.32865963686086e-61
+Cluster5,ciliary plasm,CFAP95,7.32865963686086e-61
+Cluster5,ciliary plasm,ERICH3,7.32865963686086e-61
+Cluster5,ciliary plasm,MYCBPAP,7.32865963686086e-61
+Cluster5,ciliary plasm,CFAP57,7.32865963686086e-61
+Cluster5,motile cilium,CFAP95,3.64356515474011e-54
+Cluster5,motile cilium,MYCBPAP,3.64356515474011e-54
+Cluster5,motile cilium,CFAP57,3.64356515474011e-54
+Cluster5,motile cilium,AK8,3.64356515474011e-54

@@ -1,0 +1,53 @@
+"Cluster","Cellular_Component","Gene","p.adjust"
+"Cluster1","excitatory synapse","GRIA2",0.000659180193388546
+"Cluster1","excitatory synapse","SLC17A6",0.000659180193388546
+"Cluster1","excitatory synapse","GRIA3",0.000659180193388546
+"Cluster1","excitatory synapse","SLC17A7",0.000659180193388546
+"Cluster1","monoatomic ion channel complex","CACNG5",0.000181269397363997
+"Cluster1","monoatomic ion channel complex","KCNA1",0.000181269397363997
+"Cluster1","monoatomic ion channel complex","CNGB1",0.000181269397363997
+"Cluster1","monoatomic ion channel complex","GABRB1",0.000181269397363997
+"Cluster1","synaptic membrane","CACNG5",0.000659180193388546
+"Cluster1","synaptic membrane","KCNA1",0.000659180193388546
+"Cluster1","synaptic membrane","LRFN2",0.000659180193388546
+"Cluster1","synaptic membrane","GABRB1",0.000659180193388546
+"Cluster1","transmembrane transporter complex","CACNG5",0.000659180193388546
+"Cluster1","transmembrane transporter complex","KCNA1",0.000659180193388546
+"Cluster1","transmembrane transporter complex","CNGB1",0.000659180193388546
+"Cluster1","transmembrane transporter complex","GABRB1",0.000659180193388546
+"Cluster2","collagen trimer","COL16A1",2.75759912290466e-11
+"Cluster2","collagen trimer","COL4A3",2.75759912290466e-11
+"Cluster2","collagen trimer","COL3A1",2.75759912290466e-11
+"Cluster2","collagen trimer","LUM",2.75759912290466e-11
+"Cluster2","complex of collagen trimers","COL16A1",5.27630462935242e-12
+"Cluster2","complex of collagen trimers","COL4A3",5.27630462935242e-12
+"Cluster2","complex of collagen trimers","COL3A1",5.27630462935242e-12
+"Cluster2","complex of collagen trimers","LUM",5.27630462935242e-12
+"Cluster2","interstitial matrix","COL16A1",7.46920936672462e-13
+"Cluster2","interstitial matrix","FN1",7.46920936672462e-13
+"Cluster2","interstitial matrix","EGFLAM",7.46920936672462e-13
+"Cluster2","interstitial matrix","COL3A1",7.46920936672462e-13
+"Cluster2","solid phase of interstitial matrix","COL16A1",2.62825589239531e-11
+"Cluster2","solid phase of interstitial matrix","FN1",2.62825589239531e-11
+"Cluster2","solid phase of interstitial matrix","COL3A1",2.62825589239531e-11
+"Cluster2","solid phase of interstitial matrix","LUM",2.62825589239531e-11
+"Cluster4","cardiac myofibril","CRYAB",0.00632806014901615
+"Cluster4","cardiac myofibril","TNNT2",0.00632806014901615
+"Cluster4","solid phase of basement membrane","LAMA3",0.0374337574876942
+"Cluster4","solid phase of basement membrane","COL8A2",0.0374337574876942
+"Cluster6","axoneme","CFAP300",1.7884106943946e-08
+"Cluster6","axoneme","DNAI2",1.7884106943946e-08
+"Cluster6","axoneme","ROPN1L",1.7884106943946e-08
+"Cluster6","axoneme","KIF19",1.7884106943946e-08
+"Cluster6","ciliary plasm","CFAP300",1.7884106943946e-08
+"Cluster6","ciliary plasm","DNAI2",1.7884106943946e-08
+"Cluster6","ciliary plasm","ROPN1L",1.7884106943946e-08
+"Cluster6","ciliary plasm","KIF19",1.7884106943946e-08
+"Cluster6","motile cilium","CFAP300",7.53688905720964e-07
+"Cluster6","motile cilium","DNAI2",7.53688905720964e-07
+"Cluster6","motile cilium","ADGB",7.53688905720964e-07
+"Cluster6","motile cilium","ROPN1L",7.53688905720964e-07
+"Cluster6","nucleosome","H1-2",2.36413866985247e-08
+"Cluster6","nucleosome","H2BC7",2.36413866985247e-08
+"Cluster6","nucleosome","H2BC8",2.36413866985247e-08
+"Cluster6","nucleosome","H3-7",2.36413866985247e-08
