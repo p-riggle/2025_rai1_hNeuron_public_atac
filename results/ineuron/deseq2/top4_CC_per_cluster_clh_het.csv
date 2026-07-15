@@ -1,0 +1,15 @@
+Cluster,Cellular_Component,p.adjust,GeneRatio,Count
+Cluster1,monoatomic ion channel complex,0.000181269,16/196,16
+Cluster1,excitatory synapse,0.00065918,7/196,7
+Cluster1,transmembrane transporter complex,0.00065918,17/196,17
+Cluster1,synaptic membrane,0.00065918,16/196,16
+Cluster2,interstitial matrix,7.46920936672462e-13,18/283,18
+Cluster2,complex of collagen trimers,5.27630462935242e-12,12/283,12
+Cluster2,solid phase of interstitial matrix,2.62825589239531e-11,14/283,14
+Cluster2,collagen trimer,2.75759912290466e-11,12/283,12
+Cluster4,cardiac myofibril,0.00632806,Feb-36,2
+Cluster4,solid phase of basement membrane,0.037433757,Feb-36,2
+Cluster6,axoneme,1.7884106943946e-08,13/102,13
+Cluster6,ciliary plasm,1.7884106943946e-08,13/102,13
+Cluster6,nucleosome,2.36413866985247e-08,10/102,10
+Cluster6,motile cilium,7.53688905720964e-07,13/102,13
