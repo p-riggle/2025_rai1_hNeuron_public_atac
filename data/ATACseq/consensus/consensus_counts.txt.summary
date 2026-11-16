@@ -1,0 +1,15 @@
+Status	/nfs/turbo/umms-siwase/PARIS/rai1_hesc/2025_ATAC-seq/Data/Fastq/fastqs_14204-BZ/filtered_bam/WT1.filtered.bam	/nfs/turbo/umms-siwase/PARIS/rai1_hesc/2025_ATAC-seq/Data/Fastq/fastqs_14204-BZ/filtered_bam/WT2.filtered.bam	/nfs/turbo/umms-siwase/PARIS/rai1_hesc/2025_ATAC-seq/Data/Fastq/fastqs_14204-BZ/filtered_bam/KO1.filtered.bam	/nfs/turbo/umms-siwase/PARIS/rai1_hesc/2025_ATAC-seq/Data/Fastq/fastqs_14204-BZ/filtered_bam/KO2.filtered.bam
+Assigned	30409119	30011697	30335305	30964215
+Unassigned_Unmapped	0	0	0	0
+Unassigned_Read_Type	0	0	0	0
+Unassigned_Singleton	0	0	0	0
+Unassigned_MappingQuality	0	0	0	0
+Unassigned_Chimera	0	0	0	0
+Unassigned_FragmentLength	0	0	0	0
+Unassigned_Duplicate	0	0	0	0
+Unassigned_MultiMapping	0	0	0	0
+Unassigned_Secondary	0	0	0	0
+Unassigned_NonSplit	0	0	0	0
+Unassigned_NoFeatures	95978439	95598701	79225038	79784815
+Unassigned_Overlapping_Length	0	0	0	0
+Unassigned_Ambiguity	29561	24389	29060	39596
