@@ -121,7 +121,9 @@ run_one <- function(tag, max_dist) {
   m$rna_sig <- abs(m$rna_lfc) > rna_lfc_cut & (if (has_padj) (!is.na(m$rna_padj) & m$rna_padj < rna_padj_cut) else TRUE)
   both    <- m$strict & m$rna_sig
   concord <- sign(m$atac_lfc) == sign(m$rna_lfc)
-  m$cat      <- ifelse(both & concord, "Concordant", ifelse(both, "Discordant", "Other"))
+  m$cat      <- ifelse(both & concord & m$atac_lfc > 0, "Concordant up", 
+                       ifelse(both & concord & m$atac_lfc < 0, "Concordant down", 
+                              ifelse(both, "Discordant", "Other")))
   m$atac_cat <- factor(ifelse(m$strict & m$atac_lfc > 0, "More open in KO",
                               ifelse(m$strict & m$atac_lfc < 0, "Less open in KO", "No sig. change")),
                        levels = c("Less open in KO", "No sig. change", "More open in KO"))
@@ -141,7 +143,7 @@ run_one <- function(tag, max_dist) {
                        if (is.finite(max_dist)) paste0(max_dist / 1000, " kb") else "any distance")
   
   # ---- scatter ----
-  cols <- c(Concordant = "#1b9e77", Discordant = "#d95f02")
+  cols <- c("Concordant up" = "firebrick", "Concordant down" = "steelblue", Discordant = "#000000")
   cat_n <- sprintf("%s (n = %d)", names(cols), sapply(names(cols), function(k) sum(m$cat == k)))
   lab <- m[both, ]
   lab <- head(lab[order(-abs(lab$atac_lfc * lab$rna_lfc)), ], n_label)
@@ -161,7 +163,7 @@ run_one <- function(tag, max_dist) {
     labs(x = "ATAC log2FC (KO/WT, shrunk), peak nearest each gene",
          y = "RNA-seq log2FC (KO/WT)", title = title_txt,
          subtitle = sprintf("Both changed: %d genes, %.0f%% concordant (sign test p %s)",
-                            n_both, ifelse(n_both > 0, 100 * n_con / n_both, NA), fmt_p(p_binom))) +
+                            n_both, ifelse(n_both > 0, 100 * sum(m$cat %in% c("Concordant up", "Concordant down")) / n_both, NA), fmt_p(p_binom))) +
     theme_classic()
   if (has_repel && nrow(lab) > 0)
     sc <- sc + ggrepel::geom_text_repel(data = lab, aes(label = SYMBOL), size = 3,

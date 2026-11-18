@@ -98,10 +98,15 @@ for (tag in names(sets)) {
   top$ontology <- factor(unname(ontologies[top$ontology]), levels = unname(ontologies))
   top <- top[order(top$ontology, top$GeneRatioNum), ]
   top$term <- factor(wrap(top$Description), levels = unique(wrap(top$Description)))
+  pval_colors <- switch(tag,
+    up = c("#B2182B", "#F4A582"),
+    down = c("#2166AC", "#92C5DE"),
+    c("#555555", "#CCCCCC")
+  )
   p <- ggplot(top, aes(GeneRatioNum, term, size = Count, color = p.adjust)) +
     geom_point() +
     facet_grid(ontology ~ ., scales = "free_y", space = "free_y") +
-    scale_color_gradient(low = "firebrick", high = "steelblue", name = "adj. p") +
+    scale_color_gradient(low = pval_colors[1], high = pval_colors[2], name = "adj. p") +
     scale_size_continuous(range = c(1.8, 6)) +
     labs(x = "Gene ratio", y = NULL, title = paste0("GO enrichment: ", s$label),
          subtitle = sprintf("%d genes vs %d-gene background; top %d terms per ontology",
