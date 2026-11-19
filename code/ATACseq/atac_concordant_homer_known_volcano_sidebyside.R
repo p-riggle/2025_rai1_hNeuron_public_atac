@@ -55,7 +55,6 @@ read_known <- function(path) {
 plot_sidebyside <- function() {
   # Read both datasets
   sets <- c(up_vs_background = "Up peaks", down_vs_background = "Down peaks")
-  colors <- c("Up peaks" = "#C0392B", "Down peaks" = "#2471A3")
   
   d <- bind_rows(lapply(names(sets), function(run) {
     f <- file.path(HOMER_DIR, run, "knownResults.txt")
@@ -63,16 +62,13 @@ plot_sidebyside <- function() {
     read_known(f) %>% 
       mutate(
         set = sets[[run]],
-        status = case_when(
-          qvalue < Q_CUT & log2fc >= FC_CUT ~ "Enriched",
-          qvalue < Q_CUT & log2fc <= -FC_CUT ~ "Depleted",
-          TRUE ~ "Not significant"
-        )
+        sig = qvalue < Q_CUT & abs(log2fc) >= FC_CUT,
+        grp = ifelse(sig, as.character(set), "Not significant"),
+        grp = factor(grp, levels = c(unname(sets), "Not significant"))
       )
   })) %>%
     mutate(
-      set = factor(set, levels = unname(sets)),
-      status = factor(status, levels = c("Enriched", "Depleted", "Not significant"))
+      set = factor(set, levels = unname(sets))
     )
   
   # Create individual plots for each set
@@ -80,9 +76,9 @@ plot_sidebyside <- function() {
     set_name <- sets[[run]]
     d_subset <- d %>% filter(set == set_name)
     
-    # Select labels: top N by p-value for enriched motifs
+    # Select labels: top N by p-value for significant motifs
     lab <- d_subset %>%
-      filter(status == "Enriched") %>%
+      filter(sig) %>%
       arrange(desc(neglog10p)) %>%
       distinct(label, .keep_all = TRUE) %>%
       slice_head(n = N_LABEL) %>%
@@ -90,21 +86,20 @@ plot_sidebyside <- function() {
     
     ds <- DESC[[run]]
     
-    p <- ggplot(d_subset, aes(log2fc, neglog10p, color = status)) +
+    p <- ggplot(d_subset, aes(log2fc, neglog10p, color = grp)) +
       geom_vline(xintercept = c(-FC_CUT, FC_CUT), linetype = "dashed",
                  color = "grey60", linewidth = 0.3) +
       geom_vline(xintercept = 0, linetype = "solid",
                  color = "grey40", linewidth = 0.5) +
-      geom_point(alpha = 0.6, size = 2) +
+      geom_point(data = filter(d_subset, !sig), alpha = 0.5, size = 1.5, color = "grey75") +
+      geom_point(data = filter(d_subset, sig),  alpha = 0.85, size = 2) +
       geom_text_repel(data = lab, aes(label = label), 
                       size = 3, max.overlaps = Inf,
                       box.padding = 0.4, min.segment.length = 0, 
                       show.legend = FALSE,
                       segment.color = "grey50", segment.size = 0.3) +
       scale_color_manual(
-        values = c("Enriched" = colors[set_name],
-                   "Depleted" = "grey70",
-                   "Not significant" = "grey90"),
+        values = c("Up peaks" = "firebrick", "Down peaks" = "steelblue", "Not significant" = "grey75"),
         name = NULL, drop = FALSE
       ) +
       scale_x_continuous(limits = c(0, NA)) +  # Only positive x-axis
