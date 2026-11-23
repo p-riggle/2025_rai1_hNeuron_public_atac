@@ -1,0 +1,168 @@
+$sc_cts_path
+[1] "../symlink_rai1_hesc/data/scRNAseq/iwaselab/cts"
+
+$bulk_counts_path
+[1] "../symlink_rai1_hesc/data/cn_rnaseq/blueberry_output/combine_counts/gene_expected_count.txt"
+
+$bulk_tpm_path
+[1] "../symlink_rai1_hesc/data/cn_rnaseq/blueberry_output/combine_counts/gene_TPM.txt"
+
+$bulk_deseq_paths
+                                           d20_het 
+"results/cn_rnaseq/deseq2/rstbl_d20_wt.vs.het.txt" 
+                                            d20_ko 
+ "results/cn_rnaseq/deseq2/rstbl_d20_wt.vs.ko.txt" 
+                                           d60_het 
+"results/cn_rnaseq/deseq2/rstbl_d60_wt.vs.het.txt" 
+                                            d60_ko 
+ "results/cn_rnaseq/deseq2/rstbl_d60_wt.vs.ko.txt" 
+
+$run_cell_qc
+[1] FALSE
+
+$seurat_obj_path
+[1] "../symlink_rai1_hesc/data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds"
+
+$out_dir
+[1] "results/scRNAseq/pseudobulk_vs_bulk"
+
+$days
+[1] "d20" "d60"
+
+$genotypes
+[1] "wt"  "het" "ko" 
+
+$contrasts
+$contrasts$het
+[1] "het" "wt" 
+
+$contrasts$ko
+[1] "ko" "wt"
+
+
+$bulk_exclude
+[1] "Rai1-het_d34_rep1" "Rai1-het_d60_rep4"
+
+$log_pseudocount
+[1] 1
+
+$expressed_min_pm
+[1] 1
+
+$min_total_counts_deseq
+[1] 10
+
+$deseq_beta_prior
+[1] TRUE
+
+$padj_cutoff
+[1] 0.05
+
+$n_hvg
+[1] 2000
+
+$n_pcs_decomp
+[1] 5
+
+$n_perm
+[1] 10000
+
+$n_expr_bins
+[1] 10
+
+$conf_level
+[1] 0.95
+
+$collagen_regex
+[1] "^COL[0-9]+A[0-9]+$"
+
+$random_seed
+[1] 42
+
+$base_size
+[1] 8
+
+$col_collagen
+[1] "#C0392B"
+
+$col_other
+[1] "grey65"
+
+$genotype_colors
+       WT       HET        KO 
+"#7b7b7b" "#E3B505" "#bd6565" 
+
+$platform_shapes
+      Bulk Pseudobulk 
+        21         24 
+
+$day_colors
+      d20       d60 
+"#4C9BE8" "#1B3A6B" 
+
+$n_label_collagen
+[1] 8
+
+$raster_dpi
+[1] 600
+
+$png_dpi
+[1] 300
+
+
+R version 4.4.0 (2024-04-24)
+Platform: x86_64-pc-linux-gnu
+Running under: Ubuntu 22.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.20.so;  LAPACK version 3.10.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Etc/UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] patchwork_1.2.0             ggrepel_0.9.5              
+ [3] ggplot2_3.5.1               readr_2.1.5                
+ [5] tibble_3.2.1                tidyr_1.3.1                
+ [7] dplyr_1.1.4                 edgeR_4.2.1                
+ [9] limma_3.60.4                DESeq2_1.44.0              
+[11] SummarizedExperiment_1.34.0 Biobase_2.64.0             
+[13] MatrixGenerics_1.16.0       matrixStats_1.3.0          
+[15] GenomicRanges_1.56.1        GenomeInfoDb_1.40.1        
+[17] IRanges_2.38.1              S4Vectors_0.42.1           
+[19] BiocGenerics_0.50.0         Matrix_1.7-0               
+
+loaded via a namespace (and not attached):
+ [1] beeswarm_0.4.0          gtable_0.3.5            lattice_0.22-6         
+ [4] tzdb_0.4.0              Cairo_1.6-2             vctrs_0.6.5            
+ [7] tools_4.4.0             generics_0.1.3          parallel_4.4.0         
+[10] fansi_1.0.6             pkgconfig_2.0.3         pheatmap_1.0.12        
+[13] RColorBrewer_1.1-3      lifecycle_1.0.4         GenomeInfoDbData_1.2.12
+[16] farver_2.1.2            compiler_4.4.0          textshaping_0.4.0      
+[19] statmod_1.5.0           munsell_0.5.1           codetools_0.2-20       
+[22] vipor_0.4.7             pillar_1.9.0            crayon_1.5.3           
+[25] BiocParallel_1.38.0     DelayedArray_0.30.1     abind_1.4-5            
+[28] nlme_3.1-164            tidyselect_1.2.1        locfit_1.5-9.10        
+[31] purrr_1.0.2             labeling_0.4.3          splines_4.4.0          
+[34] grid_4.4.0              colorspace_2.1-1        cli_3.6.3              
+[37] SparseArray_1.4.8       magrittr_2.0.3          S4Arrays_1.4.1         
+[40] utf8_1.2.4              withr_3.0.1             scales_1.3.0           
+[43] UCSC.utils_1.0.0        bit64_4.0.5             ggbeeswarm_0.7.2       
+[46] XVector_0.44.0          httr_1.4.7              bit_4.0.5              
+[49] ragg_1.3.2              hms_1.1.3               ggrastr_1.0.2          
+[52] mgcv_1.9-1              rlang_1.1.4             Rcpp_1.0.13            
+[55] glue_1.7.0              vroom_1.6.5             jsonlite_1.8.8         
+[58] R6_2.5.1                systemfonts_1.1.0       zlibbioc_1.50.0        
