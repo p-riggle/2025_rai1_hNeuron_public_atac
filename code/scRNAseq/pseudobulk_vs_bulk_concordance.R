@@ -226,6 +226,7 @@ CONFIG <- list(
   platform_shapes  = c(Bulk = 21, Pseudobulk = 24),
   day_colors       = c(d20 = "#4C9BE8", d60 = "#1B3A6B"),
   n_label_collagen = 8,
+  lfc_axis_limit   = 4,            # Fig2 axes +/- this; genes beyond are drawn on the edge, not removed
   # Fig 2 collagen DE status: bulk only (blue), pseudobulk only (yellow), both (green), neither (black)
   de_status_colors = c("#1F77B4", "#E3B505", "#1f6f1f", "black"),
   raster_dpi       = 600,
@@ -713,17 +714,34 @@ lfc_coll <- lfc_df %>% filter(collagen) %>%
 lfc_to_label <- lfc_coll %>% group_by(panel) %>%
   slice_max(abs(bulk_log2fc), n = CONFIG$n_label_collagen) %>% ungroup()
 
-lim <- quantile(abs(c(lfc_df$bulk_log2fc, lfc_df$sc_log2fc)), 0.999, na.rm = TRUE)
+# Axes are fixed at +/- lfc_axis_limit. No gene is dropped: genes beyond the window
+# are drawn on the panel edge (open triangles), and the OLS line and all
+# statistics use the true log2FC values of every gene.
+lim <- CONFIG$lfc_axis_limit
+pin_to_window <- function(df) df %>%
+  mutate(off_scale = abs(bulk_log2fc) > lim | abs(sc_log2fc) > lim,
+         x_plot = pmin(pmax(bulk_log2fc, -lim), lim),
+         y_plot = pmin(pmax(sc_log2fc, -lim), lim))
+lfc_plot  <- pin_to_window(lfc_df)
+lfc_coll  <- pin_to_window(lfc_coll)
+lfc_to_label <- pin_to_window(lfc_to_label)
+n_off <- lfc_plot %>% group_by(panel) %>%
+  summarise(n_off = sum(off_scale), .groups = "drop") %>%
+  mutate(label = sprintf("%s genes beyond \u00b1%g (on edge)  ", format(n_off, big.mark = ","), lim))
 p_lfc <- ggplot(lfc_df, aes(bulk_log2fc, sc_log2fc)) +
   geom_hline(yintercept = 0, linewidth = 0.2, color = "grey40") +
   geom_vline(xintercept = 0, linewidth = 0.2, color = "grey40") +
   geom_abline(slope = 1, intercept = 0, linewidth = 0.3, color = "grey30", linetype = "dotted") +
-  rast(geom_point(data = lfc_df %>% filter(!collagen), color = CONFIG$col_other,
-                  size = 0.25, alpha = 0.35, stroke = 0)) +
+  rast(geom_point(data = lfc_plot %>% filter(!collagen), aes(x_plot, y_plot, shape = off_scale),
+                  color = CONFIG$col_other, size = 0.25, alpha = 0.35, stroke = 0.2)) +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "black",
               linewidth = 0.4, linetype = "dashed") +
-  geom_point(data = lfc_coll, aes(color = de_status), size = 1.2, alpha = 0.9, stroke = 0) +
-  geom_text_repel(data = lfc_to_label, aes(label = gene, color = de_status), size = 2,
+  geom_point(data = lfc_coll, aes(x_plot, y_plot, color = de_status, shape = off_scale),
+             size = 1.2, alpha = 0.9, stroke = 0.5) +
+  scale_shape_manual(values = c(`FALSE` = 16, `TRUE` = 2), guide = "none") +
+  geom_text(data = n_off, aes(x = Inf, y = -Inf, label = label), hjust = 1, vjust = -0.5,
+            size = 1.8, color = "grey30", inherit.aes = FALSE) +
+  geom_text_repel(data = lfc_to_label, aes(x_plot, y_plot, label = gene, color = de_status), size = 2,
                   segment.size = 0.2, min.segment.length = 0, max.overlaps = Inf,
                   seed = CONFIG$random_seed, show.legend = FALSE) +
   geom_text(data = lfc_lab, aes(x = -Inf, y = Inf, label = indent_lines(label)), hjust = 0, vjust = 1.1,
@@ -736,7 +754,10 @@ p_lfc <- ggplot(lfc_df, aes(bulk_log2fc, sc_log2fc)) +
   labs(x = expression("Bulk RNA-seq " * log[2] * "FC"),
        y = expression("scRNA-seq pseudobulk " * log[2] * "FC"),
        title = "Genotype effects: pseudobulk vs bulk",
-       caption = "Grey: all other genes. Dashed: OLS fit; dotted: identity. log2FC from DESeq2 (betaPrior) on both platforms.") +
+       caption = paste0("Grey: all other genes. Dashed: OLS fit (all genes); dotted: identity. ",
+                        "log2FC from DESeq2 (betaPrior) on both platforms.\n",
+                        sprintf("Open triangles: |log2FC| > %g on either axis, drawn at the axis limit; ", lim),
+                        "fit and statistics use their true values.")) +
   theme_pub() + theme(legend.position = "right")
 save_plot(p_lfc, "Fig2_log2fc_scatter", 7.2, 6.0)
 
