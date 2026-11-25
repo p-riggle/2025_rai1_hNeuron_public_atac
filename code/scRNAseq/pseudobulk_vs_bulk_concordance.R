@@ -101,6 +101,8 @@
 #   * log2FC scatter: genes with >= 10 total counts across the samples of the
 #     contrast in the pseudobulk (DESeq2 pre-filter convention) and a non-NA
 #     bulk log2FC. Collagen genes failing this filter are listed in the tables.
+#     Collagen points are coloured by DE status (padj < 0.05 in bulk only,
+#     pseudobulk only, both, or neither).
 #
 #  Differential expression (pseudobulk)
 #   * DESeq2, design ~ conditions (day x genotype groups, both timepoints in one
@@ -224,6 +226,8 @@ CONFIG <- list(
   platform_shapes  = c(Bulk = 21, Pseudobulk = 24),
   day_colors       = c(d20 = "#4C9BE8", d60 = "#1B3A6B"),
   n_label_collagen = 8,
+  # Fig 2 collagen DE status: bulk only (blue), pseudobulk only (yellow), both (green), neither (black)
+  de_status_colors = c("#1F77B4", "#E3B505", "#1f6f1f", "black"),
   raster_dpi       = 600,
   png_dpi          = 300
 )
@@ -698,9 +702,17 @@ lfc_df <- lfc_long %>% filter(passes_filter)
 lfc_lab <- lfc_stats %>% filter(gene_set == "all genes passing filter")
 lfc_lab$label <- paste0(vapply(seq_len(nrow(lfc_lab)), function(i) stat_label(lfc_lab[i, ], TRUE), character(1)),
                         sprintf("\nsign agree (bulk DEG) = %.0f%%", 100 * lfc_lab$sign_concordance))
-lfc_coll <- lfc_df %>% filter(collagen)
+# Collagen points coloured by DE status (padj < padj_cutoff; NA padj = not DE).
+de_levels <- c("Bulk only", "Pseudobulk only", "Both", "Neither")
+de_colors <- setNames(CONFIG$de_status_colors, de_levels)
+lfc_coll <- lfc_df %>% filter(collagen) %>%
+  mutate(bulk_de = !is.na(bulk_padj) & bulk_padj < CONFIG$padj_cutoff,
+         sc_de   = !is.na(sc_padj) & sc_padj < CONFIG$padj_cutoff,
+         de_status = factor(case_when(bulk_de & sc_de ~ "Both", bulk_de ~ "Bulk only",
+                                      sc_de ~ "Pseudobulk only", TRUE ~ "Neither"), levels = de_levels))
 lfc_to_label <- lfc_coll %>% group_by(panel) %>%
   slice_max(abs(bulk_log2fc), n = CONFIG$n_label_collagen) %>% ungroup()
+
 lim <- quantile(abs(c(lfc_df$bulk_log2fc, lfc_df$sc_log2fc)), 0.999, na.rm = TRUE)
 p_lfc <- ggplot(lfc_df, aes(bulk_log2fc, sc_log2fc)) +
   geom_hline(yintercept = 0, linewidth = 0.2, color = "grey40") +
@@ -710,19 +722,23 @@ p_lfc <- ggplot(lfc_df, aes(bulk_log2fc, sc_log2fc)) +
                   size = 0.25, alpha = 0.35, stroke = 0)) +
   geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "black",
               linewidth = 0.4, linetype = "dashed") +
-  geom_point(data = lfc_coll, color = CONFIG$col_collagen, size = 1.1, alpha = 0.9, stroke = 0) +
-  geom_text_repel(data = lfc_to_label, aes(label = gene), size = 2, color = CONFIG$col_collagen,
-                  segment.size = 0.2, min.segment.length = 0, max.overlaps = Inf, seed = CONFIG$random_seed) +
+  geom_point(data = lfc_coll, aes(color = de_status), size = 1.2, alpha = 0.9, stroke = 0) +
+  geom_text_repel(data = lfc_to_label, aes(label = gene, color = de_status), size = 2,
+                  segment.size = 0.2, min.segment.length = 0, max.overlaps = Inf,
+                  seed = CONFIG$random_seed, show.legend = FALSE) +
   geom_text(data = lfc_lab, aes(x = -Inf, y = Inf, label = indent_lines(label)), hjust = 0, vjust = 1.1,
             size = 1.9, lineheight = 0.9, inherit.aes = FALSE) +
+  scale_color_manual(values = de_colors, drop = FALSE,
+                     name = sprintf("Collagen gene DE\n(DESeq2 padj < %g)", CONFIG$padj_cutoff)) +
+  guides(color = guide_legend(override.aes = list(size = 2))) +
   facet_wrap(~panel, nrow = 2) +
   coord_cartesian(xlim = c(-lim, lim), ylim = c(-lim, lim)) +
   labs(x = expression("Bulk RNA-seq " * log[2] * "FC"),
        y = expression("scRNA-seq pseudobulk " * log[2] * "FC"),
        title = "Genotype effects: pseudobulk vs bulk",
-       caption = "Red: collagen genes. Dashed: OLS fit; dotted: identity. log2FC from DESeq2 (betaPrior) on both platforms.") +
-  theme_pub()
-save_plot(p_lfc, "Fig2_log2fc_scatter", 6.0, 6.0)
+       caption = "Grey: all other genes. Dashed: OLS fit; dotted: identity. log2FC from DESeq2 (betaPrior) on both platforms.") +
+  theme_pub() + theme(legend.position = "right")
+save_plot(p_lfc, "Fig2_log2fc_scatter", 7.2, 6.0)
 
 # ============================================================================
 # 5. COLLAGEN-SPECIFIC DEVIATION (expression-matched permutation)

@@ -17,11 +17,37 @@ $bulk_deseq_paths
                                             d60_ko 
  "results/cn_rnaseq/deseq2/rstbl_d60_wt.vs.ko.txt" 
 
+$sc_cell_filter
+[1] "none"
+
 $run_cell_qc
 [1] FALSE
 
-$seurat_obj_path
-[1] "../symlink_rai1_hesc/data/scRNAseq/iwaselab/rdata/geo_so_sct_unintegrated_with_annos.rds"
+$sc_h5_template
+[1] "../symlink_rai1_hesc/data/scRNAseq/10x_analysis_11534-BZ/Sample_11534-BZ-Pool01/per_sample_outs/%s/count/sample_filtered_feature_bc_matrix.h5"
+
+$sc_h5_samples
+ day20_wt_rep1  day20_wt_rep2  day20_ko_rep1  day20_ko_rep2 day20_het_rep1 
+  "11534-BZ-2"   "11534-BZ-4"   "11534-BZ-6"   "11534-BZ-7"  "11534-BZ-10" 
+day20_het_rep2  day60_wt_rep1  day60_wt_rep2  day60_ko_rep1  day60_ko_rep2 
+ "11534-BZ-12"  "11534-BZ-14"  "11534-BZ-16"  "11534-BZ-18"  "11534-BZ-20" 
+day60_het_rep1 day60_het_rep2 
+ "11534-BZ-22"  "11534-BZ-24" 
+
+$seurat_min_features
+[1] 50
+
+$qc_min_features
+[1] 500
+
+$qc_max_percent_mt
+[1] 15
+
+$mt_regex
+[1] "^MT-"
+
+$h5_chunk_cells
+[1] 2000
 
 $out_dir
 [1] "results/scRNAseq/pseudobulk_vs_bulk"
@@ -102,6 +128,9 @@ $day_colors
 
 $n_label_collagen
 [1] 8
+
+$de_status_colors
+[1] "#1F77B4" "#E3B505" "#1f6f1f" "black"  
 
 $raster_dpi
 [1] 600
